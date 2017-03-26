@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Victorium</string>
+
+    <!--    main    -->
+    <string-array name="connectionTypeList">
+        <item>Server</item>
+        <item>Client</item>
+    </string-array>
+    <string name="UserNicknameText">UserName</string>
+    <string name="ConnectBtnText">Next</string>
+
+    <!--    lobby   -->
+    <string name="ipAddressText">192.168.[Server ip]</string>
+    <string name="ConnectBtnLobbyText">Connect</string>
+</resources>
