@@ -10,6 +10,6 @@
     <string name="ConnectBtnText">Next</string>
 
     <!--    lobby   -->
-    <string name="ipAddressText">192.168.[Server ip]</string>
+    <string name="ipAddressText">192.168.0.106</string>
     <string name="ConnectBtnLobbyText">Connect</string>
 </resources>

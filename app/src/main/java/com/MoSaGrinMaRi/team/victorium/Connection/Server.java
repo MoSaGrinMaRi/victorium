@@ -1,71 +1,45 @@
 package com.MoSaGrinMaRi.team.victorium.Connection;
 
+import android.app.Activity;
 import android.os.AsyncTask;
+import android.os.Build;
 
 import java.net.*;
 import java.io.*;
-import java.util.Enumeration;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Server extends AsyncTask<Void, String, Void> {
+public class Server extends AsyncTask<Activity, String, Void> {
 
-    static String line;
-    static String playerName;
+
+    List<ServerTread> connectionList = new ArrayList<>();
+    static int port = Lobby.gPort;
+    static Activity lActivity;
+    boolean islisten = true;
+    ServerTread connection;
 
     @Override
-    protected Void doInBackground(Void... params) {
+    protected Void doInBackground(Activity... params) {
+        if (params.length != 0) {
+            lActivity = params[0];
+        }else{
+            return null;
+        }
 
-        System.out.println("[=3.3=].................");
-        int port = 62322; // случайный порт (может быть любое число от 1025 до 65535)
         try {
-
-            publishProgress("NO IP 0_0?");
-            Enumeration e = NetworkInterface.getNetworkInterfaces();
-            while(e.hasMoreElements())
-            {
-                NetworkInterface n = (NetworkInterface) e.nextElement();
-                Enumeration ee = n.getInetAddresses();
-                while (ee.hasMoreElements())
-                {
-                    InetAddress i = (InetAddress) ee.nextElement();
-                    if(i.getHostAddress().startsWith("192.168."))
-                        publishProgress(i.getHostAddress());
-                }
+            String myIP = Lobby.getMyLocalIP();
+            if(Lobby.getMyLocalIP() == null) publishProgress("NO IP 0_0?"); else publishProgress(myIP + " : " + port);
+            ServerSocket serverSocket = new ServerSocket(port);
+            while (islisten || !isCancelled()) {
+                connection = new ServerTread();
+                connection.init(serverSocket.accept());
+                publishProgress("exe");
+                connectionList.add(connection);
             }
-
-            System.out.println("[=3.4=].................");
-            ServerSocket ss = new ServerSocket(port); // создаем сокет сервера и привязываем его к вышеуказанному порту
-            System.out.println("Waiting for a client...");
-            System.out.println("[=3.5=].................");
-            Socket socket = ss.accept(); // заставляем сервер ждать подключений и выводим сообщение когда кто-то связался с сервером
-
-            System.out.println("[=3.6=].................");
-            System.out.println("Got a client :) ... Finally, someone saw me through all the cover!");
-            System.out.println();
-
-            PrintWriter pwOut = new PrintWriter(socket.getOutputStream(), true);
-            KnockKnockProtocol kkp = new KnockKnockProtocol();
-            String outputLine = kkp.processInput(null);
-            pwOut.println(outputLine);
-
-            // Берем входной и выходной потоки сокета, теперь можем получать и отсылать данные клиенту.
-            InputStream sin = socket.getInputStream();
-            OutputStream sout = socket.getOutputStream();
-
-            // Конвертируем потоки в другой тип, чтоб легче обрабатывать текстовые сообщения.
-            DataInputStream in = new DataInputStream(sin);
-            DataOutputStream out = new DataOutputStream(sout);
-
-            line = null;
-            while(true) {
-                line = in.readUTF(); // ожидаем пока клиент пришлет строку текста.
-                System.out.println("The dumb client just sent me this line : " + line);
-                publishProgress();
-                System.out.println("I'm sending it back...");
-                out.writeUTF("from[S] "+line); // отсылаем клиенту обратно ту самую строку текста.
-                out.flush(); // заставляем поток закончить передачу данных.
-                System.out.println("Waiting for the next line...");
-                System.out.println();
-            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            System.err.println("Could not listen on port " + port);
+            ioe.printStackTrace();
         } catch(Exception x) {
             x.printStackTrace();
         }
@@ -73,12 +47,42 @@ public class Server extends AsyncTask<Void, String, Void> {
     }
 
     @Override
-    protected void onProgressUpdate(String... aVoid){
-        if(aVoid.length != 0){
-            Lobby.statusUpdate("My ip is " + aVoid[0]);
-        }else {
-            Lobby.statusUpdate(line);
-            System.out.println("[=!S!=] get " + line + ".................");
+    protected void onProgressUpdate(String... s){
+        final String[] buffer = s;
+
+        if (buffer.length != 0){
+            if(buffer[0].equalsIgnoreCase("exe")){
+                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)   // strange, worked even w/o this, before
+                    connection.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);   // < --
+                else
+                    connection.execute();
+            }else {
+                Lobby.statusUpdate("My ip is " + buffer[0]);
+            }
         }
+    }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        System.out.println("[S]OnPostExecute");
+    }
+
+    public void cancelChild(){
+        System.out.println("[S]onCancelChild");
+        if (connectionList != null) {
+            System.out.println(connectionList.get(0).getStatus());
+
+            for (ServerTread i : connectionList) {
+                i.inputStreamCancel();
+                i.cancel(true);
+            }
+        }
+        System.out.println(connectionList.get(0).getStatus());
+    }
+    @Override
+    protected void onCancelled() {
+        System.out.println("[S]OnCancel");
+        islisten = false;
+        super.onCancelled();
     }
 }
