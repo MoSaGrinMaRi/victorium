@@ -17,6 +17,7 @@ public class Server extends AsyncTask<Activity, String, Void> {
     static Activity lActivity;
     boolean islisten = true;
     ServerTread connection;
+    ServerSocket serverSocket;
 
     @Override
     protected Void doInBackground(Activity... params) {
@@ -29,7 +30,8 @@ public class Server extends AsyncTask<Activity, String, Void> {
         try {
             String myIP = Lobby.getMyLocalIP();
             if(Lobby.getMyLocalIP() == null) publishProgress("NO IP 0_0?"); else publishProgress(myIP + " : " + port);
-            ServerSocket serverSocket = new ServerSocket(port);
+            serverSocket = new ServerSocket(port);
+
             while (islisten || !isCancelled()) {
                 connection = new ServerTread();
                 connection.init(serverSocket.accept());
@@ -69,16 +71,29 @@ public class Server extends AsyncTask<Activity, String, Void> {
 
     public void cancelChild(){
         System.out.println("[S]onCancelChild");
-        if (connectionList != null) {
+        if (connectionList != null && !connectionList.isEmpty()) {
             System.out.println(connectionList.get(0).getStatus());
 
             for (ServerTread i : connectionList) {
                 i.inputStreamCancel();
                 i.cancel(true);
             }
+            System.out.println(connectionList.get(0).getStatus());
         }
-        System.out.println(connectionList.get(0).getStatus());
     }
+
+    public void stopListening(boolean isCompletely){
+        System.out.println("[S]onStopListening");
+        islisten = false;
+        if(isCompletely){
+            try {
+                if (serverSocket != null)serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     @Override
     protected void onCancelled() {
         System.out.println("[S]OnCancel");

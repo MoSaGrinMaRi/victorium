@@ -1,5 +1,7 @@
 package com.MoSaGrinMaRi.team.victorium.Connection;
 
+import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -23,12 +25,12 @@ public class Lobby extends AppCompatActivity {
 
     public static ListView lv;
     public static TextView tv;
-    public static EditText tvSip;
     public static Button b1;
-    public static Server s1;
-    public static Client c1;
-    static String localPlayerName;
-    static boolean isServer1 = false;
+    public EditText tvSip;
+    public Server s1;
+    public Client c1;
+    static String lPlayerName;
+    static boolean lIsServer = false;
 
     static ArrayList<String> connectionsList = new ArrayList<>();
 
@@ -48,7 +50,7 @@ public class Lobby extends AppCompatActivity {
 
                 c1 = new Client();
                 System.out.println("[=2.1=].................");
-                c1.execute(isServer1 ? "192.168.0.106" : tvSip.getText().toString(), localPlayerName);
+                c1.execute(lIsServer ? getMyLocalIP() : tvSip.getText().toString(), lPlayerName);
                 System.out.println("[=2.2=].................");
             }
         });
@@ -57,13 +59,16 @@ public class Lobby extends AppCompatActivity {
 
         tv = (TextView) findViewById(R.id.status);
         tvSip = (EditText) findViewById(R.id.ipAddress);
-        if (isServer1){
+        if (lIsServer){
             System.out.println("set invisible");
             tvSip.setVisibility(View.INVISIBLE);
             System.out.println("[=1=].................");
             s1 = new Server();
             System.out.println("[=1.1=].................");
-            s1.execute(Lobby.this);
+            if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)   // strange, worked even w/o this, before
+                s1.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Lobby.this);   // < --
+            else
+                s1.execute(Lobby.this);
             System.out.println("[=1.2=].................");
 
             //b1.performClick();  // create a client as well
@@ -95,9 +100,9 @@ public class Lobby extends AppCompatActivity {
         tv.setText("[S] " + s);
     }
 
-    public static void setConfig(boolean isServer, String playerName){
-        isServer1 = isServer;
-        localPlayerName = playerName;
+    public void setConfig(boolean isServer, String playerName){
+        lIsServer = isServer;
+        lPlayerName = playerName;
     }
 
     public static String getMyLocalIP(){
@@ -120,27 +125,32 @@ public class Lobby extends AppCompatActivity {
         return null;
     }
 
-    @Override
-    public void onBackPressed() {
-        System.out.println("BACK PRESSED!!!" + (s1 == null) + " ][ " + (c1 == null));
+    private void stopAndClose(){
         if(s1 != null) {
             s1.cancelChild();
+            s1.stopListening(true);
             s1.cancel(true);
         }
         if(c1 != null)
             c1.cancel(true);
+
+        connectionsList.clear();
+
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        System.out.println("BACK PRESSED!!!" + (s1 == null) + " ][ " + (c1 == null));
+
+        stopAndClose();
 
         super.onBackPressed();
     }
 
     @Override
     protected void onDestroy() {
-        if(s1 != null) {
-            s1.cancelChild();
-            s1.cancel(true);
-        }
-        if(c1 != null)
-            c1.cancel(true);
+        stopAndClose();
 
         super.onDestroy();
     }
