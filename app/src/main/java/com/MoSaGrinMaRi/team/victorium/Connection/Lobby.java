@@ -2,6 +2,7 @@ package com.MoSaGrinMaRi.team.victorium.Connection;
 
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -71,7 +72,19 @@ public class Lobby extends AppCompatActivity {
                 s1.execute(Lobby.this);
             System.out.println("[=1.2=].................");
 
-            //b1.performClick();  // create a client as well
+
+            runOnUiThread(new Runnable() {
+                Handler h = new Handler();
+                int delay = 2500; //ms  // magic number, if less then, will stuck after creating [C] dout
+
+                public void run() {
+                    h.postDelayed(new Runnable() {
+                        public void run() {
+                            b1.performClick();  // create a client as well
+                        }
+                    }, delay);
+                }
+            });
         }
 
         Button bS1 = (Button)findViewById(R.id.btnSend1);

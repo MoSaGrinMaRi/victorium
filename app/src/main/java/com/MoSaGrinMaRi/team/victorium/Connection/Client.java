@@ -30,19 +30,6 @@ public class Client extends AsyncTask<String, String, Void> {
             return null;
         }
 
-//        check for port available, but it's create one more socket
-//
-//        boolean portAvailable = false;
-//        try {
-//            Socket socket = new Socket();
-//            socket.connect(new InetSocketAddress(address, port));
-//            portAvailable = socket.isConnected();
-//            socket.close();
-//        } catch (IOException ioe) {
-//            ioe.printStackTrace();
-//        }
-//        System.out.println("Connection possible: " + portAvailable + " :" + port);
-
         System.out.println("[=2.3=].................");
         try {
             System.out.println("[=2.4=].................");
@@ -60,7 +47,7 @@ public class Client extends AsyncTask<String, String, Void> {
                 out.writeUTF("[D]" + playerName);   //////
                 out.flush();                        //////
                 line = in.readUTF();
-                publishProgress("connected");
+                publishProgress("[connected]");
                 System.out.println("The server was very polite. It sent me this : " + line);
             }
 
@@ -92,7 +79,7 @@ public class Client extends AsyncTask<String, String, Void> {
         final String[] buffer = s;
 
         if (buffer.length != 0){
-            if(buffer[0].equalsIgnoreCase("connected")){
+            if(buffer[0].equalsIgnoreCase("[connected]")){
                Lobby.b1.setText("Connected");
             }else {
                 Lobby.tv.setText("[C]" + line);
@@ -102,11 +89,22 @@ public class Client extends AsyncTask<String, String, Void> {
 
     @Override
     protected void onPostExecute(Void aVoid) {
-        System.out.println("[C]OnPostExec");
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }System.out.println("[C]OnPostExec");
     }
 
     @Override
     protected void onCancelled() {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         System.out.println("[C]OnCancel");
     }
 }

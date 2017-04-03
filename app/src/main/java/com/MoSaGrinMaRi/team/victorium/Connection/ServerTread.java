@@ -22,16 +22,18 @@ public class ServerTread extends AsyncTask<Void, Void, Void> {
 
         listening = true;
         try {
-            din = new DataInputStream(socket.getInputStream());
-            DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
-            while(listening || !isCancelled()) {
-                line = din.readUTF(); // wait for client query
-                publishProgress();
-                System.out.println("I'm sending it back...");
-                dout.writeUTF("from[S] "+line); // sent to client this exact same line
-                System.out.println();
+            if(socket != null){
+                din = new DataInputStream(socket.getInputStream());
+                DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
+                while (listening || !isCancelled()) {
+                    line = din.readUTF(); // wait for client query
+                    publishProgress();
+                    System.out.println("I'm sending it back...");
+                    dout.writeUTF("from[S] " + line); // sent to client this exact same line
+                    System.out.println();
+                }
+                socket.close();
             }
-            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
