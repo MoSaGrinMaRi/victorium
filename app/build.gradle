@@ -4,7 +4,7 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
     defaultConfig {
-        applicationId "com.MoSaGrinMaRi.team.victorium"
+        applicationId "com.MonoCycleStudios.team.victorium"
         minSdkVersion 10    // [temp] use 19 instead
         targetSdkVersion 25
         versionCode 1
