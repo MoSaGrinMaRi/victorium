@@ -1,4 +1,4 @@
-package com.MoSaGrinMaRi.team.victorium;
+package com.MonoCycleStudios.team.victorium;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

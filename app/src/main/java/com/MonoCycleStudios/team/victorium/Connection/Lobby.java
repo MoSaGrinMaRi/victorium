@@ -1,8 +1,7 @@
-package com.MoSaGrinMaRi.team.victorium.Connection;
+package com.MonoCycleStudios.team.victorium.Connection;
 
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -12,7 +11,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.MoSaGrinMaRi.team.victorium.R;
+import com.MonoCycleStudios.team.victorium.R;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -73,18 +72,18 @@ public class Lobby extends AppCompatActivity {
             System.out.println("[=1.2=].................");
 
 
-            runOnUiThread(new Runnable() {
-                Handler h = new Handler();
-                int delay = 2500; //ms  // magic number, if less then, will stuck after creating [C] dout
-
-                public void run() {
-                    h.postDelayed(new Runnable() {
-                        public void run() {
-                            b1.performClick();  // create a client as well
-                        }
-                    }, delay);
-                }
-            });
+//            runOnUiThread(new Runnable() {
+//                Handler h = new Handler();
+//                int delay = 2500; //ms  // magic number, if less then, will stuck after creating [C] dout
+//
+//                public void run() {
+//                    h.postDelayed(new Runnable() {
+//                        public void run() {
+//                            b1.performClick();  // create a client as well
+//                        }
+//                    }, delay);
+//                }
+//            });
         }
 
         Button bS1 = (Button)findViewById(R.id.btnSend1);

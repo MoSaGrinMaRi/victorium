@@ -1,4 +1,4 @@
-package com.MoSaGrinMaRi.team.victorium.Connection;
+package com.MonoCycleStudios.team.victorium.Connection;
 
 import android.os.AsyncTask;
 

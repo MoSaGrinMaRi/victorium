@@ -1,4 +1,4 @@
-package com.MoSaGrinMaRi.team.victorium.Connection;
+package com.MonoCycleStudios.team.victorium.Connection;
 
 public class KnockKnockProtocol {
     private static final int WAITING = 0;

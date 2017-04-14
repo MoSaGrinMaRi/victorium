@@ -1,4 +1,4 @@
-package com.MoSaGrinMaRi.team.victorium;
+package com.MonoCycleStudios.team.victorium;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -9,7 +9,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.MoSaGrinMaRi.team.victorium.Connection.Lobby;
+import com.MonoCycleStudios.team.victorium.Connection.Lobby;
 
 public class MainActivity extends AppCompatActivity {
 

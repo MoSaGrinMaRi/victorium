@@ -1,4 +1,4 @@
-package com.MoSaGrinMaRi.team.victorium;
+package com.MonoCycleStudios.team.victorium;
 
 import org.junit.Test;
 
