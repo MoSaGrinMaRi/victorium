@@ -2,7 +2,6 @@ package com.MonoCycleStudios.team.victorium.Connection;
 
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -69,25 +68,10 @@ public class Lobby extends AppCompatActivity {
             System.out.println("[=1=].................");
             s1 = new Server();
             System.out.println("[=1.1=].................");
-            if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)   // strange, worked even w/o this, before
-                s1.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Lobby.this);   // < --
-            else
-                s1.execute(Lobby.this);
+            s1.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Lobby.this);
             System.out.println("[=1.2=].................");
 
-
-//            runOnUiThread(new Runnable() {
-//                Handler h = new Handler();
-//                int delay = 2500; //ms  // magic number, if less then, will stuck after creating [C] dout
-//
-//                public void run() {
-//                    h.postDelayed(new Runnable() {
-//                        public void run() {
-//                            b1.performClick();  // create a client as well
-//                        }
-//                    }, delay);
-//                }
-//            });
+            b1.performClick();
         }
 
         Button bS1 = (Button)findViewById(R.id.btnSend1);

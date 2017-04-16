@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.widget.BaseAdapter;
 
 import java.net.*;
@@ -35,12 +36,13 @@ public class Server extends AsyncTask<Activity, String, Void> {
             String myIP = Lobby.getMyLocalIP();
             if(Lobby.getMyLocalIP() == null) publishProgress("NO IP 0_0?"); else publishProgress(myIP + " : " + port);
             serverSocket = new ServerSocket(port);
+            System.out.println("Initialized");
 
             while (islisten || !isCancelled()) {
                 connection = new ServerTread();
                 connection.init(serverSocket.accept());
-                publishProgress("[exe]");
                 connectionList.add(connection);
+                publishProgress("[exe]");
             }
         } catch (IOException ioe) {
             ioe.printStackTrace();
@@ -58,10 +60,7 @@ public class Server extends AsyncTask<Activity, String, Void> {
 
         if (buffer.length != 0){
             if(buffer[0].equalsIgnoreCase("[exe]")){
-                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)   // strange, worked even w/o this, before
-                    connection.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);   // < --
-                else
-                    connection.execute();
+                connectionList.get(connectionList.size()-1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
                 if(!checkRunning) {
                     checkRunning = true;
