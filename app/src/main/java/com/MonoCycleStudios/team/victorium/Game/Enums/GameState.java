@@ -1,5 +1,4 @@
-package com.MonoCycleStudios.team.victorium.Game;
-// Created by mowemax on 16.04.17.
+package com.MonoCycleStudios.team.victorium.Game.Enums;
 
 public enum GameState {
     waitingForStart,

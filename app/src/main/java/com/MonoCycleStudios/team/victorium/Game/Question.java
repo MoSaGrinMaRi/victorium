@@ -1,5 +1,7 @@
 package com.MonoCycleStudios.team.victorium.Game;
 
+import com.MonoCycleStudios.team.victorium.Game.Enums.QuestionType;
+
 public class Question {
     private final QuestionType questionType;
     private final String questionBody;

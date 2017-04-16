@@ -2,11 +2,9 @@ package com.MonoCycleStudios.team.victorium.Game;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 
 import com.MonoCycleStudios.team.victorium.Connection.Server;
+import com.MonoCycleStudios.team.victorium.Game.Enums.GameState;
 import com.MonoCycleStudios.team.victorium.R;
 
 public class Game extends AppCompatActivity {

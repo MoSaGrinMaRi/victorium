@@ -1,4 +1,4 @@
-package com.MonoCycleStudios.team.victorium.Game;
+package com.MonoCycleStudios.team.victorium.Game.Enums;
 
 public enum QuestionType {
     None,
@@ -10,5 +10,6 @@ public enum QuestionType {
     Miph,
     Politic,
     Music,
+    Literature,
     Meme
 }
