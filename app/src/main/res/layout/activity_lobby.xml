@@ -7,8 +7,8 @@
     tools:context="com.MonoCycleStudios.team.victorium.Connection.Lobby">
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="624dp"
+        android:layout_height="344dp"
         tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="8dp"
         tools:layout_editor_absoluteY="8dp">
@@ -76,9 +76,20 @@
             android:id="@+id/connectionsListView"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:scrollbars="none|vertical"
+            android:layout_toEndOf="@+id/ipAddress"
+            android:layout_marginStart="39dp"
+            android:layout_alignParentBottom="true" />
+
+        <Button
+            android:id="@+id/launchGame"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/btnSend1"
             android:layout_below="@+id/btnSend1"
-            android:layout_marginTop="16dp"
-            android:scrollbars="none|vertical" />
+            android:layout_marginTop="24dp"
+            android:layout_toStartOf="@+id/connectionsListView"
+            android:text="Just Launch Game" />
 
     </RelativeLayout>
 

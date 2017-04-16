@@ -1,5 +1,6 @@
 package com.MonoCycleStudios.team.victorium.Connection;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.MonoCycleStudios.team.victorium.Game.Game;
 import com.MonoCycleStudios.team.victorium.R;
 
 import java.net.InetAddress;
@@ -26,6 +28,8 @@ public class Lobby extends AppCompatActivity {
     public static ListView lv;
     public static TextView tv;
     public static Button b1;
+    public static Button b3;
+    Intent intent;
     public EditText tvSip;
     public Server s1;
     public Client c1;
@@ -106,6 +110,17 @@ public class Lobby extends AppCompatActivity {
                 android.R.layout.simple_list_item_1, connectionsList);
         lv.setAdapter(adapter);
 
+
+        b3 = (Button)findViewById(R.id.launchGame);
+        intent = new Intent(this, Game.class);
+
+        b3.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick (View v){
+                statusUpdate("Loading");
+                startActivity(intent);
+            }
+        });
     }
 
     public static synchronized void statusUpdate(String s){

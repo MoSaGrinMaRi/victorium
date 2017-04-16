@@ -1,0 +1,18 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:MonoCycleStudios="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.MonoCycleStudios.team.victorium.Game.Ground">
+
+    <com.MonoCycleStudios.team.victorium.widget.ImageMap
+        android:id="@+id/map"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:src="@drawable/filleduamapregion"
+        MonoCycleStudios:fitImageToScreen="false"
+        MonoCycleStudios:map="uamapregions"
+        MonoCycleStudios:maxSizeFactor="1"
+        MonoCycleStudios:scaleFromOriginal="true" />
+
+</FrameLayout>
