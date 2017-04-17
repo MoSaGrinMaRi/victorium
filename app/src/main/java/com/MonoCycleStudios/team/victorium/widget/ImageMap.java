@@ -1495,8 +1495,8 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 				int y = Integer.parseInt(v[i+1]);
 				xpoints.add(x);
 				ypoints.add(y);
-				x*=2;
-				y*=2;
+//				x*=1;
+//				y*=1;
 				top=(top==-1)?y:Math.min(top,y);
 				bottom=(bottom==-1)?y:Math.max(bottom,y);
 				left=(left==-1)?x:Math.min(left,x);
@@ -1539,8 +1539,8 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 			}
 			cx /= (6 * area());
 			cy /= (6 * area());
-			_x=Math.abs((int)cx*2);
-			_y=Math.abs((int)cy*2);
+			_x=Math.abs((int)(cx*(mImageWidth/3056.0)));
+			_y=Math.abs((int)(cy*(mImageWidth/3056.0)));
 		}
 
 
@@ -1580,7 +1580,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
                 public void onDraw(Canvas canvas) {
                     // draw the bounding box
 
-					double magicMultiplier = 2.385;
+					double magicMultiplier = 3056.0 / mViewWidth*1.0;
 					path.moveTo((int)(xpoints.get(0)/magicMultiplier), (int)(ypoints.get(0)/magicMultiplier));
 					for (int i = 1; i < _points; i++)
 					{
