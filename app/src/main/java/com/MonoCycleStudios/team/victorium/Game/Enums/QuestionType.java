@@ -11,5 +11,6 @@ public enum QuestionType {
     Politic,
     Music,
     Literature,
+    Biology,
     Meme
 }

@@ -2,9 +2,7 @@ package com.MonoCycleStudios.team.victorium.Connection;
 
 import android.app.Activity;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.widget.BaseAdapter;
 
 import java.net.*;
