@@ -1,17 +1,23 @@
 package com.MonoCycleStudios.team.victorium.Connection;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.MonoCycleStudios.team.victorium.Game.Game;
+import com.MonoCycleStudios.team.victorium.Game.Player;
 import com.MonoCycleStudios.team.victorium.R;
 
 import java.net.InetAddress;
@@ -26,16 +32,17 @@ public class Lobby extends AppCompatActivity {
 
     public static ListView lv;
     public static TextView tv;
+    public static OurArrayListAdapter adapter;
     public static Button b1;
     public static Button b3;
-    Intent intent;
+//    Intent intent;
     public EditText tvSip;
-    public Server s1;
-    public Client c1;
+    public static Server s1;
+    public static Client c1;
     static String lPlayerName;
     static boolean lIsServer = false;
 
-    static ArrayList<String> connectionsList = new ArrayList<>();
+    static ArrayList<Player> connectionsList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,10 +58,22 @@ public class Lobby extends AppCompatActivity {
                 ((Button)findViewById(R.id.connectBtn)).setClickable(false);
                 ((Button)findViewById(R.id.connectBtn)).setText("Connecting");
 
-                c1 = new Client();
+                c1 = Client.getInstance();
                 System.out.println("[=2.1=].................");
-                c1.execute(lIsServer ? getMyLocalIP() : tvSip.getText().toString(), lPlayerName);
+                c1.init(Lobby.this);
+                c1.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, lIsServer ? getMyLocalIP() : tvSip.getText().toString(), lPlayerName);
                 System.out.println("[=2.2=].................");
+            }
+        });
+
+        b3 = (Button)findViewById(R.id.launchGame);
+
+        b3.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick (View v){
+                statusUpdate("Loading");
+                s1.notifyAllClients("[startGame]");
+                s1.stopListening(false);
             }
         });
 
@@ -64,7 +83,8 @@ public class Lobby extends AppCompatActivity {
         tvSip = (EditText) findViewById(R.id.ipAddress);
         if (lIsServer){
             System.out.println("set invisible");
-            tvSip.setVisibility(View.INVISIBLE);
+            tvSip.setEnabled(false);
+            tvSip.setText(getMyLocalIP());
             System.out.println("[=1=].................");
             s1 = new Server();
             System.out.println("[=1.1=].................");
@@ -72,6 +92,9 @@ public class Lobby extends AppCompatActivity {
             System.out.println("[=1.2=].................");
 
             b1.performClick();
+            b1.setVisibility(View.INVISIBLE);
+        }else{
+            b3.setVisibility(View.INVISIBLE);
         }
 
         Button bS1 = (Button)findViewById(R.id.btnSend1);
@@ -79,32 +102,58 @@ public class Lobby extends AppCompatActivity {
 
         bS1.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick (View v){
-                c1.sendString("1");
+            public void onClick (View v){ c1.addOutCommand("String","[rData]","1");
             }
         });
         bS2.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick (View v){
-                c1.sendString("2");
+            public void onClick (View v){ c1.addOutCommand("String","[rData]","2");
             }
         });
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, connectionsList);
+        adapter = new OurArrayListAdapter(this, android.R.layout.simple_list_item_1, connectionsList);
+        adapter.clear();
+        adapter.addAll(connectionsList);
+        adapter.notifyDataSetChanged();
         lv.setAdapter(adapter);
 
+    }
 
-        b3 = (Button)findViewById(R.id.launchGame);
-        intent = new Intent(this, Game.class);
+    public class OurArrayListAdapter extends ArrayAdapter<Player> {
+//        public OurArrayListAdapter(Context context, int textViewResourceId) {
+//            super(context, textViewResourceId);
+//        }
 
-        b3.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick (View v){
-                statusUpdate("Loading");
-                startActivity(intent);
+        public OurArrayListAdapter(Context context, int resource, ArrayList<Player> items) {
+            super(context, resource, items);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            View v = convertView;
+            if (v == null) {
+                LayoutInflater vi;
+                vi = LayoutInflater.from(getContext());
+                v = vi.inflate(R.layout.itemlistrow, null);
             }
-        });
+
+            Player p = getItem(position);
+            if (p != null) {
+                ImageView im1 = (ImageView) v.findViewById(R.id.imageView);
+                TextView tt1 = (TextView) v.findViewById(R.id.playerName);
+                TextView tt2 = (TextView) v.findViewById(R.id.playerID);
+
+                if (tt1 != null)
+                    tt1.setText(p.getPlayerName());
+                if (tt2 != null)
+                    tt2.setText(String.valueOf(p.getPlayerID()));
+                if (im1 != null)
+                    im1.setColorFilter(p.getPlayerCharacter().getColor().getARGB());
+            }
+            return v;
+        }
+
     }
 
     public static synchronized void statusUpdate(String s){
@@ -114,6 +163,29 @@ public class Lobby extends AppCompatActivity {
     public void setConfig(boolean isServer, String playerName){
         lIsServer = isServer;
         lPlayerName = playerName;
+    }
+
+    public static void startGameActivity(Activity mActivity){
+
+        System.out.println("YEEEEEEEEEEEY!");
+        mActivity.startActivity(new Intent(mActivity, Game.getInstance().getClass()));
+
+        System.out.println("YEEEEEE555555555555EEEEEY!");
+
+        if(lIsServer){
+            Game.getInstance().setup(s1, connectionsList.size());
+
+            System.out.println("YEEEEEE2222222EEEEEY!");
+        }else{
+            Game.getInstance().setup(null, connectionsList.size());
+
+            System.out.println("YEEEEEEE1111111111EEEEY!");
+        }
+//        System.out.println("c1 " + c1 + "   iP " + c1.getInstance().iPlayer + "  Game " + Game.getInstance() + "  GameC " + Game.class);
+        c1.iPlayer.setPlayerGame(Game.getInstance());
+//        c1.addOutCommand("");
+
+        System.out.println("YEEEEEE4444444444EEEEEY!");
     }
 
     public static String getMyLocalIP(){
@@ -134,6 +206,25 @@ public class Lobby extends AppCompatActivity {
             e1.printStackTrace();
         }
         return null;
+    }
+
+    public static int getUnusedIndex(){
+        int i = 0;
+        for(; i < 6 && i < connectionsList.size(); i++){     // !!! [GLOBAL VAR] MAX_PLAYERS = 6
+            System.out.println("]]=[[ " + (connectionsList.size()-1) + " }{ " + i + " }{ " + connectionsList.get(i).getPlayerID());
+            if(i != connectionsList.get(i).getPlayerID()){
+                return i;
+            }
+        }
+        System.out.println("]]+[[ " +i);
+        return i;
+    }
+
+    public static ArrayList<Player> getConnectionsList(){
+        return connectionsList;
+    }
+    public static void setConnectionsList(ArrayList<Player> connectionsList) {
+        Lobby.connectionsList = connectionsList;
     }
 
     private void stopAndClose(){

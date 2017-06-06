@@ -26,18 +26,23 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.SparseArray;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.ViewConfiguration;
+import android.view.WindowManager;
 import android.widget.Scroller;
 
+import com.MonoCycleStudios.team.victorium.Game.Enums.CharacterColor;
 import com.MonoCycleStudios.team.victorium.R;
 
 import org.jetbrains.annotations.NotNull;
@@ -138,6 +143,11 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 	// view height and width
 	int mViewHeight=-1;
 	int mViewWidth=-1;
+
+	// myScreen
+	int mmScreenWidth = -1;
+	int mmScreenHeight = -1;
+	double mmScreenDensity = -1;
 
 	/*
 	 * containers for the image map areas
@@ -290,7 +300,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 	{
 		Area a = null;
 		String rid = id.replace("@+id/", "");
-		int _id=0;
+		int _id = 0;
 
 		try
 		{
@@ -319,7 +329,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 			{
 				String[] v = coords.split(",");
 				if (v.length == 3) {
-					a = new CircleArea(_id,name, Float.parseFloat(v[0]),
+					a = new CircleArea(_id, name, Float.parseFloat(v[0]),
 						Float.parseFloat(v[1]),
 						Float.parseFloat(v[2])
 					);
@@ -327,7 +337,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 			}
 			if (shape.equalsIgnoreCase("poly"))
 			{
-				a = new PolyArea(_id,name, coords);
+				a = new PolyArea(_id, name, coords);
 			}
 			if (a != null)
 			{
@@ -1481,18 +1491,31 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 		int right=-1;
 
 		public PolyArea(int id, String name, String coords) {
-			super(id,name);
+			super(id, name);
             System.out.println("id = " + id);
-
 
 			// split the list of coordinates into points of the
 			// polygon and compute a bounding box
 			String[] v = coords.split(",");
 
 			int i=0;
+
+			Context mmContext = getContext();
+			WindowManager wm = (WindowManager) mmContext.getSystemService(Context.WINDOW_SERVICE);
+			DisplayMetrics dm = new DisplayMetrics();
+			wm.getDefaultDisplay().getMetrics(dm);
+
+			mmScreenDensity = dm.densityDpi;
+			mmScreenWidth = dm.widthPixels;
+			mmScreenHeight = dm.heightPixels;
+
 			while ((i+1)<v.length) {
+
+				double magicMultiplier = 3056.0/1920.0;
 				int x = Integer.parseInt(v[i]);
 				int y = Integer.parseInt(v[i+1]);
+				x /= magicMultiplier;
+				y /= magicMultiplier;
 				xpoints.add(x);
 				ypoints.add(y);
 //				x*=1;
@@ -1539,8 +1562,8 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 			}
 			cx /= (6 * area());
 			cy /= (6 * area());
-			_x=Math.abs((int)(cx*(mImageWidth/3056.0)));
-			_y=Math.abs((int)(cy*(mImageWidth/3056.0)));
+			_x=Math.abs((int)(cx*mmScreenDensity/160));
+			_y=Math.abs((int)(cy*mmScreenDensity/160));
 		}
 
 
@@ -1562,6 +1585,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 		@Override
 		public boolean isInArea(float testx, float testy)
 		{
+			System.out.println("TEST: " + testx + "?"+testy + " !! " +_x +"?"+_y);
 			int i, j;
 			boolean c = false;
 			for (i = 0, j = _points-1; i < _points; j = i++) {
@@ -1576,39 +1600,65 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 		// bounding box for the polygons [!!!]
 
 		Path path = new Path();
-                @Override
-                public void onDraw(Canvas canvas) {
-                    // draw the bounding box
+			@Override
+			public void onDraw(Canvas canvas) {
+				// draw the bounding box
 
-					double magicMultiplier = 3056.0 / mViewWidth*1.0;
-					path.moveTo((int)(xpoints.get(0)/magicMultiplier), (int)(ypoints.get(0)/magicMultiplier));
-					for (int i = 1; i < _points; i++)
-					{
-						path.lineTo((int)(xpoints.get(i)/magicMultiplier), (int)(ypoints.get(i)/magicMultiplier));
-					}
-					path.lineTo((int)(xpoints.get(0)/magicMultiplier), (int)(ypoints.get(0)/magicMultiplier));
-					Paint paint = new Paint();
+				double magicMultiplier = 1920.0/mmScreenWidth;
+				path.moveTo((int)(xpoints.get(0)/magicMultiplier), (int)(ypoints.get(0)/magicMultiplier));
+				for (int i = 1; i < _points; i++)
+				{
+					path.lineTo((int)(xpoints.get(i)/magicMultiplier), (int)(ypoints.get(i)/magicMultiplier));
+				}
+				path.lineTo((int)(xpoints.get(0)/magicMultiplier), (int)(ypoints.get(0)/magicMultiplier));
+				Paint paint = new Paint();
 
-					Random a = new Random();
-					if(a.nextInt(1 - 0 + 1) == 0)
-						paint.setColor(Color.GREEN);
-					else
-						paint.setColor(Color.RED);
+//					Random a = new Random();
+//					int tst = a.nextInt(7);
 
-					paint.setStrokeWidth(4);
-					paint.setStyle(Paint.Style.STROKE);
-					canvas.drawPath(path, paint);
+				//		smth like
+				System.out.println("Drawing id: " + this._id);
 
-					paint.setStyle(Paint.Style.FILL);
-					paint.setAlpha(50);
-					canvas.drawPath(path, paint);
+				int tst = 222;
+				switch(tst){
+					case 0:{paint.setColor(CharacterColor.RED.getARGB());}
+					break;
+					case 1:{paint.setColor(CharacterColor.BLUE.getARGB());}
+					break;
+					case 2:{paint.setColor(CharacterColor.GREEN.getARGB());}
+					break;
+					case 3:{paint.setColor(CharacterColor.PURPULE.getARGB());}
+					break;
+					case 4:{paint.setColor(CharacterColor.ORANGE.getARGB());}
+					break;
+					case 5:{paint.setColor(CharacterColor.BLACK.getARGB());}
+					break;
+					default:{paint.setColor(Color.WHITE);}
+				}
+
+				paint.setStrokeWidth(4);
+				paint.setStyle(Paint.Style.STROKE);
+				canvas.drawPath(path, paint);
+
+				paint.setStyle(Paint.Style.FILL);
+				paint.setAlpha(50);
+
+				if (paint.getColor() == CharacterColor.WHITE.getARGB())
+					paint.setColor(Color.TRANSPARENT);
+				canvas.drawPath(path, paint);
+
+//					canvas.drawRect((int)(left / magicMultiplier) + mScrollLeft,
+//									(int)(top / magicMultiplier) + mScrollTop,
+//									(int)(right / magicMultiplier) + mScrollLeft,
+//									(int)(bottom / magicMultiplier) + mScrollTop,
+//									textOutlinePaint);
 
 //					canvas.drawRect(left * mResizeFactorX + mScrollLeft,
 //											top * mResizeFactorY + mScrollTop,
 //											right * mResizeFactorX + mScrollLeft,
 //											bottom * mResizeFactorY + mScrollTop,
 //											textOutlinePaint);
-                }
+			}
 	}
 
 	/**

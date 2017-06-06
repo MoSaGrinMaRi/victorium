@@ -1,9 +1,11 @@
 package com.MonoCycleStudios.team.victorium.Game.Enums;
 
 public enum GameState {
-    waitingForStart,
-    launching,
-    running,
-    end,
-    terminated
+    NONE,
+    WAITING_FOR_START,
+    LAUNCHING,
+    PREPARING,
+    RUNNING,
+    END,
+    TERMINATED
 }

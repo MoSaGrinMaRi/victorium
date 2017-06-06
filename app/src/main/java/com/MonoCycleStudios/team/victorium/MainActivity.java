@@ -35,20 +35,34 @@ public class MainActivity extends AppCompatActivity {
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selected = spinner.getSelectedItem().toString();
 
-                startActivity(intent);
-                System.out.println("User name is: '" + tvUN.getText().toString()+"'");
+//                if(Lobby.getMyLocalIP() == null)
+//                    Toast.makeText(getApplicationContext(), "Connect to the internet!", Toast.LENGTH_SHORT).show();
+//                else
+                    {
+                    selected = spinner.getSelectedItem().toString();
 
-                Lobby myLobby = new Lobby();
-                if(selected.equalsIgnoreCase("server")) {
-                    myLobby.setConfig(true, tvUN.getText().toString());
+                    startActivity(intent);
 
-                }else {
-                    myLobby.setConfig(false, tvUN.getText().toString());
+                    System.out.println("User name is: '" + tvUN.getText().toString() + "'");
+
+                    Lobby myLobby = new Lobby();
+                    if (selected.equalsIgnoreCase("server")) {
+                        myLobby.setConfig(true, tvUN.getText().toString());
+
+                    } else {
+                        myLobby.setConfig(false, tvUN.getText().toString());
+                    }
                 }
+
             }
         });
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        System.exit(0);
     }
 }

@@ -1,4 +1,4 @@
-package com.MonoCycleStudios.team.victorium.Game;
+package com.MonoCycleStudios.team.victorium.Game.Fragments;
 
 import android.os.Bundle;
 import android.app.Fragment;
@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.MonoCycleStudios.team.victorium.Game.Player;
+import com.MonoCycleStudios.team.victorium.Game.Region;
 import com.MonoCycleStudios.team.victorium.R;
 import com.MonoCycleStudios.team.victorium.widget.ImageMap;
 
@@ -18,10 +20,10 @@ public class Ground extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View viev = inflater.inflate(R.layout.fragment_ground, container, false);
+        View view = inflater.inflate(R.layout.fragment_ground, container, false);
 
-        mImageMap = (ImageMap) viev.findViewById(R.id.map);
-        mImageMap.setImageResource(R.drawable.filleduamapregion);
+        mImageMap = (ImageMap) view.findViewById(R.id.map);
+//        mImageMap.setImageResource(R.drawable.filleduamapregion_720_838);
 
         mImageMap.addOnImageMapClickedHandler(new ImageMap.OnImageMapClickedHandler()
         {
@@ -38,7 +40,7 @@ public class Ground extends Fragment {
             }
         });
 
-        return viev;
+        return view;
     }
 
     // need this?

@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/UserNickname"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="42dp"
+                android:layout_marginTop="40dp"
                 android:entries="@array/connectionTypeList"
                 tools:layout_editor_absoluteX="8dp"
                 tools:layout_editor_absoluteY="0dp" />
@@ -58,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/ConnectionType"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="60dp"
+                android:layout_marginTop="90dp"
                 android:text="@string/ConnectBtnText"
                 tools:layout_editor_absoluteX="148dp"
                 tools:layout_editor_absoluteY="176dp" />
@@ -68,6 +68,36 @@
                 android:layout_height="match_parent">
 
             </android.support.v4.widget.NestedScrollView>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/ConnectionType"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                android:background="#00ffffff"
+                android:enabled="false"
+                android:orientation="horizontal"
+                android:visibility="visible">
+                <!-- "enabled="false"" only local network now -->
+
+                <Switch
+                    android:id="@+id/switchConnectionType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:enabled="false"
+                    android:splitTrack="false"
+                    android:text="Global Internet" />
+
+                <TextView
+                    android:id="@+id/switchTextRight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="  Local Wi-Fi      "
+                    android:visibility="visible" />
+
+            </LinearLayout>
 
         </RelativeLayout>
     </ScrollView>

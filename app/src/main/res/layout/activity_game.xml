@@ -9,13 +9,24 @@
 
     <fragment
         android:id="@+id/fragmentPlaceGround"
-        android:name="com.MonoCycleStudios.team.victorium.Game.Ground"
+        android:name="com.MonoCycleStudios.team.victorium.Game.Fragments.Ground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:layout="@layout/fragment_ground"></fragment>
 
-    <!--<fragment-->
-        <!--android:id="@+id/fragmentPlaceQuastion"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"></fragment>-->
+    <fragment
+        android:id="@+id/fragmentNotifyPlaceholder"
+        android:name="com.MonoCycleStudios.team.victorium.Game.Fragments.Notifyer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout="@layout/fragment_notify">
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragmentQuestionPlaceholder"
+        android:name="com.MonoCycleStudios.team.victorium.Game.Fragments.Questioner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </fragment>
+
 </LinearLayout>

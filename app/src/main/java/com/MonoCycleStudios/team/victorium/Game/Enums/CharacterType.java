@@ -1,7 +1,10 @@
 package com.MonoCycleStudios.team.victorium.Game.Enums;
 
-public enum CharacterType {
-    warrior,
-    engineer,
-    magician
+import java.io.Serializable;
+
+public enum CharacterType implements Serializable {
+    NONE,
+    COSSACK,
+    WARRIOR,
+    WIZARD
 }

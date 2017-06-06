@@ -5,22 +5,34 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.widget.BaseAdapter;
 
+import com.MonoCycleStudios.team.victorium.Connection.Enums.CommandType;
+import com.MonoCycleStudios.team.victorium.Game.Enums.GameCommandType;
+import com.MonoCycleStudios.team.victorium.Game.Enums.GameState;
+import com.MonoCycleStudios.team.victorium.Game.Game;
+
 import java.net.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
 
 public class Server extends AsyncTask<Activity, String, Void> {
-
 
     List<ServerTread> connectionList = new ArrayList<>();
     static int port = Lobby.gPort;
     static Activity lActivity;
     boolean islisten = true;
-    boolean checkRunning = false;
+    boolean isObjWaiter = true;
+    boolean isCheckRunning = false;
     ServerTread connection;
     ServerSocket serverSocket;
+
+    public static boolean isStreamUsing = false;
+
+    public List<ServerTread> getConnectionList() {
+        return connectionList;
+    }
 
     @Override
     protected Void doInBackground(Activity... params) {
@@ -36,11 +48,31 @@ public class Server extends AsyncTask<Activity, String, Void> {
             serverSocket = new ServerSocket(port);
             System.out.println("Initialized");
 
-            while (islisten || !isCancelled()) {
+            while (islisten || connectionList.size() < 6|| !isCancelled()) {     // !!! [GLOBAL VAR] MAX_PLAYERS = 6
                 connection = new ServerTread();
                 connection.init(serverSocket.accept());
                 connectionList.add(connection);
+//                connection.getSocket().setKeepAlive(true);
                 publishProgress("[exe]");
+            }
+            while(isObjWaiter || !isCancelled()){
+                Queue<MonoPackage> qmp = null;
+                for(int i = 0; i < connectionList.size(); i++){
+                    if((qmp = connectionList.get(i).getObjToServer()).size() > 0){
+                        for(int j = 0; j < qmp.size(); j++) {
+                            MonoPackage pck = qmp.poll();
+                            switch (CommandType.getTypeOf(pck.descOfObject)) {
+                                case GAMEDATA: {
+                                    switch (GameCommandType.getTypeOf(pck.descOfObject)) {
+                                        case URGAMESTATUS:{
+                                            Lobby.getConnectionsList().get(i).setPlayerGameState((GameState) pck.obj);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         } catch (IOException ioe) {
             ioe.printStackTrace();
@@ -55,33 +87,70 @@ public class Server extends AsyncTask<Activity, String, Void> {
     @Override
     protected void onProgressUpdate(String... s){
         final String[] buffer = s;
+        switch (buffer[0].toLowerCase()){
+            case "[exe]":{
+                if(buffer[0].equalsIgnoreCase("[exe]")) {
+                    connectionList.get(connectionList.size() - 1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-        if (buffer.length != 0){
-            if(buffer[0].equalsIgnoreCase("[exe]")){
-                connectionList.get(connectionList.size()-1).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    if (!isCheckRunning) {
+                        isCheckRunning = true;
+                        lActivity.runOnUiThread(new Runnable() {
+                            Handler h = new Handler();
+                            int delay = 1500; //ms  // how often will check if user is still connected
 
-                if(!checkRunning) {
-                    checkRunning = true;
-                    lActivity.runOnUiThread(new Runnable() {
-                        Handler h = new Handler();
-                        int delay = 1500; //ms  // how often will check if user is still connected
-
-                        public void run() {
-                            h.postDelayed(new Runnable() {
-                                public void run() {
-                                    checkConnection();
-                                    h.postDelayed(this, delay);
-                                }
-                            }, delay);
-                        }
-                    });
+                            public void run() {
+                                h.postDelayed(new Runnable() {
+                                    public void run() {
+//                                        checkConnection();
+                                        if (Lobby.connectionsList.size() > 0)
+                                            Lobby.b3.setEnabled(true);
+                                        else
+                                            Lobby.b3.setEnabled(false);
+                                        h.postDelayed(this, delay);
+                                    }
+                                }, delay);
+                            }
+                        });
+                    }
                 }
+            }break;
 
-            }else if(buffer[0].equalsIgnoreCase("[remove]")){
+            case "[remove]":{
                 Lobby.connectionsList.remove(Integer.parseInt(buffer[1]));
                 ((BaseAdapter)Lobby.lv.getAdapter()).notifyDataSetChanged();
-            }else{
-                Lobby.statusUpdate("My ip is " + buffer[0]);
+            }break;
+        }
+    }
+
+
+    public void notifyAllClients(String... command){
+
+        for (int i = 0; i < connectionList.size(); i++){
+            switch (CommandType.getTypeOf(command[0])) {
+                case START_GAME: {
+                    connectionList.get(i).setPlaying(true);
+//                        connectionList.get(i).setListening(false);
+                }break;
+                case NEWPLAYER:{
+                    System.out.println("trying send List to " + i);
+                    connectionList.get(i).setOutCommand("ArrayList", "[playersData]", Lobby.connectionsList);
+                }break;
+                case GAMEDATA:{
+                    switch (GameCommandType.getTypeOf(command[1])) {
+                        case URGAMESTATUS:{
+                            connectionList.get(i).setOutCommand("GameCommandType", "[gameData]", GameCommandType.URGAMESTATUS.getStringValue());
+                        }break;
+                        case WAITFORPLAYERS:{
+                            connectionList.get(i).setOutCommand("GameCommandType", "[gameData]", GameCommandType.WAITFORPLAYERS.getStringValue());
+                        }break;
+                        case EXECUTESTART:{
+                            connectionList.get(i).setOutCommand("GameCommandType", "[gameData]", GameCommandType.EXECUTESTART.getStringValue());
+                        }break;
+                    }
+                }
+                default: {
+                    System.out.println("Smth went wrong. Command '" + command[0] + "' didn't recognized.");
+                }
             }
         }
     }
@@ -112,11 +181,21 @@ public class Server extends AsyncTask<Activity, String, Void> {
             while (iter.hasNext()) {
                 ServerTread st = iter.next();
 
-                if(st.getStatus().toString().equals("FINISHED")) {
-                    iter.remove();
-                    publishProgress("[remove]",""+ind);
-//                    ind--;
-                }
+//                System.out.println(st.toString() + " \" " + st.oPing + " \" " + st.outCommand + " \" " + st.isMarkedToRemove);
+//                if(st.oPing == -1) {
+//                    if(st.isMarkedToRemove) {
+//                        iter.remove();
+//                        publishProgress("[remove]", "" + ind);
+////                    ind--;
+//                    }else{
+//                        st.isMarkedToRemove = true;
+//                        st.setOutComnd("[P]", -1);
+//                    }
+//                }else {
+//                    st.oPing = -1;
+//                    st.setOutComnd("[P]", -1);
+//                }
+
                 ind++;
             }
         }
