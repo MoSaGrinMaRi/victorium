@@ -128,6 +128,9 @@ public class Server extends AsyncTask<Activity, String, Void> {
         for (int i = 0; i < connectionList.size(); i++){
             switch (CommandType.getTypeOf(command[0])) {
                 case START_GAME: {
+                    if(i == 0)  // TEMP!!!!
+                        Lobby.startGameActivity(lActivity);
+                    System.out.println(connectionList.get(i) + "setPlaying True");
                     connectionList.get(i).setPlaying(true);
 //                        connectionList.get(i).setListening(false);
                 }break;

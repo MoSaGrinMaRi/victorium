@@ -268,6 +268,7 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
                     if (packages[0].typeOfObject.equalsIgnoreCase("Player")) {
                         iPlayer = (Player) packages[0].obj;
                         iPlayer.setPlayerClient(this);
+                        processData(new MonoPackage("String","[newPlayer]","(connected)"));
                     } else if (((String) packages[0].obj).equalsIgnoreCase("(connected)")) {
                         Lobby.b1.setText("Connected");
                     }
@@ -345,7 +346,8 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
             while(!c.isCancelled()){
                 try {
                     objReceived.offer((MonoPackage) oin.readUnshared());
-                } catch (IOException | ClassNotFoundException e) {
+                    Thread.sleep(1);
+                } catch (IOException | InterruptedException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
             }

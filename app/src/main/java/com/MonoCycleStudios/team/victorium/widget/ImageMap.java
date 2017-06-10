@@ -42,6 +42,7 @@ import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.widget.Scroller;
 
+import com.MonoCycleStudios.team.victorium.Connection.Lobby;
 import com.MonoCycleStudios.team.victorium.Game.Enums.CharacterColor;
 import com.MonoCycleStudios.team.victorium.R;
 
@@ -1620,9 +1621,30 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 				System.out.println("Drawing id: " + this._id);
 
 				int tst = 222;
+				if(this._id - 2131558542 == 17)
+					tst = 0;
+				if(this._id - 2131558542 == 14 && Lobby.getConnectionsList().size() > 1)
+					tst = 1;
+				if(this._id - 2131558542 == 3 && Lobby.getConnectionsList().size() > 2)
+					tst = 2;
+				if(this._id - 2131558542 == 19 && Lobby.getConnectionsList().size() > 3)
+					tst = 3;
+				if(this._id - 2131558542 == 0  && Lobby.getConnectionsList().size() > 4)
+					tst = 4;
+				if(this._id - 2131558542 == 24 && Lobby.getConnectionsList().size() > 5)
+					tst = 5;
+				if(this._id - 2131558542 == 13 && Lobby.getConnectionsList().size() > 5)
+					tst = 6;
+				if(this._id - 2131558542 == 6 && Lobby.getConnectionsList().size() > 5)
+					tst = 7;
+				if(this._id - 2131558542 == 7 && Lobby.getConnectionsList().size() > 5)
+					tst = 8;
 				switch(tst){
 					case 0:{paint.setColor(CharacterColor.RED.getARGB());}
 					break;
+					case 6:
+					case 7:
+					case 8:
 					case 1:{paint.setColor(CharacterColor.BLUE.getARGB());}
 					break;
 					case 2:{paint.setColor(CharacterColor.GREEN.getARGB());}
@@ -1646,6 +1668,81 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 				if (paint.getColor() == CharacterColor.WHITE.getARGB())
 					paint.setColor(Color.TRANSPARENT);
 				canvas.drawPath(path, paint);
+				Bitmap mmBitmap = null;
+				switch(tst){
+					case 0:{
+						mmBitmap = BitmapFactory.decodeResource(
+								getContext().getResources(),
+								R.drawable.man_red);
+						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/16, mmBitmap.getHeight()/16, true);
+						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.15), (float)(this.getOriginY()/magicMultiplier/2.25), null);
+
+					}break;
+					case 1:{
+						mmBitmap = BitmapFactory.decodeResource(
+								getContext().getResources(),
+								R.drawable.wizard_blue);
+						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/16, mmBitmap.getHeight()/16, true);
+						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.15), (float)(this.getOriginY()/magicMultiplier/2.35), null);
+
+					}break;
+					case 2:{
+						mmBitmap = BitmapFactory.decodeResource(
+								getContext().getResources(),
+								R.drawable.man_green);
+						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/16, mmBitmap.getHeight()/16, true);
+						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.1), (float)(this.getOriginY()/magicMultiplier/2.25), null);
+
+					}break;
+					case 3:{
+						mmBitmap = BitmapFactory.decodeResource(
+								getContext().getResources(),
+								R.drawable.warrior_purple);
+						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/16, mmBitmap.getHeight()/16, true);
+						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.05), (float)(this.getOriginY()/magicMultiplier/2.25), null);
+
+					}break;
+					case 4:{
+						mmBitmap = BitmapFactory.decodeResource(
+								getContext().getResources(),
+								R.drawable.warrior_orange);
+						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/16, mmBitmap.getHeight()/16, true);
+						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.15), (float)(this.getOriginY()/magicMultiplier/2.85), null);
+
+					}break;
+					case 5:{
+						mmBitmap = BitmapFactory.decodeResource(
+								getContext().getResources(),
+								R.drawable.wizard_dark);
+						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/16, mmBitmap.getHeight()/16, true);
+						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.1), (float)(this.getOriginY()/magicMultiplier/2.25), null);
+
+					}break;
+					case 6:{
+						mmBitmap = BitmapFactory.decodeResource(
+								getContext().getResources(),
+								R.drawable.castle_b);
+						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/22, mmBitmap.getHeight()/22, true);
+						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.15), (float)(this.getOriginY()/magicMultiplier/2.25), null);
+
+					}break;
+					case 7:{
+						mmBitmap = BitmapFactory.decodeResource(
+								getContext().getResources(),
+								R.drawable.castle_dst1_b);
+						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/22, mmBitmap.getHeight()/22, true);
+						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.1), (float)(this.getOriginY()/magicMultiplier/2.25), null);
+
+					}break;
+					case 8:{
+						mmBitmap = BitmapFactory.decodeResource(
+								getContext().getResources(),
+								R.drawable.castle_dst3_b);
+						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/22, mmBitmap.getHeight()/22, true);
+						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.125), (float)(this.getOriginY()/magicMultiplier/2.45), null);
+
+					}break;
+				}
 
 //					canvas.drawRect((int)(left / magicMultiplier) + mScrollLeft,
 //									(int)(top / magicMultiplier) + mScrollTop,

@@ -52,9 +52,9 @@ public class Game extends AppCompatActivity {
         System.out.println("YEEEEEEEE------------------EEEY!");
 
         // comment V
-        if(gameState == GameState.LAUNCHING && gameServer != null){
-            new GamePrepare().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        }
+//        if(gameState == GameState.LAUNCHING && gameServer != null){
+//            new GamePrepare().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//        }
 
         Fragment fragment;        // for change fragment
         fragment = new Ground();
@@ -64,9 +64,9 @@ public class Game extends AppCompatActivity {
         ft.commit();
 
         System.out.println("YEEEEEEE=================EEEEY!" + gameServer);
-        gameState = GameState.PREPARING;
-        if(gameServer != null)
-            new GameCore().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//        gameState = GameState.PREPARING;
+//        if(gameServer != null)
+//            new GameCore().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
     }
 

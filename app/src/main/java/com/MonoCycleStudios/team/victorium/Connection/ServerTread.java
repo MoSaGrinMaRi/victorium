@@ -25,6 +25,7 @@ public class ServerTread extends AsyncTask<Void, MonoPackage, Void> {
         this.listening = listening;
     }
     void setPlaying(boolean playing){
+        System.out.println("[St]Setting out command to start");
         setOutCommand("String", "[startGame]", null);
         this.playing = playing;
     }
@@ -228,21 +229,25 @@ public class ServerTread extends AsyncTask<Void, MonoPackage, Void> {
         Server.lActivity.runOnUiThread(new Runnable() {
             public void run() {
                 switch (CommandType.getTypeOf(packages[0].descOfObject)){
-                    case NEWPLAYER:{
-
-                        int newID = Lobby.getUnusedIndex();
-                        Player npTMP = new Player(newID, packages[0].obj.toString(), null, new Character(newID), null);
-                        Lobby.connectionsList.add(npTMP);
-
-                        MonoPackage mpTMP = new MonoPackage("Player", "[newPlayer]", npTMP);
-//                        MonoPackage lcl = new MonoPackage("ArrayList", "[playersData]", Lobby.connectionsList);
-                        if(!outCommand.offer(mpTMP)){// & !outCommand.offer(lcl)){
-                            //  [Log error]
-                            System.out.println("Error on adding outCommand " + mpTMP.fullToString());
+                    case NEWPLAYER: {
+                        Player npTMP = null;
+                        // TEMP!!!! Adding twice to locate more zones
+                        for (int i = 0; i < 6; i++)
+                        {
+                            int newID = Lobby.getUnusedIndex();
+                            npTMP = new Player(newID, packages[0].obj.toString(), null, new Character(newID), null);
+                            Lobby.connectionsList.add(npTMP);
                         }
 
-
-                        Lobby.s1.notifyAllClients("[newPlayer]");
+                        MonoPackage mpTMP = new MonoPackage("Player", "[newPlayer]", npTMP);
+////                        MonoPackage lcl = new MonoPackage("ArrayList", "[playersData]", Lobby.connectionsList);
+                        if(!outCommand.offer(mpTMP)){// & !outCommand.offer(lcl)){
+//                            //  [Log error]
+                            System.out.println("Error on adding outCommand " + mpTMP.fullToString());
+                        }
+//
+//
+//                        Lobby.s1.notifyAllClients("[newPlayer]");
                         Lobby.statusUpdate(packages[0].obj.toString() + " connected");
                     }break;
                     case GAMEDATA:{
