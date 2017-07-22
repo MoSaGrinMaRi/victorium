@@ -29,18 +29,20 @@ import java.util.Enumeration;
 public class Lobby extends AppCompatActivity {
 
     public static int gPort = 52232;
+    public static int MAX_PLAYERS = 6;
 
     public static ListView lv;
     public static TextView tv;
     public static OurArrayListAdapter adapter;
     public static Button b1;
     public static Button b3;
-//    Intent intent;
     public EditText tvSip;
     public static Server s1;
     public static Client c1;
     static String lPlayerName;
     static boolean lIsServer = false;
+
+    private static Activity thisActivity;   // need another approach, i guess...
 
     static ArrayList<Player> connectionsList = new ArrayList<>();
 
@@ -48,6 +50,8 @@ public class Lobby extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby);
+
+        thisActivity = this;
 
         b1 = (Button)findViewById(R.id.connectBtn);
 
@@ -60,7 +64,7 @@ public class Lobby extends AppCompatActivity {
 
                 c1 = Client.getInstance();
                 System.out.println("[=2.1=].................");
-                c1.init(Lobby.this);
+//                c1.init(Lobby.this);
                 c1.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, lIsServer ? getMyLocalIP() : tvSip.getText().toString(), lPlayerName);
                 System.out.println("[=2.2=].................");
             }
@@ -88,7 +92,7 @@ public class Lobby extends AppCompatActivity {
             System.out.println("[=1=].................");
             s1 = new Server();
             System.out.println("[=1.1=].................");
-            s1.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, Lobby.this);
+            s1.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "");
             System.out.println("[=1.2=].................");
 
             b1.performClick();
@@ -116,7 +120,6 @@ public class Lobby extends AppCompatActivity {
         adapter.addAll(connectionsList);
         adapter.notifyDataSetChanged();
         lv.setAdapter(adapter);
-
     }
 
     public class OurArrayListAdapter extends ArrayAdapter<Player> {
@@ -165,27 +168,18 @@ public class Lobby extends AppCompatActivity {
         lPlayerName = playerName;
     }
 
-    public static void startGameActivity(Activity mActivity){
+    public static void startGameActivity(){
 
-        System.out.println("YEEEEEEEEEEEY!");
-        mActivity.startActivity(new Intent(mActivity, Game.getInstance().getClass()));
+        System.out.println("YEY!");
 
-        System.out.println("YEEEEEE555555555555EEEEEY!");
+        thisActivity.startActivity(new Intent(thisActivity, Game.getInstance().getClass()));
 
         if(lIsServer){
             Game.getInstance().setup(s1, connectionsList.size());
-
-            System.out.println("YEEEEEE2222222EEEEEY!");
         }else{
             Game.getInstance().setup(null, connectionsList.size());
-
-            System.out.println("YEEEEEEE1111111111EEEEY!");
         }
-//        System.out.println("c1 " + c1 + "   iP " + c1.getInstance().iPlayer + "  Game " + Game.getInstance() + "  GameC " + Game.class);
         c1.iPlayer.setPlayerGame(Game.getInstance());
-//        c1.addOutCommand("");
-
-        System.out.println("YEEEEEE4444444444EEEEEY!");
     }
 
     public static String getMyLocalIP(){
@@ -210,7 +204,7 @@ public class Lobby extends AppCompatActivity {
 
     public static int getUnusedIndex(){
         int i = 0;
-        for(; i < 6 && i < connectionsList.size(); i++){     // !!! [GLOBAL VAR] MAX_PLAYERS = 6
+        for(; i < Lobby.MAX_PLAYERS && i < connectionsList.size(); i++){
             System.out.println("]]=[[ " + (connectionsList.size()-1) + " }{ " + i + " }{ " + connectionsList.get(i).getPlayerID());
             if(i != connectionsList.get(i).getPlayerID()){
                 return i;

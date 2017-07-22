@@ -13,8 +13,10 @@ import com.MonoCycleStudios.team.victorium.R;
 public class Questioner extends Fragment {
 
     public void setQuestionDisplay(Question questionDisplay) {
-
+        questionToShow = questionDisplay;
     }
+
+    Question questionToShow;
 
     Button b1;
     Button b2;
@@ -25,7 +27,7 @@ public class Questioner extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_notify, container, false);
+        View view = inflater.inflate(R.layout.fragment_question, container, false);
 
         tv = (TextView) view.findViewById(R.id.textView);
         b1 = (Button) view.findViewById(R.id.button1);
@@ -34,6 +36,23 @@ public class Questioner extends Fragment {
         b4 = (Button) view.findViewById(R.id.button4);
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // During startup, check if there are arguments passed to the fragment.
+        // onStart is a good place to do this because the layout has already been
+        // applied to the fragment at this point so we can safely call the method
+        // below that sets the article text.
+        Bundle args = getArguments();
+        if (questionToShow != null) {
+            tv.setText(questionToShow.getQuestion());
+            b1.setText(questionToShow.getAnswers()[0]);
+            b2.setText(questionToShow.getAnswers()[1]);
+            b3.setText(questionToShow.getAnswers()[2]);
+            b4.setText(questionToShow.getAnswers()[3]);
+        }
     }
 
 }

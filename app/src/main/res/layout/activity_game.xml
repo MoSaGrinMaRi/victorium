@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:forceHasOverlappingRendering="false"
     android:orientation="vertical"
     tools:context="com.MonoCycleStudios.team.victorium.Game.Game">
 
@@ -12,21 +14,22 @@
         android:name="com.MonoCycleStudios.team.victorium.Game.Fragments.Ground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:layout="@layout/fragment_ground"></fragment>
+        tools:layout="@layout/fragment_ground">
 
-    <fragment
-        android:id="@+id/fragmentNotifyPlaceholder"
-        android:name="com.MonoCycleStudios.team.victorium.Game.Fragments.Notifyer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:layout="@layout/fragment_notify">
-    </fragment>
-
-    <fragment
-        android:id="@+id/fragmentQuestionPlaceholder"
-        android:name="com.MonoCycleStudios.team.victorium.Game.Fragments.Questioner"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
     </fragment>
 
 </LinearLayout>
+
+    <FrameLayout
+    android:id="@+id/fragmentQuestionPlaceholder"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/fragmentNotifyPlaceholder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </FrameLayout>
+</merge>

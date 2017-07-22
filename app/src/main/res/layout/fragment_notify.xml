@@ -1,22 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_gravity="center"
     android:background="@android:color/transparent"
-    android:paddingBottom="40dp"
-    android:paddingLeft="40dp"
-    android:paddingRight="40dp"
-    android:paddingTop="40dp"
-    tools:context="com.MonoCycleStudios.team.victorium.Game.Fragments.Notifyer">
+    tools:context="com.MonoCycleStudios.team.victorium.Game.Fragments.Notifier">
 
+    <!--android:paddingBottom="40dp"-->
+    <!--android:paddingLeft="40dp"-->
+    <!--android:paddingRight="40dp"-->
+    <!--android:paddingTop="40dp"-->
 
-    <Button
-        android:id="@+id/notifyBtn"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:clickable="false"
-        android:enabled="false"
-        android:text="2" />
+        android:orientation="horizontal"
+        android:paddingBottom="100dp"
+        android:paddingTop="100dp"
+        android:weightSum="25">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="5" />
+
+        <Button
+            android:id="@+id/notifyBtn"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="15"
+            android:clickable="true"
+            android:enabled="true"
+            android:text="2" />
+    </LinearLayout>
+
 </FrameLayout>

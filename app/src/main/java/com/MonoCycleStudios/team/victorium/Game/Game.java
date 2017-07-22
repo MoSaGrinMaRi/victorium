@@ -11,8 +11,10 @@ import com.MonoCycleStudios.team.victorium.Connection.Lobby;
 import com.MonoCycleStudios.team.victorium.Connection.Server;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameFragments;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameState;
+import com.MonoCycleStudios.team.victorium.Game.Enums.QuestionType;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.Ground;
-import com.MonoCycleStudios.team.victorium.Game.Fragments.Notifyer;
+import com.MonoCycleStudios.team.victorium.Game.Fragments.Notifier;
+import com.MonoCycleStudios.team.victorium.Game.Fragments.Questioner;
 import com.MonoCycleStudios.team.victorium.R;
 
 import java.util.ArrayList;
@@ -42,19 +44,13 @@ public class Game extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-//        System.out.println("YEEEEEEEEE23746726462374623647623467234EEY!");
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        instance = this;
 
-        gameState = GameState.LAUNCHING;
-
-        System.out.println("YEEEEEEEE------------------EEEY!");
-
-        // comment V
-//        if(gameState == GameState.LAUNCHING && gameServer != null){
-//            new GamePrepare().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-//        }
+        if(gameState == GameState.WAITING_FOR_START && gameServer != null){
+            new GamePrepare().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
 
         Fragment fragment;        // for change fragment
         fragment = new Ground();
@@ -64,13 +60,15 @@ public class Game extends AppCompatActivity {
         ft.commit();
 
         System.out.println("YEEEEEEE=================EEEEY!" + gameServer);
-//        gameState = GameState.PREPARING;
-//        if(gameServer != null)
-//            new GameCore().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        if(gameServer != null)
+            new GameCore().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
+        showFragment(GameFragments.NOTIFY, "We wait for all of Players... SRY");
+
+        gameState = GameState.LAUNCHING;
     }
 
-    public static void setup(Server server, int playersNumb){
+    public void setup(Server server, int playersNumb){
         playersNumber = playersNumb;
         gameServer = server;
         gameGround = new Ground();
@@ -83,33 +81,53 @@ public class Game extends AppCompatActivity {
 //        }
     }
 
+    Fragment fragment = null;        // for change fragment
     public void showFragment(GameFragments gf, String str) {
-        Fragment fragment = null;        // for change fragment
+        System.out.println("====================================================");
+        System.out.println("We got " + gf.getStringValue() + " and " + str);
+        System.out.println("====================================================");
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
+//        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);  //  strange, got here an exception sometimes
 
         switch(GameFragments.getTypeOf(gf.getStringValue())){
 //            case AnotherNotifier1:
 //            case AnotherNotifier2:
 //            case AnotherNotifier3:
             case NOTIFY:{
-                fragment = new Notifyer();
-                if (!isFinishing()) {
-                    ft.replace(R.id.fragmentNotifyPlaceholder, fragment).commit();
+                fragment = new Notifier();
+                ((Notifier)fragment).setNotifyText(str);
+                if (!isFinishing() && fragment != null) {
+                    ft.replace(R.id.fragmentNotifyPlaceholder, fragment, "tag1");
+//                    ft.addToBackStack(null);
+                    ft.commit();
                 }
-//                ft.commit();
-//                ((Notifyer)fragment).setNotifyText(str);
 
             }break;
             case QUESTION:{
-                fragment = new Notifyer();
-                ft.replace(R.id.fragmentNotifyPlaceholder, fragment).commit();
-//                ft.commit();
-//                ((Notifyer)fragment).setNotifyText("WE ARE ALL READY TO POP A QUaSTION \\0/");
-
+                fragment = new Questioner();
+                ((Questioner)fragment).setQuestionDisplay(
+                        new Question(QuestionType.FILM,
+                        "How many oscar DiCaprio have?",
+                                new String[]{"0","-1","-2213","1"},
+                        3));
+                if (!isFinishing() && fragment != null) {
+                    ft.replace(R.id.fragmentQuestionPlaceholder, fragment, "tag2");
+//                    ft.addToBackStack(null);
+                    ft.commit();
+                }
+//                ((Notifier)fragment).setNotifyText("WE ARE ALL READY TO POP A QUaSTION \\0/");
 
             }break;
-
+            case NONE:{
+                if (!isFinishing() && fragment != null) {
+//                    ft.remove(fragment);
+//                    ft.replace(R.id.fragmentNotifyPlaceholder, null);
+                    ft.remove(fm.findFragmentById(R.id.fragmentNotifyPlaceholder)).commit();
+                    fragment = null;
+//                    ft.commitAllowingStateLoss();
+                }
+            }
         }
     }
 
@@ -118,12 +136,13 @@ public class Game extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
 
-            gameServer.notifyAllClients("[gameData]","[waitForPlayers]");
             while (!isCancelled()){
 
-                if(gameState == GameState.RUNNING){
+                if(gameState == GameState.PREPARING){
                     gameServer.notifyAllClients("[gameData]","[executeStart]");
+                    gameState = GameState.RUNNING;
                 }
+                System.out.println("2" + 2+2);
             }
             return null;
         }
@@ -132,28 +151,32 @@ public class Game extends AppCompatActivity {
     class GamePrepare extends AsyncTask<Void, Void, Void> {
 
         boolean isPrepared = false;
-//        boolean isAllLaunched = false;
 
         @Override
         protected Void doInBackground(Void... params) {
-            gameServer.notifyAllClients("[gameData]","[urGameStatus]");
+            int j = 0;
             while(!isPrepared || !isCancelled()){
 
-                System.out.println("YEEEEE+++++++++++++EEEEEEY!");
-                int j = 0;
-                for(int i = 0; i < Lobby.getConnectionsList().size(); i++){
-                    System.out.println(Lobby.getConnectionsList().get(i).getPlayerGameState());
-                    if(Lobby.getConnectionsList().get(i).getPlayerGameState() == GameState.PREPARING){
-                        j++;    //  cpConnectionsList.remove(i);
-                    }
-                    if(j >= Lobby.getConnectionsList().size()){
-                        isPrepared = true;
-                        gameState = GameState.RUNNING;
-                    }
+                gameServer.notifyAllClients("[gameData]","[urGameStatus]");
+                if(j >= playersNumber){
+                    isPrepared = true;
+                    gameState = GameState.PREPARING;
+                    this.cancel(true);
+                }else {
+
+                    j = 0;
+
                     try {
-                        Thread.sleep(500);
+                        Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
+                    }
+
+                    for (int i = 0; i < Lobby.getConnectionsList().size(); i++){
+//                        System.out.println("+_+" + Lobby.getConnectionsList().get(i).getPlayerGameState());
+                        if (Lobby.getConnectionsList().get(i).getPlayerGameState() == GameState.LAUNCHING) {
+                            j++;
+                        }
                     }
                 }
             }

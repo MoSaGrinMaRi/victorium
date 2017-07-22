@@ -36,12 +36,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-//                if(Lobby.getMyLocalIP() == null)
-//                    Toast.makeText(getApplicationContext(), "Connect to the internet!", Toast.LENGTH_SHORT).show();
-//                else
-                    {
-                    selected = spinner.getSelectedItem().toString();
+                selected = spinner.getSelectedItem().toString();
 
+                if(selected.equalsIgnoreCase("server") && Lobby.getMyLocalIP() == null)
+                    Toast.makeText(getApplicationContext(), "Connect to the internet!", Toast.LENGTH_SHORT).show();
+                else
+                {
                     startActivity(intent);
 
                     System.out.println("User name is: '" + tvUN.getText().toString() + "'");

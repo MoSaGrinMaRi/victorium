@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.MonoCycleStudios.team.victorium.Game.Enums.GameFragments;
+import com.MonoCycleStudios.team.victorium.Game.Game;
 import com.MonoCycleStudios.team.victorium.Game.Player;
 import com.MonoCycleStudios.team.victorium.Game.Region;
 import com.MonoCycleStudios.team.victorium.R;
@@ -31,11 +33,13 @@ public class Ground extends Fragment {
             public void onImageMapClicked(int id, ImageMap imageMap)
             {
                 mImageMap.showBubble(id);
+                Game.getInstance().showFragment(GameFragments.QUESTION, "");    // TEMP
             }
 
             @Override
             public void onBubbleClicked(int id)
             {
+                Game.getInstance().showFragment(GameFragments.NONE, "");    // TEMP
                 // react to info bubble for area being tapped
             }
         });
