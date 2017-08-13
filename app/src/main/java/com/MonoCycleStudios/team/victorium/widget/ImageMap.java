@@ -26,7 +26,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
@@ -35,7 +34,6 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.ViewConfiguration;
@@ -44,6 +42,9 @@ import android.widget.Scroller;
 
 import com.MonoCycleStudios.team.victorium.Connection.Lobby;
 import com.MonoCycleStudios.team.victorium.Game.Enums.CharacterColor;
+import com.MonoCycleStudios.team.victorium.Game.Fragments.Ground;
+import com.MonoCycleStudios.team.victorium.Game.Game;
+import com.MonoCycleStudios.team.victorium.Game.Region;
 import com.MonoCycleStudios.team.victorium.R;
 
 import org.jetbrains.annotations.NotNull;
@@ -54,7 +55,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 
 public class ImageMap extends android.support.v7.widget.AppCompatImageView
 {
@@ -244,22 +244,19 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 							String shape = xpp.getAttributeValue(null, "shape");
 							String coords = xpp.getAttributeValue(null, "coords");
 							String id = xpp.getAttributeValue(null, "id");
+							String neighbourhoods =  xpp.getAttributeValue(null, "alt");
 
-							// as a name for this area, try to find any of these
-							// attributes
-							//  name attribute is custom to this impl (not standard in html area tag)
+							// as a name for this area, try to find any of these attributes
+							// name attribute is custom to this impl (not standard in html area tag)
 							String name = xpp.getAttributeValue(null, "name");
 							if (name == null) {
 								name = xpp.getAttributeValue(null, "title");
-							}
-							if (name == null) {
-								name = xpp.getAttributeValue(null, "alt");
 							}
 
 							// create region [0]Title actual
 
 							if ((shape != null) && (coords != null)) {
-								a = addShape(shape,name,coords,id);
+								a = addShape(shape,name,coords,id,neighbourhoods);
 								if (a != null) {
 									// add all of the area tag attributes
 									// so that they are available to the
@@ -297,7 +294,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 	 * @param id
 	 * @return
 	 */
-	protected Area addShape( String shape, String name, String coords, String id)
+	protected Area addShape( String shape, String name, String coords, String id, String neighbourhood)
 	{
 		Area a = null;
 		String rid = id.replace("@+id/", "");
@@ -338,7 +335,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 			}
 			if (shape.equalsIgnoreCase("poly"))
 			{
-				a = new PolyArea(_id, name, coords);
+				a = new PolyArea(_id, name, coords, neighbourhood);
 			}
 			if (a != null)
 			{
@@ -888,16 +885,16 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 				break;
 
 			case MotionEvent.ACTION_MOVE:
-				for (int p=0;p<pointerCount;p++) {
-					id = ev.getPointerId(p);
-					TouchPoint t = mTouchPoints.get(id);
-					if (t!=null) {
-						onTouchMove(t,ev.getX(p),ev.getY(p));
-					}
-					// after all moves, check to see if we need
-					// to process a zoom
-					processZoom();
-				}
+//				for (int p=0;p<pointerCount;p++) {
+//					id = ev.getPointerId(p);
+//					TouchPoint t = mTouchPoints.get(id);
+//					if (t!=null) {
+//						onTouchMove(t,ev.getX(p),ev.getY(p));
+//					}
+//					// after all moves, check to see if we need
+//					// to process a zoom
+//					processZoom();
+//				}
 				break;
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_POINTER_UP:
@@ -1021,7 +1018,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 								: 0;
 
 							if ((xfling != 0) || (yfling != 0)) {
-								fling(-xfling, -yfling);
+//								fling(-xfling, -yfling);
 							}
 
 							mIsBeingDragged = false;
@@ -1225,16 +1222,12 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 			}
 		}
 
-		if (!bubble)
-		{
+		if (!bubble){
 			// then check for area taps
-			for (Area a : mAreaList)
-			{
-				if (a.isInArea((float)testx,(float)testy))
-				{
+			for (Area a : mAreaList){
+				if (a.isInArea((float)testx,(float)testy)){
 					if (mCallbackList != null) {
-						for (OnImageMapClickedHandler h : mCallbackList)
-						{
+						for (OnImageMapClickedHandler h : mCallbackList){
 							h.onImageMapClicked(a.getId(), this);
 						}
 					}
@@ -1245,9 +1238,13 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 			}
 		}
 
-		if (missed)
-		{
+		if (missed){
 			// managed to miss everything, clear bubbles
+			if (mCallbackList != null) {
+				for (OnImageMapClickedHandler h : mCallbackList) {
+					h.onImageMapMiss(this);
+				}
+			}
 			mBubbleMap.clear();
 			invalidate();
 		}
@@ -1262,7 +1259,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 		mScroller.fling(startX, startY, -velocityX, -velocityY, mRightBound, 0,
 			mBottomBound, 0);
 
-		invalidate();
+//		invalidate();
 	}
 
 	/*
@@ -1283,7 +1280,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 		if (mScrollTop < mBottomBound) {
 			mScrollTop = mBottomBound;
 		}
-		invalidate();
+//		invalidate();
 	}
 
 	/*
@@ -1297,7 +1294,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 		if (mScrollLeft < mRightBound) {
 			mScrollLeft = mRightBound;
 		}
-		invalidate();
+//		invalidate();
 	}
 
 	/*
@@ -1311,7 +1308,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 		if (mScrollTop < mBottomBound) {
 			mScrollTop = mBottomBound;
 		}
-		invalidate();
+//		invalidate();
 	}
 
 	/*
@@ -1477,6 +1474,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 	class PolyArea extends Area {
 		ArrayList<Integer> xpoints = new ArrayList<Integer>();
 		ArrayList<Integer> ypoints = new ArrayList<Integer>();
+		Path areaPath = new Path();
 
 		// centroid point for this poly
 		float _x;
@@ -1491,9 +1489,16 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 		int left=-1;
 		int right=-1;
 
-		public PolyArea(int id, String name, String coords) {
+		public PolyArea(int id, String name, String coords, String neighbourhood) {
 			super(id, name);
-            System.out.println("id = " + id);
+
+			if(Ground.regions.size() <= mAreaList.size()) {
+				Region newRG = new Region(Ground.regions.size(), id, false, null);
+				newRG.setNeighbourhoodsID(neighbourhood.split(":;"));
+				Ground.regions.add(newRG);
+			}
+
+//			System.out.println(" id = " + id);
 
 			// split the list of coordinates into points of the
 			// polygon and compute a bounding box
@@ -1528,6 +1533,14 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 				i+=2;
 			}
 			_points=xpoints.size();
+
+			double magicMultiplier = 1920.0/mmScreenWidth;
+			areaPath.moveTo((int)(xpoints.get(0)/magicMultiplier), (int)(ypoints.get(0)/magicMultiplier));
+			for (int j = 1; j < _points; j++)
+			{
+				areaPath.lineTo((int)(xpoints.get(j)/magicMultiplier), (int)(ypoints.get(j)/magicMultiplier));
+			}
+			areaPath.lineTo((int)(xpoints.get(0)/magicMultiplier), (int)(ypoints.get(0)/magicMultiplier));
 
 			// add point zero to the end to make
 			// computing area and centroid easier
@@ -1586,7 +1599,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 		@Override
 		public boolean isInArea(float testx, float testy)
 		{
-			System.out.println("TEST: " + testx + "?"+testy + " !! " +_x +"?"+_y);
+//			System.out.println("TEST: " + testx + "?"+testy + " !! " +_x +"?"+_y);
 			int i, j;
 			boolean c = false;
 			for (i = 0, j = _points-1; i < _points; j = i++) {
@@ -1599,150 +1612,144 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 
 		// For debugging maps, it is occasionally helpful to see the
 		// bounding box for the polygons [!!!]
-
-		Path path = new Path();
+		Paint paint = new Paint();
 			@Override
 			public void onDraw(Canvas canvas) {
 				// draw the bounding box
 
-				double magicMultiplier = 1920.0/mmScreenWidth;
-				path.moveTo((int)(xpoints.get(0)/magicMultiplier), (int)(ypoints.get(0)/magicMultiplier));
-				for (int i = 1; i < _points; i++)
-				{
-					path.lineTo((int)(xpoints.get(i)/magicMultiplier), (int)(ypoints.get(i)/magicMultiplier));
-				}
-				path.lineTo((int)(xpoints.get(0)/magicMultiplier), (int)(ypoints.get(0)/magicMultiplier));
-				Paint paint = new Paint();
+				double magicMultiplier = (1920.0/mmScreenWidth)*(mmScreenDensity/320.0);
+				paint.setAntiAlias(true);
+				paint.setFilterBitmap(true);
+				paint.setDither(true);
+				paint.setStrokeCap(Paint.Cap.ROUND);
 
 //					Random a = new Random();
 //					int tst = a.nextInt(7);
 
 				//		smth like
-				System.out.println("Drawing id: " + this._id);
+//				System.out.println("Drawing id: " + this._id);
 
-				int tst = 222;
-				if(this._id - 2131558542 == 17)
-					tst = 0;
-				if(this._id - 2131558542 == 14 && Lobby.getConnectionsList().size() > 1)
-					tst = 1;
-				if(this._id - 2131558542 == 3 && Lobby.getConnectionsList().size() > 2)
-					tst = 2;
-				if(this._id - 2131558542 == 19 && Lobby.getConnectionsList().size() > 3)
-					tst = 3;
-				if(this._id - 2131558542 == 0  && Lobby.getConnectionsList().size() > 4)
-					tst = 4;
-				if(this._id - 2131558542 == 24 && Lobby.getConnectionsList().size() > 5)
-					tst = 5;
-				if(this._id - 2131558542 == 13 && Lobby.getConnectionsList().size() > 5)
-					tst = 6;
-				if(this._id - 2131558542 == 6 && Lobby.getConnectionsList().size() > 5)
-					tst = 7;
-				if(this._id - 2131558542 == 7 && Lobby.getConnectionsList().size() > 5)
-					tst = 8;
-				switch(tst){
-					case 0:{paint.setColor(CharacterColor.RED.getARGB());}
-					break;
-					case 6:
-					case 7:
-					case 8:
-					case 1:{paint.setColor(CharacterColor.BLUE.getARGB());}
-					break;
-					case 2:{paint.setColor(CharacterColor.GREEN.getARGB());}
-					break;
-					case 3:{paint.setColor(CharacterColor.PURPULE.getARGB());}
-					break;
-					case 4:{paint.setColor(CharacterColor.ORANGE.getARGB());}
-					break;
-					case 5:{paint.setColor(CharacterColor.BLACK.getARGB());}
-					break;
-					default:{paint.setColor(Color.WHITE);}
+				int ind = -1;
+				Region rg = null;
+				if((ind = Ground.regions.indexOf(new Region(-1,this._id,false,null))) != -1) {
+					rg = Ground.regions.get(ind);
+					if(rg.owner != null)
+						paint.setColor(rg.owner.getPlayerCharacter().getColor().getARGB());
+					else
+						paint.setColor(CharacterColor.WHITE.getARGB());
 				}
 
-				paint.setStrokeWidth(4);
+				paint.setStrokeWidth(mmScreenDensity > 320 ? 4 : 3);
 				paint.setStyle(Paint.Style.STROKE);
-				canvas.drawPath(path, paint);
+				canvas.drawPath(areaPath, paint);
 
 				paint.setStyle(Paint.Style.FILL);
 				paint.setAlpha(50);
 
 				if (paint.getColor() == CharacterColor.WHITE.getARGB())
 					paint.setColor(Color.TRANSPARENT);
-				canvas.drawPath(path, paint);
+				canvas.drawPath(areaPath, paint);
+
 				Bitmap mmBitmap = null;
-				switch(tst){
-					case 0:{
-						mmBitmap = BitmapFactory.decodeResource(
-								getContext().getResources(),
-								R.drawable.man_red);
-						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/16, mmBitmap.getHeight()/16, true);
-						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.15), (float)(this.getOriginY()/magicMultiplier/2.25), null);
+				if(rg != null && rg.owner != null) {
+					if(rg.isBase){
+						switch (rg.owner.getPlayerCharacter().getColor()) {
+							case RED: {
+								mmBitmap = BitmapFactory.decodeResource(
+										getContext().getResources(),
+										R.drawable.castle_b);
+								mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth() / 32, mmBitmap.getHeight() / 32, true);
+								canvas.drawBitmap(mmBitmap, (float) (this.getOriginX() / magicMultiplier / 2)-mmBitmap.getWidth() / 2, (float) (this.getOriginY() / magicMultiplier / 2)-mmBitmap.getHeight() / 2, null);
 
-					}break;
-					case 1:{
-						mmBitmap = BitmapFactory.decodeResource(
-								getContext().getResources(),
-								R.drawable.wizard_blue);
-						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/16, mmBitmap.getHeight()/16, true);
-						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.15), (float)(this.getOriginY()/magicMultiplier/2.35), null);
+							}
+							break;
+							case BLUE: {
+								mmBitmap = BitmapFactory.decodeResource(
+										getContext().getResources(),
+										R.drawable.castle_dst1_b);
+								mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth() / 32, mmBitmap.getHeight() / 32, true);
+								canvas.drawBitmap(mmBitmap, (float) (this.getOriginX() / magicMultiplier / 2)-mmBitmap.getWidth() / 2, (float) (this.getOriginY() / magicMultiplier / 2)-mmBitmap.getHeight() / 2, null);
 
-					}break;
-					case 2:{
-						mmBitmap = BitmapFactory.decodeResource(
-								getContext().getResources(),
-								R.drawable.man_green);
-						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/16, mmBitmap.getHeight()/16, true);
-						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.1), (float)(this.getOriginY()/magicMultiplier/2.25), null);
+							}
+							break;
+							case ORANGE: {
+								mmBitmap = BitmapFactory.decodeResource(
+										getContext().getResources(),
+										R.drawable.castle_dst3_b);
+								mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth() / 32, mmBitmap.getHeight() / 32, true);
+								canvas.drawBitmap(mmBitmap, (float) (this.getOriginX() / magicMultiplier / 2)-mmBitmap.getWidth() / 2, (float) (this.getOriginY() / magicMultiplier / 2)-mmBitmap.getHeight() / 2, null);
 
-					}break;
-					case 3:{
-						mmBitmap = BitmapFactory.decodeResource(
-								getContext().getResources(),
-								R.drawable.warrior_purple);
-						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/16, mmBitmap.getHeight()/16, true);
-						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.05), (float)(this.getOriginY()/magicMultiplier/2.25), null);
+							}
+							break;
+						}
+					}else {
+						switch (rg.owner.getPlayerCharacter().getColor()) {
+							case RED: {
+								mmBitmap = BitmapFactory.decodeResource(
+										getContext().getResources(),
+										R.drawable.man_red);
+								mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth() / 20, mmBitmap.getHeight() / 20, true);
+								canvas.drawBitmap(mmBitmap, (float) (this.getOriginX() / magicMultiplier / 2)-mmBitmap.getWidth() / 2, (float) (this.getOriginY() / magicMultiplier / 2)-mmBitmap.getHeight() / 2, null);
 
-					}break;
-					case 4:{
-						mmBitmap = BitmapFactory.decodeResource(
-								getContext().getResources(),
-								R.drawable.warrior_orange);
-						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/16, mmBitmap.getHeight()/16, true);
-						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.15), (float)(this.getOriginY()/magicMultiplier/2.85), null);
+							}
+							break;
+							case BLUE: {
+								mmBitmap = BitmapFactory.decodeResource(
+										getContext().getResources(),
+										R.drawable.wizard_blue);
+								mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth() / 20, mmBitmap.getHeight() / 20, true);
+								canvas.drawBitmap(mmBitmap, (float) (this.getOriginX() / magicMultiplier / 2)-mmBitmap.getWidth() / 2, (float) (this.getOriginY() / magicMultiplier / 2)-mmBitmap.getHeight() / 2, null);
 
-					}break;
-					case 5:{
-						mmBitmap = BitmapFactory.decodeResource(
-								getContext().getResources(),
-								R.drawable.wizard_dark);
-						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/16, mmBitmap.getHeight()/16, true);
-						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.1), (float)(this.getOriginY()/magicMultiplier/2.25), null);
+							}
+							break;
+							case GREEN: {
+								mmBitmap = BitmapFactory.decodeResource(
+										getContext().getResources(),
+										R.drawable.man_green);
+								mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth() / 20, mmBitmap.getHeight() / 20, true);
+								canvas.drawBitmap(mmBitmap, (float) (this.getOriginX() / magicMultiplier / 2)-mmBitmap.getWidth() / 2, (float) (this.getOriginY() / magicMultiplier / 2)-mmBitmap.getHeight() / 2, null);
 
-					}break;
-					case 6:{
-						mmBitmap = BitmapFactory.decodeResource(
-								getContext().getResources(),
-								R.drawable.castle_b);
-						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/22, mmBitmap.getHeight()/22, true);
-						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.15), (float)(this.getOriginY()/magicMultiplier/2.25), null);
+							}
+							break;
+							case PURPLE: {
+								mmBitmap = BitmapFactory.decodeResource(
+										getContext().getResources(),
+										R.drawable.warrior_purple);
+								mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth() / 20, mmBitmap.getHeight() / 20, true);
+								canvas.drawBitmap(mmBitmap, (float) (this.getOriginX() / magicMultiplier / 2)-mmBitmap.getWidth() / 2, (float) (this.getOriginY() / magicMultiplier / 2)-mmBitmap.getHeight() / 2, null);
 
-					}break;
-					case 7:{
-						mmBitmap = BitmapFactory.decodeResource(
-								getContext().getResources(),
-								R.drawable.castle_dst1_b);
-						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/22, mmBitmap.getHeight()/22, true);
-						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.1), (float)(this.getOriginY()/magicMultiplier/2.25), null);
+							}
+							break;
+							case ORANGE: {
+								mmBitmap = BitmapFactory.decodeResource(
+										getContext().getResources(),
+										R.drawable.warrior_orange);
+								mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth() / 20, mmBitmap.getHeight() / 20, true);
+								canvas.drawBitmap(mmBitmap, (float) (this.getOriginX() / magicMultiplier / 2)-mmBitmap.getWidth() / 2, (float) (this.getOriginY() / magicMultiplier / 2)-mmBitmap.getHeight() / 2, null);
 
-					}break;
-					case 8:{
-						mmBitmap = BitmapFactory.decodeResource(
-								getContext().getResources(),
-								R.drawable.castle_dst3_b);
-						mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth()/22, mmBitmap.getHeight()/22, true);
-						canvas.drawBitmap(mmBitmap, (float)(this.getOriginX()/magicMultiplier/2.125), (float)(this.getOriginY()/magicMultiplier/2.45), null);
+							}
+							break;
+							case BLACK: {
+								mmBitmap = BitmapFactory.decodeResource(
+										getContext().getResources(),
+										R.drawable.wizard_dark);
+								mmBitmap = Bitmap.createScaledBitmap(mmBitmap, mmBitmap.getWidth() / 20, mmBitmap.getHeight() / 20, true);
+								canvas.drawBitmap(mmBitmap, (float) (this.getOriginX() / magicMultiplier / 2)-mmBitmap.getWidth() / 2, (float) (this.getOriginY() / magicMultiplier / 2)-mmBitmap.getHeight() / 2, null);
 
-					}break;
+							}
+							break;
+						}
+					}
 				}
+
+//				path.moveTo((float)(this._x/ magicMultiplier/2),(float)(this._y/ magicMultiplier/2));
+//				path.lineTo((float)(this._x/ magicMultiplier/2),(float)(this._y/ magicMultiplier/2));
+//				path.lineTo((float)((this._x+1)/ magicMultiplier/2),(float)((this._y+1)/ magicMultiplier/2));
+//
+//				paint.setStrokeWidth(5);
+//				paint.setStyle(Paint.Style.STROKE);
+//				canvas.drawPath(path, paint);
+
 
 //					canvas.drawRect((int)(left / magicMultiplier) + mScrollLeft,
 //									(int)(top / magicMultiplier) + mScrollTop,
@@ -1751,7 +1758,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 //									textOutlinePaint);
 
 //					canvas.drawRect(left * mResizeFactorX + mScrollLeft,
-//											top * mResizeFactorY + mScrollTop,
+//											top * mResizeFraactorY + mScrollTop,
 //											right * mResizeFactorX + mScrollLeft,
 //											bottom * mResizeFactorY + mScrollTop,
 //											textOutlinePaint);
@@ -1930,6 +1937,8 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 					h.onBubbleClicked(_a.getId());
 				}
 			}
+			mBubbleMap.clear();
+			invalidate();
 		}
 	}
 
@@ -1948,6 +1957,8 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 		 * @param id
 		 */
 		void onBubbleClicked(int id);
+
+		void onImageMapMiss(ImageMap imageMap);
 	}
 
 	/*

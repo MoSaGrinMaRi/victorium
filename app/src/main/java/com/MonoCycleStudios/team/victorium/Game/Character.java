@@ -44,7 +44,7 @@ public class Character implements Serializable{
             }break;
             case 5:{
                 ct = CharacterType.WARRIOR;
-                cc = CharacterColor.PURPULE;
+                cc = CharacterColor.PURPLE;
             }break;
         }
         this.type = ct;
@@ -54,5 +54,4 @@ public class Character implements Serializable{
     public CharacterColor getColor() {
         return color;
     }
-
 }

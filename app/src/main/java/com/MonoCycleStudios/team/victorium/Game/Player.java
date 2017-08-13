@@ -1,20 +1,24 @@
 package com.MonoCycleStudios.team.victorium.Game;
 
+import android.support.annotation.NonNull;
+
 import com.MonoCycleStudios.team.victorium.Connection.Client;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameState;
+import com.MonoCycleStudios.team.victorium.Game.Enums.PlayerState;
 
 import java.io.Serializable;
 
-public class Player implements Serializable {
+public class Player implements Serializable, Comparable{
 
     private static final long serialVersionUID = 666633L;
 
     private int playerID;
     private String playerName;
-    private Client playerClient;
+    private transient Client playerClient;
     private Character playerCharacter;
-    private Game playerGame;
+    private transient Game playerGame;
     private GameState playerGameState = GameState.NONE;
+    private PlayerState playerState = PlayerState.NONE;
     //private int inGame; -1 for 'offline'
     //                     0 for 'online'
     //                     1 for 'ingame'
@@ -26,6 +30,8 @@ public class Player implements Serializable {
         this.playerClient = playerClient;
         this.playerCharacter = playerCharacter;
         this.playerGame = playerGame;
+//        playerState = PlayerState.NONE;
+        playerState = PlayerState.ATTACK;
     }
 
     public int getPlayerID() {
@@ -47,6 +53,9 @@ public class Player implements Serializable {
     public GameState getPlayerGameState() {
         return playerGameState;
     }
+    public PlayerState getPlayerState() {
+        return playerState;
+    }
 
     public void setPlayerClient(Client playerClient) {
         this.playerClient = playerClient;
@@ -57,6 +66,32 @@ public class Player implements Serializable {
     public void setPlayerGameState(GameState playerGameState) {
         this.playerGameState = playerGameState;
     }
+    public void setPlayerState(PlayerState playerState) {
+        this.playerState = playerState;
+    }
 
+    @Override
+    public boolean equals(Object obj){
+        boolean sameObj = false;
 
+        if (obj != null && obj instanceof Player)
+            if(sameObj = this.playerID == ((Player)obj).playerID)
+                sameObj = this.playerName.equalsIgnoreCase(((Player)obj).playerName);
+
+        return sameObj;
+    }
+
+    public int hashCode() {
+        return java.util.Objects.hashCode(playerID);
+    }
+
+    @Override
+    public String toString() {
+        return playerName + ", " + playerID + ", " + super.toString();
+    }
+
+    @Override
+    public int compareTo(@NonNull Object o) {
+        return this.getPlayerID() - ((Player)o).getPlayerID();
+    }
 }

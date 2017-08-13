@@ -16,9 +16,13 @@ public class Notifier extends Fragment {
     public void setNotifyText(String strToNotify) {
         txtToShowUp = strToNotify;
     }
+    public void setIsVisible(boolean isVisible){
+        this.isVisible = isVisible;
+    }
 
     String txtToShowUp;
     Button b1;
+    boolean isVisible = true;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -33,8 +37,12 @@ public class Notifier extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        if (txtToShowUp != null) {
-            b1.setText(txtToShowUp);
+        if(isVisible) {
+            if (txtToShowUp != null) {
+                b1.setText(txtToShowUp);
+            }
+        }else{
+            b1.setVisibility(View.GONE);
         }
     }
 

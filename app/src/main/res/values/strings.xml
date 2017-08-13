@@ -3,8 +3,8 @@
 
     <!--    main    -->
     <string-array name="connectionTypeList">
-        <item>Server</item>
         <item>Client</item>
+        <item>Server</item>
     </string-array>
     <string name="UserNicknameText">UserName</string>
     <string name="ConnectBtnText">Next</string>

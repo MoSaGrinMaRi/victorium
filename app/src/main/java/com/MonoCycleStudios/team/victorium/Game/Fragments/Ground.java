@@ -6,18 +6,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.MonoCycleStudios.team.victorium.Connection.Client;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameFragments;
 import com.MonoCycleStudios.team.victorium.Game.Game;
+import com.MonoCycleStudios.team.victorium.Game.GameRule;
 import com.MonoCycleStudios.team.victorium.Game.Player;
 import com.MonoCycleStudios.team.victorium.Game.Region;
 import com.MonoCycleStudios.team.victorium.R;
 import com.MonoCycleStudios.team.victorium.widget.ImageMap;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Ground extends Fragment {
-    ImageMap mImageMap;
-    public static Region[] regions;
+    static ImageMap mImageMap;
+    public static ArrayList<Region> regions = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -32,36 +35,75 @@ public class Ground extends Fragment {
             @Override
             public void onImageMapClicked(int id, ImageMap imageMap)
             {
-                mImageMap.showBubble(id);
-                Game.getInstance().showFragment(GameFragments.QUESTION, "");    // TEMP
+                if(GameRule.check(Client.iPlayer, "hit region", id))
+                    mImageMap.showBubble(id);
             }
 
             @Override
             public void onBubbleClicked(int id)
             {
-                Game.getInstance().showFragment(GameFragments.NONE, "");    // TEMP
-                // react to info bubble for area being tapped
+                GameRule.check(Client.iPlayer,"hit bulb attack",regions.lastIndexOf(new Region(-1,id,false,null)));
+            }
+
+            @Override
+            public void onImageMapMiss(ImageMap imageMap) {
+                Game.getInstance().showFragment(GameFragments.NONE, GameFragments.QUESTION);    // TEMP
             }
         });
 
         return view;
     }
 
-    // need this?
-    public static void setRegions(Region[] regions) {
-        Ground.regions = regions;
+    public static ArrayList<Region> getAllCapturableRegions(Player p){
+        ArrayList<Region> regionsToReturn = new ArrayList<>();
+
+        ArrayList<Region> regionsFree = new ArrayList<>();
+        for(Region rg : regions){
+            if(rg.owner == null){
+                regionsFree.add(rg);
+            }
+        }
+
+        ArrayList<Region> regionsPlayer = new ArrayList<>();
+        for(Region rg : regions){
+            if(rg.owner != null && rg.owner.equals(p)){
+                regionsPlayer.add(rg);
+            }
+        }
+
+        for(Region rg : regionsFree){
+            for(Region prg : regionsPlayer)
+                if(prg.getNeighbourhoods().contains(rg)){
+                    regionsToReturn.add(rg);
+                    break;
+                }
+        }
+        if(regionsToReturn.isEmpty()){
+            regionsToReturn.addAll(regionsFree);
+        }
+        return regionsToReturn;
     }
 
-    // use ArrayList instead?
-    public static void addRegion(Region newRegion){
-        Region[] result = Arrays.copyOf(regions, regions.length + 1);
-        result[result.length - 1] = newRegion;
+    public static ArrayList<Region> getAllAttackableRegions(Player p){
+        ArrayList<Region> regionsToReturn = new ArrayList<>();
 
-        regions = result;
+        for(Region rg : regions){
+            if(rg.owner != null && !rg.owner.equals(p)){
+                regionsToReturn.add(rg);
+            }
+        }
+        return regionsToReturn;
+    }
 
+    public static void setRegions(ArrayList<Region> newRegions) {
+        regions = newRegions;
+        for(Region rg : regions)
+            rg.computeNeighbourhoods(regions);
+        mImageMap.invalidate();
     }
 
     public static void updateRegion(int id, Player newOwner/*, int newCost*/){
-        regions[id].update(newOwner/*, newCost*/);
+        regions.get(id).update(newOwner/*, newCost*/);
+        mImageMap.invalidate();
     }
 }

@@ -2,15 +2,18 @@ package com.MonoCycleStudios.team.victorium.Game.Enums;
 
 public enum GameFragments {
     NONE("[none]"),
+    ALERT("[alert]"),
     NOTIFY("[waitForPlayers]"),
-    QUESTION("[question]");
+    QUESTION("[question]"),
+    QUEUETURNS("[queueTurns]"),
+    TIMER("[timer]");
 
     private final String stringValue;
 
     GameFragments(final String s) {
         stringValue = s;
     }
-    public String getStringValue(){
+    public String getStr(){
         return this.stringValue;
     }
     public static GameFragments getTypeOf(String command) {

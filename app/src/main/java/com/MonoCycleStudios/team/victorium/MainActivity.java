@@ -11,6 +11,8 @@ import android.widget.Toast;
 
 import com.MonoCycleStudios.team.victorium.Connection.Lobby;
 
+import java.util.Random;
+
 public class MainActivity extends AppCompatActivity {
 
     EditText tvUN;
@@ -23,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         tvUN = (EditText)findViewById(R.id.UserNickname);
+        tvUN.setText(tvUN.getText() + " #" + (new Random().nextInt((99 - 10) + 1) + 10));
 
         spinner = (Spinner) findViewById(R.id.ConnectionType);
         selected = spinner.getSelectedItem().toString();

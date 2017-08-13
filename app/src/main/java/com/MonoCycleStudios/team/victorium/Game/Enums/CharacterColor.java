@@ -1,14 +1,12 @@
 package com.MonoCycleStudios.team.victorium.Game.Enums;
 
-import java.io.Serializable;
-
-public enum CharacterColor implements Serializable{
+public enum CharacterColor{
     NONE(128, 255, 255),
     RED(200, 0, 0),
     BLUE(0, 102, 204),
     GREEN(51, 204, 0),
     ORANGE(240, 150, 30),
-    PURPULE(102, 51, 153),
+    PURPLE(102, 51, 153),
     BLACK(34, 34, 34),
     WHITE(255, 255, 255);
 
@@ -31,5 +29,4 @@ public enum CharacterColor implements Serializable{
     public int getARGB(){
         return 0xFF000000 | ((r << 16) & 0x00FF0000) | ((g << 8) & 0x0000FF00) | b;
     }
-
 }

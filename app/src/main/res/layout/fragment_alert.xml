@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.MonoCycleStudios.team.victorium.Game.Fragments.MyTimer">
+
+    <TextView
+        android:id="@+id/alertText"
+        android:layout_width="175dp"
+        android:layout_height="175dp"
+        android:layout_gravity="bottom|start|end"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@android:color/holo_blue_dark"
+        android:gravity="center"
+        android:paddingBottom="20dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="20dp"
+        android:singleLine="false"
+        android:text="dlkwjhsgjhdhwejksadhnwwalkshdbjchadhsjnmdkam,dsnbcjxkwdsx"
+        android:textAlignment="center"
+        android:textColor="?android:attr/colorBackground"
+        android:textSize="18sp"
+        android:textStyle="italic" />
+</FrameLayout>

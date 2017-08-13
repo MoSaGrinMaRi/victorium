@@ -13,18 +13,14 @@ public class MonoPackage implements Serializable {
     String descOfObject;
     Object obj;
 
-    private void writeObject(ObjectOutputStream stream) throws IOException {
-        System.out.println("HEY!! I'm writing ur an Object!");
-        stream.writeUTF(typeOfObject);
-        stream.writeUTF(descOfObject);
-        stream.writeObject(obj);
+    public String getTypeOfObject() {
+        return typeOfObject;
     }
-
-    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
-        System.out.println("HEY!! I'm reading ur an Object!");
-        typeOfObject = stream.readUTF();
-        descOfObject = stream.readUTF();
-        obj = stream.readObject();
+    public String getDescOfObject() {
+        return descOfObject;
+    }
+    public Object getObj() {
+        return obj;
     }
 
     public MonoPackage(String typeOfObject, String descOfObject, Object obj) {

@@ -1,8 +1,8 @@
 package com.MonoCycleStudios.team.victorium.Game.Enums;
 
-public enum CharacterType{
+public enum PlayerState {
     NONE,
-    COSSACK,
-    WARRIOR,
-    WIZARD
+    ATTACK,
+    DEFEND,
+    SPEC
 }

@@ -4,14 +4,19 @@ public enum GameCommandType {
     NONE("[none]"),
     URGAMESTATUS("[urGameStatus]"),
     WAITFORPLAYERS("[waitForPlayers]"),
-    EXECUTESTART("[executeStart]");
+    EXECUTESTART("[executeStart]"),
+    QUEUTURNS("[queueTurns]"),
+    REGIONS("[regions]"),
+    QUESTION("[question]"),
+    ALERT("[alert]"),
+    GAMERULE("[gameRule]");
 
     private final String stringValue;
 
     GameCommandType(final String s) {
         stringValue = s;
     }
-    public String getStringValue(){
+    public String getStr(){
         return this.stringValue;
     }
     public static GameCommandType getTypeOf(String command) {

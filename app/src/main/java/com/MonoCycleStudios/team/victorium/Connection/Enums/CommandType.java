@@ -3,7 +3,7 @@ package com.MonoCycleStudios.team.victorium.Connection.Enums;
 public enum CommandType {
     NONE("[none]"),
     RDATA("[rData]"),
-    START_GAME("[startGame]"),
+    STARTGAME("[startGame]"),
     PLAYERSDATA("[playersData]"),
     NEWPLAYER("[newPlayer]"),
     GAMEDATA("[gameData]"),
@@ -14,7 +14,7 @@ public enum CommandType {
     CommandType(final String s) {
         stringValue = s;
     }
-    public String getStringValue(){
+    public String getStr(){
         return this.stringValue;
     }
     public static CommandType getTypeOf(String command) {
@@ -25,5 +25,4 @@ public enum CommandType {
         }
         return NONE;
     }
-
 }

@@ -2,7 +2,12 @@ package com.MonoCycleStudios.team.victorium.Game;
 
 import com.MonoCycleStudios.team.victorium.Game.Enums.QuestionType;
 
-public class Question {
+import java.io.Serializable;
+
+public class Question implements Serializable {
+
+    private static final long serialVersionUID = 669933L;
+
     private final QuestionType questionType;
     private final String questionBody;
     private final String[] Answers = new String[4];
@@ -11,9 +16,7 @@ public class Question {
     Question(QuestionType questionType, String questionBody, String[] Answers, int rightAnswers){
         this.questionType = questionType;
         this.questionBody = questionBody;
-        for(int i = 0; i < Answers.length; i++) {
-            this.Answers[i] = Answers[i];
-        }
+        System.arraycopy(Answers, 0, this.Answers, 0, Answers.length);
         this.rightAnswers = rightAnswers;
 
     }

@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.MonoCycleStudios.team.victorium.Connection.Enums.CommandType;
 import com.MonoCycleStudios.team.victorium.Game.Game;
 import com.MonoCycleStudios.team.victorium.Game.Player;
 import com.MonoCycleStudios.team.victorium.R;
@@ -24,12 +25,14 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 
 public class Lobby extends AppCompatActivity {
 
     public static int gPort = 52232;
     public static int MAX_PLAYERS = 6;
+    public static int MIN_PLAYERS_TO_START = 2;
 
     public static ListView lv;
     public static TextView tv;
@@ -44,7 +47,7 @@ public class Lobby extends AppCompatActivity {
 
     private static Activity thisActivity;   // need another approach, i guess...
 
-    static ArrayList<Player> connectionsList = new ArrayList<>();
+    static ArrayList<Player> playerArrayList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +65,7 @@ public class Lobby extends AppCompatActivity {
                 ((Button)findViewById(R.id.connectBtn)).setClickable(false);
                 ((Button)findViewById(R.id.connectBtn)).setText("Connecting");
 
-                c1 = Client.getInstance();
+                c1 = new Client();
                 System.out.println("[=2.1=].................");
 //                c1.init(Lobby.this);
                 c1.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, lIsServer ? getMyLocalIP() : tvSip.getText().toString(), lPlayerName);
@@ -71,12 +74,12 @@ public class Lobby extends AppCompatActivity {
         });
 
         b3 = (Button)findViewById(R.id.launchGame);
-
+        b3.setEnabled(false);
         b3.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick (View v){
                 statusUpdate("Loading");
-                s1.notifyAllClients("[startGame]");
+                s1.notifyAllClients(new MonoPackage("", CommandType.STARTGAME.getStr(),null));
                 s1.stopListening(false);
             }
         });
@@ -84,6 +87,7 @@ public class Lobby extends AppCompatActivity {
         lv = (ListView) findViewById(R.id.connectionsListView);
 
         tv = (TextView) findViewById(R.id.status);
+        tv.setText(lPlayerName);
         tvSip = (EditText) findViewById(R.id.ipAddress);
         if (lIsServer){
             System.out.println("set invisible");
@@ -115,11 +119,8 @@ public class Lobby extends AppCompatActivity {
             }
         });
 
-        adapter = new OurArrayListAdapter(this, android.R.layout.simple_list_item_1, connectionsList);
-        adapter.clear();
-        adapter.addAll(connectionsList);
-        adapter.notifyDataSetChanged();
-        lv.setAdapter(adapter);
+        adapter = new OurArrayListAdapter(this, android.R.layout.simple_list_item_1, playerArrayList);
+        forceREUpdateAdapter();
     }
 
     public class OurArrayListAdapter extends ArrayAdapter<Player> {
@@ -151,12 +152,23 @@ public class Lobby extends AppCompatActivity {
                     tt1.setText(p.getPlayerName());
                 if (tt2 != null)
                     tt2.setText(String.valueOf(p.getPlayerID()));
-                if (im1 != null)
+                if (im1 != null) {
                     im1.setColorFilter(p.getPlayerCharacter().getColor().getARGB());
+                    if(Client.iPlayer != null && p.getPlayerID() == Client.iPlayer.getPlayerID()) {
+                        im1.setBackground(getDrawable(R.drawable.shape_tablerow_image));
+                    }
+                }
             }
             return v;
         }
 
+    }
+
+    public static void forceREUpdateAdapter(){
+        adapter.clear();
+        adapter.addAll(playerArrayList);
+        adapter.notifyDataSetChanged();
+        lv.setAdapter(adapter);
     }
 
     public static synchronized void statusUpdate(String s){
@@ -172,12 +184,14 @@ public class Lobby extends AppCompatActivity {
 
         System.out.println("YEY!");
 
+        Collections.sort(Lobby.getPlayersList());
+
         thisActivity.startActivity(new Intent(thisActivity, Game.getInstance().getClass()));
 
         if(lIsServer){
-            Game.getInstance().setup(s1, connectionsList.size());
+            Game.getInstance().setup(s1, playerArrayList.size());
         }else{
-            Game.getInstance().setup(null, connectionsList.size());
+            Game.getInstance().setup(null, playerArrayList.size());
         }
         c1.iPlayer.setPlayerGame(Game.getInstance());
     }
@@ -204,9 +218,9 @@ public class Lobby extends AppCompatActivity {
 
     public static int getUnusedIndex(){
         int i = 0;
-        for(; i < Lobby.MAX_PLAYERS && i < connectionsList.size(); i++){
-            System.out.println("]]=[[ " + (connectionsList.size()-1) + " }{ " + i + " }{ " + connectionsList.get(i).getPlayerID());
-            if(i != connectionsList.get(i).getPlayerID()){
+        for(; i < Lobby.MAX_PLAYERS && i < playerArrayList.size(); i++){
+            System.out.println("]]=[[ " + (playerArrayList.size()-1) + " }{ " + i + " }{ " + playerArrayList.get(i).getPlayerID());
+            if(i != playerArrayList.get(i).getPlayerID()){
                 return i;
             }
         }
@@ -214,11 +228,11 @@ public class Lobby extends AppCompatActivity {
         return i;
     }
 
-    public static ArrayList<Player> getConnectionsList(){
-        return connectionsList;
+    public static ArrayList<Player> getPlayersList(){
+        return playerArrayList;
     }
-    public static void setConnectionsList(ArrayList<Player> connectionsList) {
-        Lobby.connectionsList = connectionsList;
+    public static void setPlayerArrayList(ArrayList<Player> playerArrayList) {
+        Lobby.playerArrayList = playerArrayList;
     }
 
     private void stopAndClose(){
@@ -230,7 +244,7 @@ public class Lobby extends AppCompatActivity {
         if(c1 != null)
             c1.cancel(true);
 
-        connectionsList.clear();
+        playerArrayList.clear();
 
         finish();
     }
