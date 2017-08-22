@@ -1,16 +1,9 @@
 package com.MonoCycleStudios.team.victorium.Game.Enums;
 
 public enum QuestionType {
-    NONE,
-    MATH,
-    HISTORY,
-    FILM,
-    GEOGRAPHY,
-    SPORT,
-    MIPH,
-    POLITIC,
-    MUSIC,
-    LITERATURE,
-    BIOLOGY,
-    MEME
+    ONE_FROM_FOUR_NORMAL,
+    ONE_FROM_FOUR_LONG,
+    ONE_FROM_MANY_NORMAL,
+    ONE_FROM_MANY_LONG
+
 }

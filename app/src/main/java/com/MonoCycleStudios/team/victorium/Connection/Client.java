@@ -11,7 +11,10 @@ import java.net.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Client extends AsyncTask<String, MonoPackage, Void> {
 
@@ -38,9 +41,9 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
     private static String address;
     public static Player iPlayer;
 
-    private Queue<MonoPackage> objReceived = new LinkedList<>();
+    private static BlockingQueue<MonoPackage> objReceived = new LinkedBlockingQueue<>();
 
-    private static Queue<MonoPackage> outCommand = new LinkedList<>();
+    private static BlockingQueue<MonoPackage> outCommand = new LinkedBlockingQueue<>();
     public MonoPackage getOutCommand() {
         return outCommand.peek();
     }
@@ -138,30 +141,39 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
 
         while (!isCancelled()) {
 
-            if(!outCommand.isEmpty()) {
-                MonoPackage command = null;
+            synchronized (outCommand) {
+                if (!outCommand.isEmpty()) {
+                    MonoPackage command = null;
 
-                try{
-                    System.out.println("Out[C] " + outCommand.size());
-                    command = outCommand.poll();
-                } catch (NullPointerException npe){npe.printStackTrace();}
-
-                if(command != null) {
                     try {
-                        oout.writeUnshared(command);
-                        oout.flush();
-                        oout.reset();
-                    } catch (IOException e) {e.printStackTrace();}
+                        System.out.println("Out[C] " + outCommand.size());
+                        command = outCommand.poll();
+                    } catch (NullPointerException npe) {
+                        npe.printStackTrace();
+                    }
+
+                    if (command != null) {
+                        try {
+                            oout.writeUnshared(command);
+                            oout.flush();
+                            oout.reset();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
-            if (!objReceived.isEmpty()){
-                MonoPackage command = null;
-                try{
-                    System.out.println(objReceived.size() + " | " + objReceived.peek().fullToString());
-                    command = objReceived.poll();
-                } catch (NullPointerException npe){npe.printStackTrace();}
+            synchronized (objReceived) {
+                if (!objReceived.isEmpty()) {
+                    MonoPackage command = null;
+                    try {
+                        command = objReceived.poll();
+                    } catch (NullPointerException | NoSuchElementException npe) {
+                        npe.printStackTrace();
+                    }
 
-                processData(command);
+                    processData(command);
+                }
             }
         }
         return null;
@@ -172,7 +184,7 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
         if((CommandType.getTypeOf(monoPackage.descOfObject)) != CommandType.NONE){
             System.out.println("?SA?D?AS?AS?ASD?AD? + " + monoPackage.fullToString());
             if((CommandType.getTypeOf(monoPackage.descOfObject)) == CommandType.PING)
-                outCommand.offer(monoPackage);
+                addOutCommand(monoPackage);
             else
                 publishProgress(monoPackage);
         }
@@ -253,9 +265,13 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
 
         @Override
         public void run() {
+            MonoPackage monoPackage = null;
             while(!c.isCancelled()){
                 try {
-                    objReceived.offer((MonoPackage) oin.readUnshared());
+                    monoPackage = (MonoPackage) oin.readUnshared();
+                    synchronized (objReceived) {
+                        objReceived.offer(monoPackage);
+                    }
                 } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
                     c.cancel(true);

@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.MonoCycleStudios.team.victorium.Game.Game;
 import com.MonoCycleStudios.team.victorium.Game.Player;
 import com.MonoCycleStudios.team.victorium.Game.Question;
 import com.MonoCycleStudios.team.victorium.R;
@@ -70,11 +71,35 @@ public class QueueTurners extends Fragment {
             set.setTarget(buttonArrayList.get(cardIndex-1));
             set.start();
         }
-        if(cardIndex < buttonArrayList.size()-1) {
+        if(cardIndex < buttonArrayList.size()) {
             set = AnimatorInflater.loadAnimator(getActivity(), R.animator.card_showup);
             set.setTarget(buttonArrayList.get(cardIndex));
             set.start();
         }
+    }
+
+    public void reloadCard(){
+        Animator set = AnimatorInflater.loadAnimator(getActivity(), R.animator.card_reload);
+        if(cardIndex > 0) {
+            set.setTarget(buttonArrayList.get(cardIndex));
+            set.start();
+        }
+
+        for(int i = 25 - Game.getInstance().playersNumber; i > 0; i--) {
+            cardIndex--;
+            set = AnimatorInflater.loadAnimator(getActivity(), R.animator.card_reload);
+            if(cardIndex > 0) {
+                set.setTarget(buttonArrayList.get(cardIndex));
+                set.setStartDelay(100 + 30*(25-i));
+                set.start();
+            }
+        }
+        set = AnimatorInflater.loadAnimator(getActivity(), R.animator.card_showup);
+        set.setTarget(buttonArrayList.get(0));
+        set.setStartDelay(100 + 30*25);
+        set.start();
+
+        cardIndex = 0;
     }
 
 }

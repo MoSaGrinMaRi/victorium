@@ -19,18 +19,21 @@ import com.MonoCycleStudios.team.victorium.Connection.Server;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameCommandType;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameFragments;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameState;
+import com.MonoCycleStudios.team.victorium.Game.Enums.QuestionCategory;
 import com.MonoCycleStudios.team.victorium.Game.Enums.QuestionType;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.Alert;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.Ground;
-import com.MonoCycleStudios.team.victorium.Game.Fragments.MyTimer;
+import com.MonoCycleStudios.team.victorium.Game.Fragments.TimeDisplacer;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.Notifier;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.Questioner;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.QueueTurners;
 import com.MonoCycleStudios.team.victorium.R;
+import com.MonoCycleStudios.team.victorium.widget.MyCountDownTimer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Random;
 
 public class Game extends AppCompatActivity {
@@ -50,7 +53,7 @@ public class Game extends AppCompatActivity {
         return localInstance;
     }
 
-    private static int playersNumber;
+    public static int playersNumber;
     public static GameState gameState = GameState.WAITING_FOR_START;
     private static Server gameServer;
     private static Ground gameGround; //    for later change battlefield
@@ -123,7 +126,9 @@ public class Game extends AppCompatActivity {
     }
 //
 //    Fragment fragment = null;        // for change fragment
+    Questioner fragment;
     QueueTurners fragment2;
+    TimeDisplacer fragment3;
     public void showFragment(GameFragments gf, Object... obj) {
         System.out.println("====================================================");
         System.out.println("We got " + gf.getStr() + " and " + obj.toString());
@@ -174,6 +179,7 @@ public class Game extends AppCompatActivity {
                             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                                 public void run() {
                                     showFragment(GameFragments.NONE, GameFragments.NOTIFY);
+                                    gameGround.getAllCapturableRegions(GameRule.activePlayer);
                                 }
                             }, delay);
                         }
@@ -182,20 +188,29 @@ public class Game extends AppCompatActivity {
                 }
             }break;
             case QUESTION:{
-                Questioner fragment = new Questioner();
-                if(obj[0] instanceof String) {
-                    fragment.setQuestionDisplay(
-                            new Question(QuestionType.FILM,
-                                    "How many oscar DiCaprio have?",
-                                    new String[]{"0", "-1", "-2213", "1"},
-                                    3));
-                }else{
-                    fragment.setQuestionDisplay((Question)obj[0]);
-                }
-                if (!isFinishing()) {
-                    ft.setCustomAnimations(R.animator.fadein_translate_fromtop, R.animator.fadeout_translate_todown);
-                    ft.replace(R.id.fragmentQuestionPlaceholder, fragment, "tag2");
-                    ft.commit();
+                if(obj[0] != null) {
+                    fragment = new Questioner();
+
+                    if (obj[0] instanceof String) {
+                        fragment.setQuestionDisplay(
+                                new Question(QuestionType.ONE_FROM_FOUR_NORMAL,
+                                        QuestionCategory.FILM,
+                                        "How many oscar DiCaprio have?",
+                                        new String[]{"0", "-1", "-2213", "1"},
+                                        3));
+                    } else {
+                        fragment.setQuestionDisplay((Question) obj[0]);
+                        if (GameRule.defencePlayer != null)
+                            fragment.setFighters(GameRule.activePlayer, GameRule.defencePlayer);
+                        fragment.setInteractive(Client.getInstance().iPlayer.getPlayerState());
+                    }
+                    if (!isFinishing()) {
+                        ft.setCustomAnimations(R.animator.fadein_translate_fromtop, R.animator.fadeout_translate_todown);
+                        ft.replace(R.id.fragmentQuestionPlaceholder, fragment, "tag2");
+                        ft.commit();
+                    }
+                }else {
+                    showFragment(GameFragments.NONE,GameFragments.QUESTION);
                 }
             }break;
             case QUEUETURNS:{
@@ -207,12 +222,15 @@ public class Game extends AppCompatActivity {
                 }
             }break;
             case TIMER:{
-                Fragment fragment3 = new MyTimer();
+                fragment3 = new TimeDisplacer();
                 if (!isFinishing()) {
                     ft.replace(R.id.fragmentTimer, fragment3);
                     ft.commit();
                 }
-                ((MyTimer)fragment3).setTimer((int) obj[0],(int) obj[1]);
+                if(obj[0] instanceof MyCountDownTimer)
+                    fragment3.setTimer((MyCountDownTimer)obj[0]);
+                else
+                    fragment3.setTimer((int) obj[0],(int) obj[1]);
             }break;
             case NONE:{
                 if (!isFinishing()){
@@ -241,6 +259,7 @@ public class Game extends AppCompatActivity {
     }
 
     public void commandProcess(MonoPackage monoPackage){
+        System.out.println("1234567890");
         switch (GameCommandType.getTypeOf(monoPackage.getTypeOfObject())) {
             case WAITFORPLAYERS: {
                 showFragment(GameFragments.NOTIFY, "We are all waiting.. sry");
@@ -260,6 +279,25 @@ public class Game extends AppCompatActivity {
                 switch(tmp.getTypeOfObject()){
                     case "set":{
                         gameGround.setRegions((ArrayList<Region>)tmp.getObj());
+
+                        showFragment(GameFragments.TIMER, 6000, 16*(Client.iPlayer.getPlayerID()*2+1));
+                        if(isServer)
+                            fragment3.mcdt.addOnUpdateHandler(new MyCountDownTimer.OnUpdateHandler() {
+                                @Override
+                                public void onTickUpdate(long currentMillis, int milli, int sec, int min) {
+
+                                }
+
+                                @Override
+                                public void onFinish() {
+                                    Question q = new Question(QuestionType.ONE_FROM_FOUR_NORMAL,QuestionCategory.FILM,"just test",new String[]{"1","2","3","4"},3);
+
+                                    gameServer.notifyPlayer(Lobby.getPlayersList().get(0), new MonoPackage(GameCommandType.QUESTION.getStr(),CommandType.GAMEDATA.getStr(),q));
+                                    gameServer.notifyPlayer(Lobby.getPlayersList().get(1), new MonoPackage(GameCommandType.QUESTION.getStr(),CommandType.GAMEDATA.getStr(),q));
+
+                                }
+                            });
+
                     }break;
                     case "update":{
                         gameGround.updateRegion(Integer.parseInt(tmp.getDescOfObject()),(Player)tmp.getObj());
@@ -268,7 +306,19 @@ public class Game extends AppCompatActivity {
             }
             break;
             case QUESTION:{
-                showFragment(GameFragments.QUESTION, monoPackage.getObj());
+                if(monoPackage.getObj() instanceof Question || monoPackage.getObj() == null)
+                    showFragment(GameFragments.QUESTION, monoPackage.getObj());
+                else{
+                    MonoPackage tmp = (MonoPackage)monoPackage.getObj();
+                    switch (tmp.getTypeOfObject()){
+                        case "show answer":{
+                            fragment.updateView((HashMap<Player, Integer>) tmp.getObj(),Integer.parseInt(tmp.getDescOfObject()));
+                        }break;
+                        case "got answer":{
+                            fragment.gotAnswer((Player) tmp.getObj());
+                        }break;
+                    }
+                }
             }break;
             case ALERT:{
                 showFragment(GameFragments.ALERT, monoPackage.getObj(), 3);
@@ -278,10 +328,30 @@ public class Game extends AppCompatActivity {
                 switch(((MonoPackage)monoPackage.getObj()).getTypeOfObject()){
                     case "update":{
                         MonoPackage tmp = (MonoPackage)((MonoPackage)monoPackage.getObj()).getObj();
-                        GameRule.update(-1,(ArrayList<Player>)tmp.getObj());
+                        if(tmp.getObj() instanceof Player[])
+                            GameRule.update(-1,((Player[])tmp.getObj())[0],((Player[])tmp.getObj())[1]);
+                        else
+                            GameRule.update(-1,(Player) tmp.getObj(), null);
 
-                        if(((MonoPackage)monoPackage.getObj()).getDescOfObject().equalsIgnoreCase("nextCard"))
+                        if(((MonoPackage)monoPackage.getObj()).getDescOfObject().equalsIgnoreCase("nextCard")) {
                             fragment2.showNextCard();
+
+                            for(Region rg : gameGround.regions){
+                                rg.isActive = true;
+                                rg.isInteractive = false;
+                            }
+
+                            if(GameRule.isFirstHalf)
+                                gameGround.getAllCapturableRegions(GameRule.activePlayer);
+                            else
+                                gameGround.getAllAttackableRegions(GameRule.activePlayer);
+
+                        }else if(((MonoPackage)monoPackage.getObj()).getDescOfObject().equalsIgnoreCase("nextHalf")) {
+                            GameRule.isFirstHalf = false;
+                            showFragment(GameFragments.NOTIFY, "Fight!", 4);
+                            fragment2.reloadCard();
+                            gameGround.getAllAttackableRegions(GameRule.activePlayer);
+                        }
                     }break;
                     case "check":{
                         if(((MonoPackage)monoPackage.getObj()).getDescOfObject().equalsIgnoreCase("required")){
@@ -307,7 +377,22 @@ public class Game extends AppCompatActivity {
         }
     }
 
-    public void useGameServer(String str,Player p,MonoPackage monoPackage){
+    public void useGameServer(String str, Player p1, Player p2, MonoPackage monoPackage){
+        if((str.equalsIgnoreCase("players"))) {
+
+            gameServer.notifyPlayer(p1, monoPackage);
+            gameServer.notifyPlayer(p2, monoPackage);
+
+        }else if((str.equalsIgnoreCase("!players"))){
+            for(Player tmp : Lobby.getPlayersList()){
+                System.out.println(!(tmp.equals(p1) || tmp.equals(p2)) + " " + tmp.toString() + " " +p1.toString() + " " +p2.toString()  );
+                if(!(tmp.equals(p1) || tmp.equals(p2)))
+                    gameServer.notifyPlayer(tmp, monoPackage);
+            }
+        }
+    }
+
+    public void useGameServer(String str, Player p, MonoPackage monoPackage){
         if(isServer){
             if(str.equalsIgnoreCase("all")){
                 gameServer.notifyAllClients(monoPackage);
@@ -320,14 +405,6 @@ public class Game extends AppCompatActivity {
                 }
             }
         }
-    }
-
-    public void timeIsOver(){
-        Question q = new Question(QuestionType.FILM,"just test",new String[]{"1","2","3","4"},3);
-
-        gameServer.notifyPlayer(Lobby.getPlayersList().get(2), new MonoPackage(GameCommandType.QUESTION.getStr(),CommandType.GAMEDATA.getStr(),q));
-        gameServer.notifyPlayer(Lobby.getPlayersList().get(1), new MonoPackage(GameCommandType.QUESTION.getStr(),CommandType.GAMEDATA.getStr(),q));
-
     }
 
     private class GameCore extends AsyncTask<Void, Void, Void>{
@@ -361,23 +438,38 @@ public class Game extends AppCompatActivity {
 
                     gameRule = new GameRule(queueTurns.get(0));
                     gameServer.notifyAllClients(new MonoPackage(GameCommandType.GAMERULE.getStr(),CommandType.GAMEDATA.getStr(),
-                            new MonoPackage("update","",new MonoPackage("","",GameRule.activePlayers))));
+                            new MonoPackage("update","",new MonoPackage("","",GameRule.activePlayer))));
 
                     break;
                 }
             }
             Collections.sort(Lobby.getPlayersList());
 
-            showFragment(GameFragments.TIMER, 6000, 85);
-
             gameRule.addOnUpdateHandler(new GameRule.OnUpdateHandler(){
+                boolean isUpdate = true;
+
                 @Override
-                public void onTickUpdate(int currentTick, boolean isFirstHalf) {
-                    gameRule.update(-1, new ArrayList<>(Arrays.asList(queueTurns.get(fragment2.getCardIndex()+1))));
+                public void onTickUpdate(int currentTick, boolean isFirstHalf, boolean isNextCard) {
+                    if(isUpdate) {
+                        if(isNextCard)
+                            gameRule.update(-1, queueTurns.get(fragment2.getCardIndex() + 1),null);
 
-                    gameServer.notifyAllClients(new MonoPackage(GameCommandType.GAMERULE.getStr(),CommandType.GAMEDATA.getStr(),
-                            new MonoPackage("update","nextCard",new MonoPackage("","",GameRule.activePlayers))));
+                        gameServer.notifyAllClients(new MonoPackage(GameCommandType.GAMERULE.getStr(), CommandType.GAMEDATA.getStr(),
+                                new MonoPackage("update", isNextCard ? "nextCard" : "nope",
+                                        new MonoPackage("", "", new Player[]{GameRule.activePlayer,GameRule.defencePlayer}))));
+                    }else{
+                        isUpdate = true;
+                    }
 
+                }
+
+                @Override
+                public void onNextHalf(int currentTick, boolean isFirstHalf) {
+                    isUpdate = false;
+                    useGameServer("all",null,
+                            new MonoPackage(GameCommandType.GAMERULE.getStr(),CommandType.GAMEDATA.getStr(),
+                                    new MonoPackage("update","nextHalf",
+                                            new MonoPackage("","",queueTurns.get(0)))));
                 }
             });
 
@@ -402,7 +494,16 @@ public class Game extends AppCompatActivity {
                 playerArrayList.add(playerArrayList.size(), first);
             }
             if(25%playersNumber != 0){
-                generatedPlayersQueueTurn.add(new Player(-1,"-2",null,new Character(0),null));//    TEMP!!! Need to be random Player who have least captured zones
+                if(GameRule.isFirstHalf)
+                    generatedPlayersQueueTurn.add(playerArrayList.get(0));
+                else {
+                    Player pToAdd = playerArrayList.get(0);
+                    for(Player tmp : playerArrayList){
+                        if(tmp.getPlayerScore() <= pToAdd.getPlayerScore())
+                            pToAdd = tmp;
+                    }
+                    generatedPlayersQueueTurn.add(pToAdd);
+                }
             }
             System.out.println(Arrays.toString(generatedPlayersQueueTurn.toArray()));
             return generatedPlayersQueueTurn;

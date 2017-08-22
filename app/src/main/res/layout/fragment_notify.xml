@@ -32,7 +32,8 @@
             android:layout_weight="15"
             android:clickable="true"
             android:enabled="true"
-            android:text="2" />
+            android:text="2"
+            android:textSize="18sp" />
     </LinearLayout>
 
 </FrameLayout>

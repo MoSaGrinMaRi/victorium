@@ -18,6 +18,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Server extends AsyncTask<String, MonoPackage, Void> {
 
@@ -55,6 +57,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
                     if((qmp = connectionList.get(i).getObjToServer()).size() > 0){
                         for(int j = 0; j < qmp.size(); j++) {
                             MonoPackage pck = qmp.poll();
+                            System.out.println("12345678909999");
                             switch (CommandType.getTypeOf(pck.descOfObject)) {
                                 case GAMEDATA: {
                                     switch (GameCommandType.getTypeOf(pck.typeOfObject)) {
@@ -65,6 +68,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
                                         case QUESTION:
                                         case ALERT:
                                         case REGIONS:{
+                                            System.out.println("123456789098765");
                                             Game.getInstance().commandProcess(pck);
                                         }
                                     }
@@ -79,6 +83,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
             System.err.println("Could not listen on port " + Lobby.gPort);
             ioe.printStackTrace();
         } catch(Exception x) {
+            System.out.println("We got an EXCEPTION, OH NO :c");
             x.printStackTrace();
         }
         return null;
@@ -304,7 +309,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
             return oin;
         }
 
-        private Queue<MonoPackage> objReceived = new LinkedList<>();
+        private BlockingQueue<MonoPackage> objReceived = new LinkedBlockingQueue<>();
         private Queue<MonoPackage> objToServer = new LinkedList<>();
         public void setObjToServer(MonoPackage objToServer) {
             this.objToServer.offer(objToServer);
@@ -318,7 +323,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
         long oPing = -1;
         boolean isMarkedToRemove = false;
 
-        private Queue<MonoPackage> outCommand = new LinkedList<>();
+        private BlockingQueue<MonoPackage> outCommand = new LinkedBlockingQueue<>();
 
         public MonoPackage getOutCommand() {
             return outCommand.peek();
@@ -371,38 +376,42 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
 //                        }
                         if(listening) {
 
-                            if (!objReceived.isEmpty()) {
-                                MonoPackage command = null;
-                                try{
-                                    command = objReceived.poll();
-                                } catch (NullPointerException | NoSuchElementException npe){npe.printStackTrace();
-                                    objReceived = new LinkedList<>();
-                                    tisw.interrupt();
-                                    tisw = new Thread(isw); // need another solution(not working in this way)
-                                    tisw.start();
-                                }
-
-                                processData(command);
-                            }
-                            if(!outCommand.isEmpty()) {
-                                MonoPackage command = null;
-
-                                try{
-                                    System.out.println("Out[St] " + outCommand.size());
-                                    command = outCommand.poll();
-                                } catch (NullPointerException | NoSuchElementException npe){npe.printStackTrace();
-                                    outCommand = new LinkedList<>();
-                                    tisw.interrupt();
-                                    tisw = new Thread(isw);
-                                    tisw.start();
-                                }
-
-                                if(command != null) {
+                            synchronized (objReceived) {
+                                if (!objReceived.isEmpty()) {
+                                    MonoPackage command = null;
                                     try {
-                                        oout.writeUnshared(command);
-                                        oout.flush();
-                                        oout.reset();
-                                    } catch (IOException e) {e.printStackTrace();}
+                                        command = objReceived.poll();
+                                    } catch (NullPointerException | NoSuchElementException npe) {
+                                        npe.printStackTrace();
+//                                        objReceived = new LinkedList<>();
+//                                        tisw.interrupt();
+//                                        tisw = new Thread(isw); // need another solution(not working in this way)
+//                                        tisw.start();
+                                    }
+
+                                    processData(command);
+                                }
+                            }
+                            synchronized (outCommand) {
+                                if (!outCommand.isEmpty()) {
+                                    MonoPackage command = null;
+
+                                    try {
+                                        System.out.println("Out[St] " + outCommand.size());
+                                        command = outCommand.poll();
+                                    } catch (NullPointerException | NoSuchElementException npe) {
+                                        npe.printStackTrace();
+                                    }
+
+                                    if (command != null) {
+                                        try {
+                                            oout.writeUnshared(command);
+                                            oout.flush();
+                                            oout.reset();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -460,6 +469,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
                     }
                     break;
                     case GAMEDATA: {
+                        System.out.println("1234567890987654321");
                         setObjToServer(packages[0]);
                     }break;
                     case PING:{
@@ -499,14 +509,18 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
 
         private class InputStreamWaiter implements Runnable{
             ServerTread st;
-            public InputStreamWaiter(ServerTread st) {
+            InputStreamWaiter(ServerTread st) {
                 this.st = st;
             }
             @Override
             public void run() {
+                MonoPackage monoPackage = null;
                 while(!st.isCancelled()){
                     try {
-                        objReceived.offer((MonoPackage) oin.readUnshared());
+                        monoPackage = (MonoPackage) oin.readUnshared();
+                        synchronized (objReceived) {
+                            objReceived.offer(monoPackage);
+                        }
                     } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                         st.cancel(true);

@@ -19,6 +19,7 @@ public class Player implements Serializable, Comparable{
     private transient Game playerGame;
     private GameState playerGameState = GameState.NONE;
     private PlayerState playerState = PlayerState.NONE;
+    private int score = 0;
     //private int inGame; -1 for 'offline'
     //                     0 for 'online'
     //                     1 for 'ingame'
@@ -31,7 +32,7 @@ public class Player implements Serializable, Comparable{
         this.playerCharacter = playerCharacter;
         this.playerGame = playerGame;
 //        playerState = PlayerState.NONE;
-        playerState = PlayerState.ATTACK;
+        playerState = PlayerState.IDLE;
     }
 
     public int getPlayerID() {
@@ -56,6 +57,9 @@ public class Player implements Serializable, Comparable{
     public PlayerState getPlayerState() {
         return playerState;
     }
+    public int getPlayerScore() {
+        return score;
+    }
 
     public void setPlayerClient(Client playerClient) {
         this.playerClient = playerClient;
@@ -68,6 +72,9 @@ public class Player implements Serializable, Comparable{
     }
     public void setPlayerState(PlayerState playerState) {
         this.playerState = playerState;
+    }
+    public void setPlayerScore(int score) {
+        this.score = score;
     }
 
     @Override

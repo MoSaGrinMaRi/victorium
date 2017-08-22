@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.MonoCycleStudios.team.victorium.Game.Fragments.MyTimer">
+    tools:context="com.MonoCycleStudios.team.victorium.Game.Fragments.TimeDisplacer">
 
     <TextView
         android:id="@+id/timerText"

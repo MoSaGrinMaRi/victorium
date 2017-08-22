@@ -16,7 +16,6 @@ import com.MonoCycleStudios.team.victorium.R;
 import com.MonoCycleStudios.team.victorium.widget.ImageMap;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Ground extends Fragment {
     static ImageMap mImageMap;
@@ -81,24 +80,54 @@ public class Ground extends Fragment {
         if(regionsToReturn.isEmpty()){
             regionsToReturn.addAll(regionsFree);
         }
+
+        for(Region rg : regions){
+            if(!regionsToReturn.contains(rg)){
+                rg.isActive = rg.owner != null && rg.owner.equals(p);
+                rg.isInteractive = false;
+            }else{
+                rg.isInteractive = true;
+            }
+        }
+        mImageMap.invalidate();
         return regionsToReturn;
     }
 
     public static ArrayList<Region> getAllAttackableRegions(Player p){
         ArrayList<Region> regionsToReturn = new ArrayList<>();
 
+//        for(Region rg : regions){
+//            if(rg.owner != null && !rg.owner.equals(p)){
+//                regionsToReturn.add(rg);
+//            }
+//        }
+
+        ArrayList<Region> regionsPlayer = new ArrayList<>();
         for(Region rg : regions){
-            if(rg.owner != null && !rg.owner.equals(p)){
-                regionsToReturn.add(rg);
+            if(rg.owner != null && rg.owner.equals(p)){
+                regionsPlayer.add(rg);
             }
         }
+
+        for(Region rg : regions){
+            for(Region prg : regionsPlayer)
+                if(prg.getNeighbourhoods().contains(rg)){
+                    if(rg.owner != null && !rg.owner.equals(p)) {
+                        regionsToReturn.add(rg);
+                        break;
+                    }
+                }
+        }
+
         return regionsToReturn;
     }
 
     public static void setRegions(ArrayList<Region> newRegions) {
         regions = newRegions;
-        for(Region rg : regions)
+        for(Region rg : regions) {
+            rg.setBitmaps();
             rg.computeNeighbourhoods(regions);
+        }
         mImageMap.invalidate();
     }
 
