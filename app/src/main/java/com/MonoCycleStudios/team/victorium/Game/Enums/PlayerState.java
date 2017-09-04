@@ -5,5 +5,6 @@ public enum PlayerState {
     IDLE,
     ATTACK,
     DEFEND,
+    DEFEAT,
     SPEC
 }

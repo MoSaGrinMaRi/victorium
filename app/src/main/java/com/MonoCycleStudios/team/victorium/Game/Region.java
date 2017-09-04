@@ -3,6 +3,7 @@ package com.MonoCycleStudios.team.victorium.Game;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.MonoCycleStudios.team.victorium.Game.Enums.PlayerState;
 import com.MonoCycleStudios.team.victorium.R;
 
 import java.io.Serializable;
@@ -16,8 +17,10 @@ public class Region implements Serializable{
     public int id = -1;
     public int mapID = -1;
     public boolean isBase = false;
+    public boolean isBaseDestroyed = false;
+    public int currentHP = -1;
     public Player owner;
-//    private int cost;
+    private int cost;
 //    private AndroidImageMap rgBorder;     // now sure about it
     private ArrayList<Region> neighbourhoods = new ArrayList<>();
     private String[] neighbourhoodsID;
@@ -26,25 +29,53 @@ public class Region implements Serializable{
     public boolean isActive = true;
     public boolean isInteractive = true;
 
-    public Region(int id, int mapID, boolean isBase, Player owner /*, int cost, AndroidImageMap rgBorder*/){
+    public Region(int id, int mapID, boolean isBase, Player owner, int cost/*, AndroidImageMap rgBorder*/){
         this.id = id;
         this.mapID = mapID;
         this.isBase = isBase;
+        this.currentHP = getMaxHP();
         this.owner = owner;
-//        this.cost = cost
+        this.cost = cost;
 //        this.rgBorder = rgBorder;
     }
 
     public void update(Player newOwner/*, int newCost*/){
-        this.owner = newOwner;
+        if(newOwner == null)
+            --this.currentHP;
+        else {
+            if(isBase && this.owner != null) {
+                isBaseDestroyed = true;
+                owner.setPlayerState(PlayerState.DEFEAT);
+            }
+            this.owner = newOwner;
+            this.currentHP = getMaxHP();
+        }
         setBitmaps();
         //this.cost = newCost;
+    }
+
+    public int getCost() {
+        return cost;
     }
     public Bitmap getPawn(){
         return pawnBitmap;
     }
     public Bitmap getBase(){
         return baseBitmap;
+    }
+    private int getMaxHP(){
+        if(isBase) {
+            if(isBaseDestroyed)
+                return 1;
+            return 3; //  TEMP !!! GLOBAL_VAR 3 = BASE_MAX_HP
+        }
+        else
+            return 1; //  TEMP !!! GLOBAL_VAR 1 = WARRIOR_MAX_HP
+    }
+
+    public void setIsBase(boolean isBase){
+        this.isBase = isBase;
+        this.currentHP = getMaxHP();
     }
 
     private void setPawnBitmap(Character ch){
@@ -74,30 +105,65 @@ public class Region implements Serializable{
         pawnBitmap = Bitmap.createScaledBitmap(pawnBitmap, pawnBitmap.getWidth() / 24, pawnBitmap.getHeight() / 24, true);
     }
     private void setBaseBitmap(Character ch){
-        int resource = -1;
+        int frameWidth = 1028/16;
+        int frameHeight = 640/16;
+        int frameCountX = 0;    //  MAX = 4; Only 4 castle state
+        int frameCountY = 0;    //  MAX = Lobby.MAX_PLAYERS; Only 6 players can play
+
+//        int resource = R.drawable.castle_atlas;
         switch (ch.getColor()){
             case RED:
-                resource = R.drawable.castle_b;
+                frameCountY = 0;
+//                resource = R.drawable.castle_b;
                 break;
             case BLUE:
-                resource = R.drawable.castle_dst1_b;
+                frameCountY = 1;
+//                resource = R.drawable.castle_b;
                 break;
             case ORANGE:
-                resource = R.drawable.castle_dst3_b;
+                frameCountY = 2;
+//                resource = R.drawable.castle_b;
                 break;
             case GREEN:
-                resource = R.drawable.castle_b;
+                frameCountY = 3;
+//                resource = R.drawable.castle_b;
                 break;
             case BLACK:
-                resource = R.drawable.castle_dst1_b;
+                frameCountY = 4;
+//                resource = R.drawable.castle_b;
                 break;
             case PURPLE:
-                resource = R.drawable.castle_dst3_b;
+                frameCountY = 5;
+//                resource = R.drawable.castle_b;
                 break;
-
         }
-        this.baseBitmap = BitmapFactory.decodeResource(Game.getInstance().getApplicationContext().getResources(), resource);
-        this.baseBitmap = Bitmap.createScaledBitmap(baseBitmap, baseBitmap.getWidth() / 32, baseBitmap.getHeight() / 32, true);
+        switch (isBaseDestroyed ? 0 : currentHP){
+            case 3:
+                frameCountX = 0;
+//                resource = R.drawable.castle_dst1_b;
+            break;
+            case 2:
+                frameCountX = 1;
+//                resource = R.drawable.castle_dst1_b;
+                break;
+            case 1:
+                frameCountX = 2;
+//                resource = R.drawable.castle_dst2_b;
+                break;
+            case 0:
+                frameCountX = 3;
+//                resource = R.drawable.castle_dst3_b;
+                break;
+        }
+
+        //  TEMP !!! V move to some GameSetting or some, since a lot of allocation
+//        this.baseBitmap = BitmapFactory.decodeResource(Game.getInstance().getApplicationContext().getResources(), Game.castleAtlas);
+        this.baseBitmap = Bitmap.createBitmap(Game.castleAtlas,
+                frameWidth * frameCountX,
+                frameHeight * frameCountY,
+                frameWidth,
+                frameHeight);
+//        this.baseBitmap = Bitmap.createScaledBitmap(baseBitmap, baseBitmap.getWidth() / 32, baseBitmap.getHeight() / 32, true);
     }
     public void setBitmaps(){
         if(owner != null)

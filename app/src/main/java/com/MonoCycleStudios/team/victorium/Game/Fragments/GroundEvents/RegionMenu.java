@@ -1,0 +1,138 @@
+package com.MonoCycleStudios.team.victorium.Game.Fragments.GroundEvents;
+import android.app.Fragment;
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.MonoCycleStudios.team.victorium.Game.Enums.GameFragments;
+import com.MonoCycleStudios.team.victorium.Game.Game;
+import com.MonoCycleStudios.team.victorium.R;
+
+public class RegionMenu extends Fragment implements GroundEvents {
+
+    public void setLabelText(String strToNotify) {
+        txtLabel = strToNotify;
+    }
+    public void setButtonText(String strToNotify) {
+        txtButton = strToNotify;
+    }
+    public void setPosition(int x, int y){
+        _x = x;
+        _y = y;
+    }
+    public void setOnClick(View.OnClickListener OCL){
+        btnOCL = OCL;
+    }
+
+    String txtLabel;
+    String txtButton;
+    TextView tv;
+    Button btn;
+    View.OnClickListener btnOCL = null;
+
+    Button arrow;
+    LinearLayout llm;
+
+    public int _x, _y;
+    public int _w, _h;
+    FrameLayout flWrapper;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        System.out.println("}{1}{}{{{{{{{}{}{}{{{}{}{}{}");
+        View view = inflater.inflate(R.layout.fragment_ge_region_menu, container, false);
+
+        tv = (TextView) view.findViewById(R.id.tvCost);
+        btn = (Button) view.findViewById(R.id.btnAction);
+
+        arrow = (Button) view.findViewById(R.id.arrow);
+        llm = (LinearLayout) view.findViewById(R.id.llMenu);
+
+        flWrapper = (FrameLayout) view.findViewById(R.id.rm_wrapper);
+        flWrapper.setAlpha(0);
+        view.post(new Runnable() {
+            @Override
+            public void run() {
+
+                _w = flWrapper.getWidth();
+                _h = flWrapper.getHeight();
+
+                System.out.println("}{3}{}{{{{{{{}{}{}{{{}{}{}{}" + _w);
+
+                Game.getInstance().showFragment(GameFragments.GROUND_EVENT, getFragment(), "update");
+                flWrapper.setAlpha(1);
+            }
+        });
+
+        if(btnOCL == null)
+            btn.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick (View v){
+                    Game.getInstance().showFragment(GameFragments.GROUND_EVENT, getFragment(), "remove", "this");
+                }
+            });
+        else
+            btn.setOnClickListener(btnOCL);
+
+        return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (txtLabel != null) {
+            tv.setText(txtLabel);
+        }
+        if (txtButton != null) {
+            btn.setText(txtButton);
+        }
+
+        System.out.println("}{2}{}{{{{{{{}{}{}{{{}{}{}{}");
+//        Game.getInstance().showFragment(GameFragments.GROUND_EVENT, this, "update");
+
+    }
+
+    public void flipMenu(){
+        arrow.setTranslationY(8);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.TOP;
+        params.gravity += Gravity.CENTER_HORIZONTAL;
+        params.width = 30;
+        params.height = 30;
+        arrow.setLayoutParams(params);
+
+        llm.setGravity(Gravity.BOTTOM);
+    }
+
+    @Override
+    public int getX() {
+        return _x;
+    }
+
+    @Override
+    public int getY() {
+        return _y;
+    }
+
+    @Override
+    public int getW() {
+        return _w;
+    }
+
+    @Override
+    public int getH() {
+        return _h;
+    }
+
+    @Override
+    public Fragment getFragment() {
+        return this;
+    }
+}

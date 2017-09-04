@@ -2,6 +2,8 @@ package com.MonoCycleStudios.team.victorium.Game;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.app.Fragment;
 import android.os.Handler;
@@ -23,6 +25,8 @@ import com.MonoCycleStudios.team.victorium.Game.Enums.QuestionCategory;
 import com.MonoCycleStudios.team.victorium.Game.Enums.QuestionType;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.Alert;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.Ground;
+import com.MonoCycleStudios.team.victorium.Game.Fragments.GroundEvent;
+import com.MonoCycleStudios.team.victorium.Game.Fragments.GroundEvents.GroundEvents;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.TimeDisplacer;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.Notifier;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.Questioner;
@@ -34,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Random;
 
 public class Game extends AppCompatActivity {
 
@@ -57,7 +60,12 @@ public class Game extends AppCompatActivity {
     public static GameState gameState = GameState.WAITING_FOR_START;
     private static Server gameServer;
     private static Ground gameGround; //    for later change battlefield
+    private static GameCore gameCore;
     public static boolean isServer = false;
+    ListView lv;
+    BitmapFactory.Options bmo = new BitmapFactory.Options();
+    public static Bitmap castleAtlas;
+    public static Bitmap categoryAtlas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,10 +74,11 @@ public class Game extends AppCompatActivity {
         setContentView(R.layout.activity_game);
         instance = this;
 
-        ListView lv = (ListView) findViewById(R.id.connectionsListView_2);
+        lv = (ListView) findViewById(R.id.connectionsListView_2);
         lv.setAdapter(Lobby.adapter);
 //        Lobby.forceREUpdateAdapter();
 
+        System.out.println(gameState + " [=] " + gameServer);
         if(gameState == GameState.WAITING_FOR_START && gameServer != null){
             new GamePrepare().start();
         }
@@ -81,9 +90,22 @@ public class Game extends AppCompatActivity {
         ft.replace(R.id.fragmentPlaceGround, fragment);
         ft.commit();
 
+        showFragment(GameFragments.GROUND_EVENT);
+
+        bmo.inScaled = true;
+//        bmo.inSampleSize = 32;
+        bmo.inDensity = 4112;
+        bmo.inTargetDensity = (4112/16);
+        castleAtlas = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.castle_atlas, bmo);
+
+        bmo.inDensity = 1280;
+        bmo.inTargetDensity = 1280;
+        categoryAtlas = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.category_atlas, bmo);
+
         System.out.println("YEEEEEEE=================EEEEY!" + gameServer);
         if(gameServer != null) {
-            new GameCore().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            gameCore = new GameCore();
+            gameCore.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             isServer = true;
         }
 
@@ -129,6 +151,7 @@ public class Game extends AppCompatActivity {
     Questioner fragment;
     QueueTurners fragment2;
     TimeDisplacer fragment3;
+    public GroundEvent fragment4;
     public void showFragment(GameFragments gf, Object... obj) {
         System.out.println("====================================================");
         System.out.println("We got " + gf.getStr() + " and " + obj.toString());
@@ -137,6 +160,25 @@ public class Game extends AppCompatActivity {
         FragmentTransaction ft = fm.beginTransaction();
 
         switch(GameFragments.getTypeOf(gf.getStr())){
+            case GROUND_EVENT:{
+                if(fragment4 == null) {
+                    fragment4 = new GroundEvent();
+                }else if(obj != null && obj.length > 1){
+                        System.out.println("4567890 "+obj[0]);
+
+                        if(((String)obj[1]).equalsIgnoreCase("add"))
+                            fragment4.addView((GroundEvents) obj[0],-1);
+                        else if(((String)obj[1]).equalsIgnoreCase("update"))
+                            fragment4.updateView((GroundEvents) obj[0], "-1");
+                        else if(((String)obj[1]).equalsIgnoreCase("remove"))
+                            fragment4.removeView((GroundEvents) obj[0], (String)obj[2]);
+
+                }
+                if (!isFinishing()) {
+                    ft.replace(R.id.fragmentGroundEventPlaceholder, fragment4, "tag-1");
+                    ft.commit();
+                }
+            }break;
 //            case AnotherNotifier1:
 //            case AnotherNotifier2:
 //            case AnotherNotifier3:
@@ -179,7 +221,10 @@ public class Game extends AppCompatActivity {
                             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                                 public void run() {
                                     showFragment(GameFragments.NONE, GameFragments.NOTIFY);
-                                    gameGround.getAllCapturableRegions(GameRule.activePlayer);
+                                    if(GameRule.isFirstHalf)
+                                        gameGround.getAllCapturableRegions(GameRule.activePlayer);
+                                    else
+                                        gameGround.getAllAttackableRegions(GameRule.activePlayer);
                                 }
                             }, delay);
                         }
@@ -290,7 +335,9 @@ public class Game extends AppCompatActivity {
 
                                 @Override
                                 public void onFinish() {
-                                    Question q = new Question(QuestionType.ONE_FROM_FOUR_NORMAL,QuestionCategory.FILM,"just test",new String[]{"1","2","3","4"},3);
+
+                                    Object[] newQuestion = QuestionParser.getQuestion("none");
+                                    Question q = (Question)newQuestion[0];
 
                                     gameServer.notifyPlayer(Lobby.getPlayersList().get(0), new MonoPackage(GameCommandType.QUESTION.getStr(),CommandType.GAMEDATA.getStr(),q));
                                     gameServer.notifyPlayer(Lobby.getPlayersList().get(1), new MonoPackage(GameCommandType.QUESTION.getStr(),CommandType.GAMEDATA.getStr(),q));
@@ -300,11 +347,39 @@ public class Game extends AppCompatActivity {
 
                     }break;
                     case "update":{
-                        gameGround.updateRegion(Integer.parseInt(tmp.getDescOfObject()),(Player)tmp.getObj());
+                        if(tmp.getObj() instanceof Player)
+                            gameGround.updateRegion(Integer.parseInt(tmp.getDescOfObject()),(Player)tmp.getObj());
+                        else if(tmp.getObj() instanceof String)
+                            gameGround.updateRegion(Integer.parseInt(tmp.getDescOfObject()),null);
                     }break;
                 }
             }
             break;
+            case PLAYER:{
+                switch(((MonoPackage)monoPackage.getObj()).getTypeOfObject()) {
+                    case "score": {
+                        MonoPackage tmp = (MonoPackage)monoPackage.getObj();
+
+                        Player p = Lobby.getPlayersList().get(Lobby.getPlayersList().indexOf((tmp.getObj())));
+                        int score = Integer.parseInt(tmp.getDescOfObject());
+
+//                        if(score > 0)
+//                            Game.getInstance().showFragment(GameFragments.ALERT, p.getPlayerName() + " earn " + score , 2);
+//                        else
+//                            Game.getInstance().showFragment(GameFragments.ALERT, p.getPlayerName() + " lost " + score , 2);
+
+                        p.updatePlayerScore(score);
+
+                        System.out.println("[2][][] "+ p.getPlayerScore() + p.getPlayerName() );
+
+                        Lobby.forceREUpdateAdapter();
+                        lv.setAdapter(Lobby.adapter);
+
+                        System.out.println("[3][][] "+ p.getPlayerScore() + p.getPlayerName() );
+
+                    }
+                }
+            }break;
             case QUESTION:{
                 if(monoPackage.getObj() instanceof Question || monoPackage.getObj() == null)
                     showFragment(GameFragments.QUESTION, monoPackage.getObj());
@@ -330,7 +405,7 @@ public class Game extends AppCompatActivity {
                         MonoPackage tmp = (MonoPackage)((MonoPackage)monoPackage.getObj()).getObj();
                         if(tmp.getObj() instanceof Player[])
                             GameRule.update(-1,((Player[])tmp.getObj())[0],((Player[])tmp.getObj())[1]);
-                        else
+                        else if(tmp.getObj() instanceof Player)
                             GameRule.update(-1,(Player) tmp.getObj(), null);
 
                         if(((MonoPackage)monoPackage.getObj()).getDescOfObject().equalsIgnoreCase("nextCard")) {
@@ -350,7 +425,6 @@ public class Game extends AppCompatActivity {
                             GameRule.isFirstHalf = false;
                             showFragment(GameFragments.NOTIFY, "Fight!", 4);
                             fragment2.reloadCard();
-                            gameGround.getAllAttackableRegions(GameRule.activePlayer);
                         }
                     }break;
                     case "check":{
@@ -371,10 +445,45 @@ public class Game extends AppCompatActivity {
                                     tmp.getDescOfObject()
                             );
                         }
-                    }
+                    }break;
+                    case "finish":{
+                        fragment2.showNextCard();
+                        for(Region rg : gameGround.regions){
+                            rg.isActive = false;
+                            rg.isInteractive = false;
+                        }
+                        gameGround.redrawMap();
+
+                        Player p = (Player) ((MonoPackage)monoPackage.getObj()).getObj();
+                        showFragment(GameFragments.NOTIFY,p.getPlayerName() + " win This GAME w/ score: "+p.getPlayerScore()+"!!! Blame him >:D");
+
+                        new Handler().postDelayed(new Runnable() {
+                            public void run() {
+                                finish();
+                            }
+                        }, 10000);
+
+                    }break;
                 }
             }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        Lobby.thisActivity.stopAndClose();
+
+        Ground.regions = new ArrayList<>();
+
+        playersNumber = -1;
+        gameState = GameState.WAITING_FOR_START;
+        gameServer = null;
+        gameGround = null;
+        gameCore = null;
+        isServer = false;
+        instance = null;
+
+        super.onDestroy();
     }
 
     public void useGameServer(String str, Player p1, Player p2, MonoPackage monoPackage){
@@ -422,10 +531,20 @@ public class Game extends AppCompatActivity {
                     gameState = GameState.RUNNING;
 
                     for(int i = 0; i < playersNumber; i++){
-                        Region rg = Ground.regions.get(new Random().nextInt((20 - 2) + 1) + 2);
+//                        Region rg = Ground.regions.get(new Random().nextInt((20 - 2) + 1) + 2);
+//                        if(rg.owner == null){
+//                            rg.owner = Lobby.getPlayersList().get(i);
+//                            rg.setIsBase(true);
+//                        }else{
+//                            --i;
+//                        }
+
+                        int[] preLocated = {24,6,18,12,2,0};
+
+                        Region rg = Ground.regions.get(preLocated[i]);
                         if(rg.owner == null){
                             rg.owner = Lobby.getPlayersList().get(i);
-                            rg.isBase = true;
+                            rg.setIsBase(true);
                         }else{
                             --i;
                         }
@@ -457,6 +576,9 @@ public class Game extends AppCompatActivity {
                         gameServer.notifyAllClients(new MonoPackage(GameCommandType.GAMERULE.getStr(), CommandType.GAMEDATA.getStr(),
                                 new MonoPackage("update", isNextCard ? "nextCard" : "nope",
                                         new MonoPackage("", "", new Player[]{GameRule.activePlayer,GameRule.defencePlayer}))));
+
+//                        gameServer.notifyAllClients(new MonoPackage(GameCommandType.GAMERULE.getStr(),CommandType.GAMEDATA.getStr(),
+//                                new MonoPackage("finish","",getWinner(Lobby.getPlayersList()))));
                     }else{
                         isUpdate = true;
                     }
@@ -471,15 +593,32 @@ public class Game extends AppCompatActivity {
                                     new MonoPackage("update","nextHalf",
                                             new MonoPackage("","",queueTurns.get(0)))));
                 }
-            });
 
-            while(!isCancelled()){
-                if(2>1){
+                @Override
+                public void onFinish() {
+                    gameServer.notifyAllClients(new MonoPackage(GameCommandType.GAMERULE.getStr(),CommandType.GAMEDATA.getStr(),
+                            new MonoPackage("finish","",getWinner(Lobby.getPlayersList()))));
+
+
                 }
-            }
+            });
+//
+//            while(!isCancelled() || !gameRule.isFinished){
+//                if(2>1){
+//                }
+//            }
             return null;
         }
 
+        Player getWinner(ArrayList<Player> playerArrayList){
+            Player winner = playerArrayList.get(0);
+
+            for(Player p : playerArrayList){
+                if(winner.getPlayerScore() < p.getPlayerScore())
+                    winner = p;
+            }
+            return winner;
+        }
         ArrayList<Player> generatePlayersQueueTurn(ArrayList<Player> playerArrayList){
             ArrayList<Player> generatedPlayersQueueTurn = new ArrayList<>();
 
@@ -492,6 +631,45 @@ public class Game extends AppCompatActivity {
                 System.arraycopy(playerArrayList.toArray(), 1, playerArrayList.toArray(), 0, playerArrayList.size() - 1 );
                 playerArrayList.remove(0);
                 playerArrayList.add(playerArrayList.size(), first);
+            }
+            if(25%playersNumber != 0){
+                if(GameRule.isFirstHalf)
+                    generatedPlayersQueueTurn.add(playerArrayList.get(0));
+                else {
+                    Player pToAdd = playerArrayList.get(0);
+                    for(Player tmp : playerArrayList){
+                        if(tmp.getPlayerScore() <= pToAdd.getPlayerScore())
+                            pToAdd = tmp;
+                    }
+                    generatedPlayersQueueTurn.add(pToAdd);
+                }
+            }
+            System.out.println(Arrays.toString(generatedPlayersQueueTurn.toArray()));
+            return generatedPlayersQueueTurn;
+        }
+
+        ArrayList<Player> generatePlayersQueueTurnReverse(ArrayList<Player> playerArrayList){
+            ArrayList<Player> generatedPlayersQueueTurn = new ArrayList<>();
+
+            Player last;
+            for(int i = 0; i < 25/playersNumber - 1; i++) {
+                for(int j = 0; j < playersNumber; j++) {
+                    generatedPlayersQueueTurn.add(playerArrayList.get(j));
+                }
+                //  ????????????????
+                /*
+                123456      123456  ||  12      12  ||  123     123 ||  1234    1234
+                612345      234561      21      21      312     231     4123    2341
+                561234      345612      12      12      231     312     3412    3412
+                456123      456123      21      21      123     123     2341    4123
+                345612      561234      12      12      312     231     1234    1234
+                234561      612345      21      21      231     312     4123    2341
+                 */
+                last = playerArrayList.get(playerArrayList.size()-1);
+//                System.arraycopy(playerArrayList.toArray(), 1, playerArrayList.toArray(), 0, playerArrayList.size() - 1 );
+                System.arraycopy(playerArrayList.toArray(), 0, playerArrayList.toArray(), 1, playerArrayList.size() - 1 );
+                playerArrayList.remove(playerArrayList.size()-1);
+                playerArrayList.add(0, last);
             }
             if(25%playersNumber != 0){
                 if(GameRule.isFirstHalf)
@@ -539,9 +717,9 @@ public class Game extends AppCompatActivity {
                     }
 
                     for (int i = 0; i < Lobby.getPlayersList().size(); i++) {
-                        if (Lobby.getPlayersList().get(i).getPlayerGameState() == GameState.LAUNCHING) {
+//                        if (Lobby.getPlayersList().get(i).getPlayerGameState() == GameState.LAUNCHING) {
                             j++;
-                        }
+//                        }
                     }
                 }
             }

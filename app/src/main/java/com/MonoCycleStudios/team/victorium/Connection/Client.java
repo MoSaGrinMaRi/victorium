@@ -254,6 +254,8 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
             e.printStackTrace();
         }
 
+        instance = null;
+
         System.out.println("[C]OnCancel");
     }
 
@@ -272,6 +274,7 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
                     synchronized (objReceived) {
                         objReceived.offer(monoPackage);
                     }
+                    System.out.println("[][][1] " + monoPackage);
                 } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
                     c.cancel(true);

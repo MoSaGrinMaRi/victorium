@@ -1,5 +1,6 @@
 package com.MonoCycleStudios.team.victorium.Game.Fragments;
 import android.app.Fragment;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
@@ -16,7 +17,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.MonoCycleStudios.team.victorium.Connection.Client;
+import com.MonoCycleStudios.team.victorium.Game.Enums.GameFragments;
 import com.MonoCycleStudios.team.victorium.Game.Enums.PlayerState;
+import com.MonoCycleStudios.team.victorium.Game.Enums.QuestionCategory;
+import com.MonoCycleStudios.team.victorium.Game.Game;
 import com.MonoCycleStudios.team.victorium.Game.GameRule;
 import com.MonoCycleStudios.team.victorium.Game.Player;
 import com.MonoCycleStudios.team.victorium.Game.Question;
@@ -42,6 +46,7 @@ public class Questioner extends Fragment {
 
     Button[] buttons = new Button[4];
     TextView tv;
+    ImageView civ;
     ImageView liv;
     ImageView riv;
     ProgressBar lpb;
@@ -70,6 +75,7 @@ public class Questioner extends Fragment {
         buttons[1] = (Button) view.findViewById(R.id.button2);
         buttons[2] = (Button) view.findViewById(R.id.button3);
         buttons[3] = (Button) view.findViewById(R.id.button4);
+        civ = (ImageView) view.findViewById(R.id.categoryImg);
         liv = (ImageView) view.findViewById(R.id.leftImgView);
         riv = (ImageView) view.findViewById(R.id.rightImgView);
 
@@ -129,6 +135,8 @@ public class Questioner extends Fragment {
         super.onStart();
         if(isVisible) {
             if (questionToShow != null) {
+
+                civ.setImageBitmap(getCategoryImg(questionToShow.getQuestionCategory()));
                 tv.setText(questionToShow.getQuestion());
                 buttons[0].setText(questionToShow.getAnswers()[0]);
                 buttons[1].setText(questionToShow.getAnswers()[1]);
@@ -147,7 +155,52 @@ public class Questioner extends Fragment {
         }
 
         if(questionToShow != null)
-            setTimer(10000, 20);    //  TEMP !!! 10sec to answer the question
+            setTimer(15000, 20);    //  TEMP !!! 15sec to answer the question
+    }
+
+    Bitmap getCategoryImg(QuestionCategory qc){
+        int frameWidth = 128;
+        int frameHeight = 128;
+        int frameCountX = 0;    //  MAX = 9; Only 10 category(including None)
+
+        switch (qc){
+            case NONE:
+                frameCountX = 0;
+                break;
+            case MATH:
+                frameCountX = 1;
+                break;
+            case HISTORY:
+                frameCountX = 2;
+                break;
+            case FILM:
+                frameCountX = 3;
+                break;
+            case GEOGRAPHY:
+                frameCountX = 4;
+                break;
+            case SPORT:
+                frameCountX = 5;
+                break;
+            case MUSIC:
+                frameCountX = 6;
+                break;
+            case LITERATURE:
+                frameCountX = 7;
+                break;
+            case BIOLOGY:
+                frameCountX = 8;
+                break;
+            case MEME:
+                frameCountX = 9;
+                break;
+        }
+
+        return Bitmap.createBitmap(Game.categoryAtlas,
+                frameWidth * frameCountX,
+                0,
+                frameWidth,
+                frameHeight);
     }
 
     void setAllButtonInactive(){
@@ -191,12 +244,10 @@ public class Questioner extends Fragment {
             Integer value = (Integer) entry.getValue();
             System.out.println(key + " ; " + value);
 
-
             LayerDrawable curr = (LayerDrawable) buttons[value].getBackground().getCurrent();
 
             buttons[value].setBackgroundResource(R.drawable.question_answer_chosed);
             GradientDrawable newLayer = (GradientDrawable) buttons[value].getBackground().getCurrent();
-
 
             switch(curr.getNumberOfLayers()){
                 case 1:{
@@ -219,24 +270,6 @@ public class Questioner extends Fragment {
                     }));
                 }break;
             }
-//            GradientDrawable drawBG = (GradientDrawable) buttons[value].getBackground().getCurrent();
-//
-//
-//            buttons[value].setBackgroundResource(R.drawable.question_answer_chosed);
-//            GradientDrawable drawBord = (GradientDrawable) buttons[value].getBackground().getCurrent();
-//
-//            drawBord.setStroke(12, key.getPlayerCharacter().getColor().getARGB());
-//
-//            GradientDrawable[] layers = {
-//                    drawBG,
-//                    drawBord
-//            };
-//            LayerDrawable layerDrawable = new LayerDrawable(layers);
-//
-//            layerDrawable.setLayerInset(0, 0, 0, 0, 0);
-//            layerDrawable.setLayerInset(1, 0, 0, 0, 0);
-//
-//            buttons[value].setBackground(layerDrawable);
         }
     }
 
@@ -269,10 +302,12 @@ public class Questioner extends Fragment {
 
                     @Override
                     public void onFinish() {
-                        lpb.setProgress(0);
-                        rpb.setProgress(0);
+                        updateProgressBars(0);
                         started = false;
                         setAllButtonInactive();
+
+                        if(fighters == null)
+                            Game.getInstance().showFragment(GameFragments.NONE,GameFragments.QUESTION);
                     }
                 });
                 mcdt.start();

@@ -77,6 +77,10 @@ public class Player implements Serializable, Comparable{
         this.score = score;
     }
 
+    public void updatePlayerScore(int score){
+        this.score += score;
+    }
+
     @Override
     public boolean equals(Object obj){
         boolean sameObj = false;

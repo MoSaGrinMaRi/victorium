@@ -8,53 +8,64 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/imageView"
+        <LinearLayout
+            android:id="@+id/sa"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:height="40sp"
-            android:minHeight="40dp"
-            android:minWidth="40dp"
-            android:visibility="visible"
-            app:srcCompat="@color/colorPrimary" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <TableLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/playerName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:height="20sp"
+                android:gravity="left"
+                android:textColor="#222222"
+                android:textStyle="bold"
+                android:typeface="monospace" />
 
-            <TableRow
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
 
-                <TextView android:textColor="#222222"
-                    android:id="@+id/playerName"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:gravity="left"
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="10dp"
                     android:layout_weight="1"
-                    android:typeface="monospace"
-                    android:height="20sp" />
-            </TableRow>
+                    android:height="40sp"
+                    android:minHeight="40dp"
+                    android:minWidth="40dp"
+                    android:visibility="visible"
+                    app:srcCompat="@color/colorPrimary" />
 
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/playerScore"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:height="20sp"
+                    android:gravity="left"
+                    android:textColor="#222222"
+                    android:textStyle="bold"
+                    android:typeface="monospace" />
 
-                <TextView android:textColor="#222222"
+                <TextView
                     android:id="@+id/playerID"
-                    android:layout_width="fill_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:gravity="left"
                     android:layout_weight="1"
-                    android:typeface="monospace"
-                    android:height="20sp" />
+                    android:height="20sp"
+                    android:gravity="left"
+                    android:textColor="#222222"
+                    android:textStyle="bold"
+                    android:typeface="monospace" />
+            </LinearLayout>
 
-            </TableRow>
-
-        </TableLayout>
+        </LinearLayout>
 
     </TableRow>
 

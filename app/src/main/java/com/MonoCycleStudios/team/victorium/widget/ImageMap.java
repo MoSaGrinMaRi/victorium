@@ -149,12 +149,15 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 	int mmScreenHeight = -1;
 	double mmScreenDensity = -1;
 
+	//	Draw Layers	i.e. 0 - Ground, 1 - Icons, 2 - Overlay
+	int mDrawLevel = 3;
+
 	/*
 	 * containers for the image map areas
 	 * using SparseArray<Area> instead of HashMap for the sake of performance
 	 */
 	ArrayList<Area> mAreaList = new ArrayList<Area>();
-	SparseArray<Area> mIdToArea = new SparseArray<Area>();
+	public SparseArray<Area> mIdToArea = new SparseArray<Area>();
 
 	// click handler list
 	ArrayList<OnImageMapClickedHandler> mCallbackList;
@@ -815,10 +818,11 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 
 	protected void drawLocations(Canvas canvas)
 	{
-		for (Area a : mAreaList)
-		{
-			a.onDraw(canvas);
-		}
+		for(int i = 0; i < mDrawLevel; i++)
+			for (Area a : mAreaList)
+			{
+				a.onDraw(canvas, i);
+			}
 	}
 
 	/**
@@ -1244,6 +1248,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 					h.onImageMapMiss(this);
 				}
 			}
+
 			mBubbleMap.clear();
 			invalidate();
 		}
@@ -1368,7 +1373,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 	 *  Area is abstract Base for tappable map areas
 	 *   descendants provide hit test and focal point
 	 */
-	abstract class Area {
+	abstract public class Area {
 		int _id;
 		String _name;
 		HashMap<String,String> _values;
@@ -1415,7 +1420,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 		// an onDraw is set up to provide an extensible way to
 		// decorate an area.  When drawing remember to take the
 		// scaling and translation into account
-		public void onDraw(Canvas canvas)
+		public void onDraw(Canvas canvas, int DrawLayer)
 		{
 			if (_decoration != null)
 			{
@@ -1426,8 +1431,9 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 		}
 
 		abstract boolean isInArea(float x, float y);
-		abstract float getOriginX();
-		abstract float getOriginY();
+		abstract public float getOriginX();
+		abstract public float getOriginY();
+		abstract public float getMagicMultiplier();
 	}
 
 	/**
@@ -1465,6 +1471,11 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 		public float getOriginY() {
 			return _top;
 		}
+
+		@Override
+		public float getMagicMultiplier() {
+			return 0;
+		}
 	}
 
 	/**
@@ -1488,11 +1499,13 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 		int left=-1;
 		int right=-1;
 
+		double magicMultiplier =-1 ;// = (1920.0/mmScreenWidth)*(mmScreenDensity/320.0);
+
 		public PolyArea(int id, String name, String coords, String neighbourhood) {
 			super(id, name);
 
 			if(Ground.regions.size() <= mAreaList.size()) {
-				Region newRG = new Region(Ground.regions.size(), id, false, null);
+				Region newRG = new Region(Ground.regions.size(), id, false, null, 100);	//	TEMP !!! 100 initial cost
 				newRG.setNeighbourhoodsID(neighbourhood.split(":;"));
 				Ground.regions.add(newRG);
 			}
@@ -1590,6 +1603,11 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 			return _y;
 		}
 
+		@Override
+		public float getMagicMultiplier() {
+			return (float)magicMultiplier;
+		}
+
 		/**
 		 * This is a java port of the
 		 * W. Randolph Franklin algorithm explained here
@@ -1613,24 +1631,18 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 		// bounding box for the polygons [!!!]
 		Paint paint = new Paint();
 			@Override
-			public void onDraw(Canvas canvas) {
-				// draw the bounding box
+			public void onDraw(Canvas canvas, int drawLevel) {
 
-				double magicMultiplier = (1920.0/mmScreenWidth)*(mmScreenDensity/320.0);
+				magicMultiplier = (1920.0/mmScreenWidth)*(mmScreenDensity/320.0);
+
 				paint.setAntiAlias(true);
 				paint.setFilterBitmap(true);
 				paint.setDither(true);
 				paint.setStrokeCap(Paint.Cap.ROUND);
 
-//					Random a = new Random();
-//					int tst = a.nextInt(7);
-
-				//		smth like
-//				System.out.println("Drawing id: " + this._id);
-
 				int ind = -1;
 				Region rg = null;
-				if((ind = Ground.regions.indexOf(new Region(-1,this._id,false,null))) != -1) {
+				if((ind = Ground.regions.indexOf(new Region(-1,this._id,false,null,-1))) != -1) {
 					rg = Ground.regions.get(ind);
 					if(rg.owner != null)
 						paint.setColor(rg.owner.getPlayerCharacter().getColor().getARGB());
@@ -1638,37 +1650,90 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 						paint.setColor(CharacterColor.WHITE.getARGB());
 				}
 
-				paint.setStrokeWidth(mmScreenDensity > 320 ? 4 : 3);
-				paint.setStyle(Paint.Style.STROKE);
-				canvas.drawPath(areaPath, paint);
+				switch (drawLevel) {
+					case 0: {    //	ground
 
-				paint.setStyle(Paint.Style.FILL);
-				paint.setAlpha(50);
-				canvas.drawPath(areaPath, paint);
+						paint.setStrokeWidth(mmScreenDensity > 320 ? 4 : 3);
+						paint.setStyle(Paint.Style.STROKE);
+						canvas.drawPath(areaPath, paint);
 
-				if(rg != null && rg.owner != null) {
-					if(rg.isBase){
-						canvas.drawBitmap(rg.getBase(),
-								(float) (this.getOriginX() / magicMultiplier / 2)-rg.getBase().getWidth() / 2,
-								(float) (this.getOriginY() / magicMultiplier / 2)-rg.getBase().getHeight() / 2, null);
-					}else {
-						canvas.drawBitmap(rg.getPawn(),
-								(float) (this.getOriginX() / magicMultiplier / 2) - rg.getPawn().getWidth() / 2,
-								(float) (this.getOriginY() / magicMultiplier / 2) - rg.getPawn().getHeight() / 2, null);
+						paint.setStyle(Paint.Style.FILL);
+						paint.setAlpha(50);
+						canvas.drawPath(areaPath, paint);
+
+					}
+					break;
+					case 1: {    //	icon
+
+						try {
+							if (rg != null && rg.owner != null) {    //	&& V
+
+								if (rg.isBase) {
+									canvas.drawBitmap(rg.getBase(),
+											(float) (this.getOriginX() / magicMultiplier / 2) - rg.getBase().getWidth() / 2,
+											(float) (this.getOriginY() / magicMultiplier / 2) - rg.getBase().getHeight(), null);
+								} else {
+									canvas.drawBitmap(rg.getPawn(),
+											(float) (this.getOriginX() / magicMultiplier / 2) - rg.getPawn().getWidth() / 2,
+											(float) (this.getOriginY() / magicMultiplier / 2) - rg.getPawn().getHeight(), null);
+								}
+
+
+								paint.setTextSize(mmScreenDensity > 320 ? 20 : 14);
+
+								Rect bounds = new Rect();
+								String txt = "" + rg.getCost();
+
+								int text_width, text_height;
+
+								paint.getTextBounds(txt, 0, txt.length(), bounds);
+
+								text_width = bounds.width();
+								text_height = bounds.height();
+
+								paint.setColor(Color.WHITE);
+								paint.setStyle(Paint.Style.FILL);
+								canvas.drawRoundRect(
+										new RectF(
+												(float) ((this.getOriginX() / magicMultiplier / 2) - text_width / 1.5),
+												(float) (this.getOriginY() / magicMultiplier / 2),
+												(float) ((this.getOriginX() / magicMultiplier / 2) + text_width / 1.5),
+												(float) (this.getOriginY() / magicMultiplier / 2) + text_height + text_height / 2),
+										5.0f, 5.0f,
+										paint);
+
+								paint.setColor(Color.BLACK);
+								canvas.drawText("" + rg.getCost(),
+										(float) (this.getOriginX() / magicMultiplier / 2) - text_width / 2,
+										(float) (this.getOriginY() / magicMultiplier / 2) + 14, paint);
+
+							}
+						} catch (NullPointerException npe) {
+							npe.printStackTrace();
+						}
+
+					}
+					break;
+					case 2: {    //	overlay
+						if (rg != null) {
+
+							if (!rg.isInteractive) {
+								paint.setColor(Color.BLACK);
+								paint.setAlpha(75);
+								if (rg.isActive)
+									paint.setAlpha(50);
+							} else {
+								paint.setStyle(Paint.Style.STROKE);
+								paint.setStrokeWidth(1);
+								paint.setColor(Color.YELLOW);
+							}
+							canvas.drawPath(areaPath, paint);
+
+						}
+						break;
 					}
 				}
-
-				if(!rg.isInteractive){
-					paint.setColor(Color.BLACK);
-					paint.setAlpha(75);
-					if(rg.isActive)
-						paint.setAlpha(0);
-				}else{
-					paint.setStyle(Paint.Style.STROKE);
-					paint.setStrokeWidth(1);
-					paint.setColor(Color.YELLOW);
-				}
-				canvas.drawPath(areaPath, paint);
+				// draw the bounding box
 
 //				path.moveTo((float)(this._x/ magicMultiplier/2),(float)(this._y/ magicMultiplier/2));
 //				path.lineTo((float)(this._x/ magicMultiplier/2),(float)(this._y/ magicMultiplier/2));
@@ -1730,6 +1795,11 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 
 		public float getOriginY() {
 			return _y;
+		}
+
+		@Override
+		public float getMagicMultiplier() {
+			return 0;
 		}
 	}
 

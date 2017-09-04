@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import com.MonoCycleStudios.team.victorium.Connection.Client;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameFragments;
+import com.MonoCycleStudios.team.victorium.Game.Fragments.GroundEvents.RegionMenu;
 import com.MonoCycleStudios.team.victorium.Game.Game;
 import com.MonoCycleStudios.team.victorium.Game.GameRule;
 import com.MonoCycleStudios.team.victorium.Game.Player;
@@ -34,19 +35,43 @@ public class Ground extends Fragment {
             @Override
             public void onImageMapClicked(int id, ImageMap imageMap)
             {
-                if(GameRule.check(Client.iPlayer, "hit region", id))
-                    mImageMap.showBubble(id);
+                if(GameRule.check(Client.iPlayer, "hit region", id)){
+                    final RegionMenu rm = new RegionMenu();
+                    final int regionInd = regions.lastIndexOf(new Region(-1,id,false,null,-1));
+                    Region r = regions.get(regionInd);
+
+                    rm.setButtonText(GameRule.isFirstHalf ? "Capture" : "Attack");
+                    rm.setLabelText(""+r.getCost());
+                    rm.setOnClick(new View.OnClickListener(){
+                        @Override
+                        public void onClick (View v){
+                            GameRule.check(Client.iPlayer,"hit bulb attack",regionInd);     // V ||
+                            Game.getInstance().showFragment(GameFragments.GROUND_EVENT, rm.getFragment(), "remove", "all");
+                        }
+                    });
+                    int x,y;
+                    x = (int)(imageMap.mIdToArea.get(id).getOriginX() / imageMap.mIdToArea.get(id).getMagicMultiplier() / 2);
+                    y = (int)(imageMap.mIdToArea.get(id).getOriginY() / imageMap.mIdToArea.get(id).getMagicMultiplier() / 2);
+                    rm.setPosition(x,y);
+
+                    System.out.println("567890- "+x + " " +y);
+                    Game.getInstance().showFragment(GameFragments.GROUND_EVENT, rm, "remove", "all");
+                    Game.getInstance().showFragment(GameFragments.GROUND_EVENT, rm, "add");
+                }
+
+//                    mImageMap.showBubble(id);
             }
 
             @Override
             public void onBubbleClicked(int id)
             {
-                GameRule.check(Client.iPlayer,"hit bulb attack",regions.lastIndexOf(new Region(-1,id,false,null)));
+                // V ||
+//                GameRule.check(Client.iPlayer,"hit bulb attack",regions.lastIndexOf(new Region(-1,id,false,null,-1)));
             }
 
             @Override
             public void onImageMapMiss(ImageMap imageMap) {
-                Game.getInstance().showFragment(GameFragments.NONE, GameFragments.QUESTION);    // TEMP
+//                Game.getInstance().showFragment(GameFragments.NONE, GameFragments.QUESTION);    // TEMP
             }
         });
 
@@ -89,7 +114,7 @@ public class Ground extends Fragment {
                 rg.isInteractive = true;
             }
         }
-        mImageMap.invalidate();
+        redrawMap();
         return regionsToReturn;
     }
 
@@ -119,7 +144,20 @@ public class Ground extends Fragment {
                 }
         }
 
+        for(Region rg : regions){
+            if(!regionsToReturn.contains(rg)){
+                rg.isActive = rg.owner != null && rg.owner.equals(p);
+                rg.isInteractive = false;
+            }else{
+                rg.isInteractive = true;
+            }
+        }
+        redrawMap();
         return regionsToReturn;
+    }
+
+    public static void redrawMap(){
+        mImageMap.invalidate();
     }
 
     public static void setRegions(ArrayList<Region> newRegions) {
@@ -128,11 +166,11 @@ public class Ground extends Fragment {
             rg.setBitmaps();
             rg.computeNeighbourhoods(regions);
         }
-        mImageMap.invalidate();
+        redrawMap();
     }
 
     public static void updateRegion(int id, Player newOwner/*, int newCost*/){
         regions.get(id).update(newOwner/*, newCost*/);
-        mImageMap.invalidate();
+        redrawMap();
     }
 }

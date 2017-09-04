@@ -2,6 +2,7 @@ package com.MonoCycleStudios.team.victorium.Connection;
 
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.widget.Toast;
 
 import com.MonoCycleStudios.team.victorium.Connection.Enums.CommandType;
 import com.MonoCycleStudios.team.victorium.Game.Character;
@@ -29,6 +30,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
     boolean isCheckRunning = false;
     ServerTread connection;
     ServerSocket serverSocket;
+    Thread tmpThread = null;
 
     public List<ServerTread> getConnectionList() {
         return connectionList;
@@ -100,9 +102,9 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
 
                         if (!isCheckRunning) {
                             isCheckRunning = true;
-                            Thread tmpThread = new Thread(new Runnable() {
+                            tmpThread = new Thread(new Runnable() {
                                 Handler h = new Handler();
-                                int delay = 1500; //ms  // how often will check if user is still connected
+                                int delay = 5000; //ms  // how often will check if user is still connected
 
                                 public void run() {
                                     h.postDelayed(new Runnable() {
@@ -151,7 +153,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
     }
 
     private void checkConnection(){
-        if (connectionList != null || !connectionList.isEmpty()){
+        if (connectionList != null && !connectionList.isEmpty()){
             Iterator<ServerTread> iter = connectionList.iterator();
 
             ArrayList<ServerTread> listToRemove = new ArrayList<>();
@@ -169,7 +171,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
                 }else{
                     if(st.isMarkedToRemove)
                         st.isMarkedToRemove = false;
-                    st.oPing = -1;
+                    st.oPing += 1;
                     st.outCommand.offer(new MonoPackage("Int", CommandType.PING.getStr(), System.currentTimeMillis()));
                 }
             }
@@ -218,8 +220,12 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
                 st.setPlaying(true);
             }break;
             case NEWPLAYER:{
-                System.out.println("trying send List to " + st.myPlayer.getPlayerName() + " " + st.myPlayer.getPlayerID());
-                st.setOutCommand("ArrayList", CommandType.PLAYERSDATA.getStr(), Lobby.playerArrayList);
+                if(st.myPlayer != null) {
+                    System.out.println("trying send List to " + st.myPlayer.getPlayerName() + " " + st.myPlayer.getPlayerID());
+                    st.setOutCommand("ArrayList", CommandType.PLAYERSDATA.getStr(), Lobby.playerArrayList);
+                }else{
+                    Toast.makeText(Lobby.thisActivity.getApplicationContext(), "S1 tried to connect, but smth happened", Toast.LENGTH_SHORT).show();
+                }
             }break;
             case GAMEDATA:{
                 st.setOutCommand(command.typeOfObject,command.descOfObject,command.obj);
@@ -253,6 +259,8 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
         islisten = false;
         if(isCompletely){
             try {
+                isCheckRunning = false;
+                tmpThread.interrupt();
                 if (serverSocket != null)serverSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -320,7 +328,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
 
         public Player myPlayer;
 
-        long oPing = -1;
+        long oPing = -3;
         boolean isMarkedToRemove = false;
 
         private BlockingQueue<MonoPackage> outCommand = new LinkedBlockingQueue<>();
@@ -383,10 +391,6 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
                                         command = objReceived.poll();
                                     } catch (NullPointerException | NoSuchElementException npe) {
                                         npe.printStackTrace();
-//                                        objReceived = new LinkedList<>();
-//                                        tisw.interrupt();
-//                                        tisw = new Thread(isw); // need another solution(not working in this way)
-//                                        tisw.start();
                                     }
 
                                     processData(command);
@@ -524,6 +528,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
                     } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                         st.cancel(true);
+                        st.listening = false;
                         oPing = -1;
                         isMarkedToRemove = true;
                         objToServer.offer(new MonoPackage("[remove]",CommandType.RDATA.getStr(),(new ArrayList<>().add(st))));

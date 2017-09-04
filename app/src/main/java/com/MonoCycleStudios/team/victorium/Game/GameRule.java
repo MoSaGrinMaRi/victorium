@@ -9,8 +9,6 @@ import com.MonoCycleStudios.team.victorium.Connection.MonoPackage;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameCommandType;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameFragments;
 import com.MonoCycleStudios.team.victorium.Game.Enums.PlayerState;
-import com.MonoCycleStudios.team.victorium.Game.Enums.QuestionCategory;
-import com.MonoCycleStudios.team.victorium.Game.Enums.QuestionType;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.Ground;
 import com.MonoCycleStudios.team.victorium.widget.MyCountDownTimer;
 
@@ -21,7 +19,7 @@ import java.util.Map;
 public class GameRule {
 
     public static boolean isFirstHalf = true;
-    public static boolean isOneAnswered = false;
+    public static boolean isFinished = false;
 
     public static final String[] action = {
             "None",
@@ -47,6 +45,17 @@ public class GameRule {
 
     GameRule(Player p){
         activePlayer = p;
+
+        isFirstHalf = true;
+        isFinished = false;
+        defencePlayer = null;
+        defencePlayer = null;
+        activeRegion = null;
+        tick = 0;
+        questionChecker = new QuestionChecker(null);
+
+        if(mCallbackList != null)
+            mCallbackList.clear();
     }
 
     // click handler list
@@ -57,6 +66,8 @@ public class GameRule {
         void onTickUpdate(int currentTick, boolean isFirstHalf, boolean isNextCard);
 
         void onNextHalf(int currentTick, boolean isFirstHalf);
+
+        void onFinish();
     }
 
     public void addOnUpdateHandler( OnUpdateHandler h ) {
@@ -70,17 +81,30 @@ public class GameRule {
 
     private static void incrementTick(boolean isNextCard){
         tick++;
-        if(isFirstHalf && tick >= 25 - Game.getInstance().playersNumber) {
-            isFirstHalf = false;
+        System.out.println("[][1][]" + tick + " | " + isFirstHalf);
+
+        if(!isFirstHalf && tick>= (25 - Game.getInstance().playersNumber)*3){
+            isFinished = true;
             if(mCallbackList != null) {
                 for (OnUpdateHandler h : mCallbackList){
-                    h.onNextHalf(tick, isFirstHalf);
+                    h.onFinish();
                 }
             }
+            return;
         }
-        if(mCallbackList != null) {
-            for (OnUpdateHandler h : mCallbackList){
-                h.onTickUpdate(tick, isFirstHalf, isNextCard);
+        if(!isFinished) {
+            if (isFirstHalf && tick >= 25 - Game.getInstance().playersNumber) {
+                isFirstHalf = false;
+                if (mCallbackList != null) {
+                    for (OnUpdateHandler h : mCallbackList) {
+                        h.onNextHalf(tick, isFirstHalf);
+                    }
+                }
+            }
+            if (mCallbackList != null) {
+                for (OnUpdateHandler h : mCallbackList) {
+                    h.onTickUpdate(tick, isFirstHalf, isNextCard);
+                }
             }
         }
     }
@@ -88,6 +112,10 @@ public class GameRule {
     public static void update(int t, Player actPlayer, Player defPlayer){
         activePlayer = actPlayer;
         defencePlayer = defPlayer;
+
+        if(activePlayer.getPlayerState().equals(PlayerState.DEFEAT)){
+            incrementTick(true);
+        }
     }
 
     public static boolean check(Player p, String str, Object param){
@@ -97,14 +125,14 @@ public class GameRule {
             }else if(str.equalsIgnoreCase(action[1])){  //  "hit region"
                 if(isFirstHalf) {
                     if (activePlayer.equals(p)) {
-                        if (Ground.getAllCapturableRegions(p).contains(new Region(-1, (Integer) param, false, null)))
+                        if (Ground.getAllCapturableRegions(p).contains(new Region(-1, (Integer) param, false, null,-1)))
                             return true;
                     } else {
                         Game.getInstance().showFragment(GameFragments.ALERT, "Now " + activePlayer.getPlayerName() + "'s turn. Sorry...", 2);
                     }
                 }else{
                     if (activePlayer.equals(p)) {
-                        if (Ground.getAllAttackableRegions(p).contains(new Region(-1, (Integer) param, false, null)))
+                        if (Ground.getAllAttackableRegions(p).contains(new Region(-1, (Integer) param, false, null,-1)))
                             return true;
                     } else {
                         Game.getInstance().showFragment(GameFragments.ALERT, "Now " + activePlayer.getPlayerName() + "'s turn. Sorry...", 2);
@@ -184,6 +212,9 @@ public class GameRule {
                                 new MonoPackage(GameCommandType.REGIONS.getStr(), CommandType.GAMEDATA.getStr(),
                                         new MonoPackage("update", "" + (Ground.regions.get(Integer.parseInt((String) param)).id), p)
                                 ));
+                        Game.getInstance().useGameServer("all",null,
+                                new MonoPackage(GameCommandType.PLAYER.getStr(),CommandType.GAMEDATA.getStr(),
+                                        new MonoPackage("score","100",p)));
 
                         incrementTick(true);
                     }
@@ -196,10 +227,11 @@ public class GameRule {
                         System.out.println("Ho-rey22w!");
 //                        Ground.regions.get(Integer.parseInt((String) param)).owner = p;
 
+                        Object[] newQuestion = QuestionParser.getQuestion("random");
+                        int rightAnswer = (int)newQuestion[1];
+                        Question tmpQuest = (Question)newQuestion[0];
 
-                        int rightAnswer = 3;
-                        Question tmpQuest = new Question(QuestionType.ONE_FROM_FOUR_NORMAL,QuestionCategory.MATH,"well, we NEED de PARSER T_T",new String[]{"No!","We really need","C`MON","NOT that hard :c"},rightAnswer);
-
+//                        Question tmpQuest = new Question(QuestionType.ONE_FROM_FOUR_NORMAL,QuestionCategory.MATH,"well, we NEED de PARSER T_T",new String[]{"No!","We really need","C`MON","NOT that hard :c"},rightAnswer);
                         if(!questionChecker.isTie) {
                             activeRegion = Ground.regions.get(Integer.parseInt((String) param));
                             defencePlayer = activeRegion.owner;
@@ -255,17 +287,55 @@ public class GameRule {
 
             }else if(str.equalsIgnoreCase(action[8])){
 
-                if(activePlayer.equals(p)) {
-
-                    Ground.regions.get((int) param).owner = p;
-
-                    Game.getInstance().useGameServer("all", null,
-                            new MonoPackage(GameCommandType.REGIONS.getStr(), CommandType.GAMEDATA.getStr(),
-                                    new MonoPackage("update", (int)param+"", p)
-                            ));
-                }
                 Game.getInstance().useGameServer("all", null,
                         new MonoPackage(GameCommandType.QUESTION.getStr(), CommandType.GAMEDATA.getStr(), null));
+
+                if(activePlayer.equals(p)) {
+
+                    if (Ground.regions.get((int) param).currentHP - 1 > 0) {
+
+                        justWait(500);
+
+                        Game.getInstance().useGameServer("all", null,
+                                new MonoPackage(GameCommandType.REGIONS.getStr(), CommandType.GAMEDATA.getStr(),
+                                        new MonoPackage("update", (int) param + "", "hit")
+                                ));
+
+                        justWait(500);
+
+                        logic(activePlayer, action[2], ""+param);
+                        return;
+
+                    } else {
+
+                        Ground.regions.get((int) param).owner = p;
+
+                        Game.getInstance().useGameServer("all", null,
+                                new MonoPackage(GameCommandType.PLAYER.getStr(), CommandType.GAMEDATA.getStr(),
+                                        new MonoPackage("score", ""+Ground.regions.get((int) param).getCost(), p)));
+
+                        Game.getInstance().useGameServer("all", null,
+                                new MonoPackage(GameCommandType.PLAYER.getStr(), CommandType.GAMEDATA.getStr(),
+                                        new MonoPackage("score", "-"+Ground.regions.get((int) param).getCost(), defencePlayer)));
+
+                       justWait(500);
+
+                        Game.getInstance().useGameServer("all", null,
+                                new MonoPackage(GameCommandType.REGIONS.getStr(), CommandType.GAMEDATA.getStr(),
+                                        new MonoPackage("update", (int) param + "", p)
+                                ));
+
+                        justWait(500);
+
+                    }
+
+                }else if (defencePlayer.equals(p)) {
+
+                    Game.getInstance().useGameServer("all", null,
+                            new MonoPackage(GameCommandType.PLAYER.getStr(), CommandType.GAMEDATA.getStr(),
+                                    new MonoPackage("score", "50", defencePlayer)));
+
+                }
 
                 incrementTick(true);
 
@@ -282,8 +352,16 @@ public class GameRule {
         }
     }
 
+    static void justWait(int millis){
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
-    static class QuestionChecker implements Runnable{
+
+    private static class QuestionChecker implements Runnable{
 
         Question question;
         private int rightAnswer;
@@ -315,7 +393,7 @@ public class GameRule {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    mcdt = new MyCountDownTimer(10000+100, 20);     //      TEMP !!! 10sec to answer the question + 100 addition millis due ping and stuff
+                    mcdt = new MyCountDownTimer(15000+300, 20);     //      TEMP !!! 15sec to answer the question + 300 addition millis due ping and stuff
 
                     mcdt.addOnUpdateHandler(new MyCountDownTimer.OnUpdateHandler() {
                         @Override
@@ -339,7 +417,7 @@ public class GameRule {
                 }
             }
 
-            for (Map.Entry entry: answers.entrySet()) {
+            for (Map.Entry entry : answers.entrySet()) {
                 Player key = (Player) entry.getKey();
                 Integer value = (Integer) entry.getValue();
                 System.out.println(key + " : " + value);

@@ -7,6 +7,7 @@ public enum GameCommandType {
     EXECUTESTART("[executeStart]"),
     QUEUTURNS("[queueTurns]"),
     REGIONS("[regions]"),
+    PLAYER("[player]"),
     QUESTION("[question]"),
     ALERT("[alert]"),
     GAMERULE("[gameRule]");

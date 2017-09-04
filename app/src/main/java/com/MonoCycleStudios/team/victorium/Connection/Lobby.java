@@ -45,7 +45,7 @@ public class Lobby extends AppCompatActivity {
     static String lPlayerName;
     static boolean lIsServer = false;
 
-    private static Activity thisActivity;   // need another approach, i guess...
+    public static Lobby thisActivity;   // need another approach, i guess...
 
     static ArrayList<Player> playerArrayList = new ArrayList<>();
 
@@ -78,6 +78,7 @@ public class Lobby extends AppCompatActivity {
         b3.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick (View v){
+                b3.setEnabled(false);
                 statusUpdate("Loading");
                 s1.notifyAllClients(new MonoPackage("", CommandType.STARTGAME.getStr(),null));
                 s1.stopListening(false);
@@ -147,13 +148,19 @@ public class Lobby extends AppCompatActivity {
                 ImageView im1 = (ImageView) v.findViewById(R.id.imageView);
                 TextView tt1 = (TextView) v.findViewById(R.id.playerName);
                 TextView tt2 = (TextView) v.findViewById(R.id.playerID);
+                TextView tt3 = (TextView) v.findViewById(R.id.playerScore);
 
                 if (tt1 != null)
                     tt1.setText(p.getPlayerName());
                 if (tt2 != null)
                     tt2.setText(String.valueOf(p.getPlayerID()));
+                if (tt3 != null) {
+                    System.out.println("[1][][] "+ p.getPlayerScore() + p.getPlayerName() );
+                    tt3.setText(String.valueOf(p.getPlayerScore()));
+                }
                 if (im1 != null) {
                     im1.setColorFilter(p.getPlayerCharacter().getColor().getARGB());
+                    System.out.println("[][][] " + Client.iPlayer != null + " " + p.getPlayerID() + "|" + (Client.iPlayer != null ? Client.iPlayer.getPlayerID() :-1) + "="  +(p.getPlayerID() == (Client.iPlayer != null ? Client.iPlayer.getPlayerID() :-1)));
                     if(Client.iPlayer != null && p.getPlayerID() == Client.iPlayer.getPlayerID()) {
                         im1.setBackground(getDrawable(R.drawable.shape_tablerow_image));
                     }
@@ -206,7 +213,7 @@ public class Lobby extends AppCompatActivity {
                 while (ee.hasMoreElements())
                 {
                     InetAddress i = (InetAddress) ee.nextElement();
-                    if(i.getHostAddress().startsWith("192.168."))
+                    if(isStartWith(i.getHostAddress()))
                         return i.getHostAddress();
                 }
             }
@@ -214,6 +221,34 @@ public class Lobby extends AppCompatActivity {
             e1.printStackTrace();
         }
         return null;
+    }
+
+    private static boolean isStartWith(String address){
+        String[] addressStart = {
+                "192.168.",
+                "172.16.",
+                "172.17.",
+                "172.18.",
+                "172.19.",
+                "172.20.",
+                "172.21.",
+                "172.22.",
+                "172.23.",
+                "172.24.",
+                "172.25.",
+                "172.26.",
+                "172.27.",
+                "172.28.",
+                "172.29.",
+                "172.30.",
+                "172.31."
+        };
+        for (String anAddressStart : addressStart) {
+            if (address.startsWith(anAddressStart)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static int getUnusedIndex(){
@@ -235,16 +270,21 @@ public class Lobby extends AppCompatActivity {
         Lobby.playerArrayList = playerArrayList;
     }
 
-    private void stopAndClose(){
+    public void stopAndClose(){
         if(s1 != null) {
             s1.cancelChild();
             s1.stopListening(true);
             s1.cancel(true);
+            s1 = null;
         }
-        if(c1 != null)
+        if(c1 != null) {
             c1.cancel(true);
+            c1 = null;
+        }
 
         playerArrayList.clear();
+
+        thisActivity = null;
 
         finish();
     }

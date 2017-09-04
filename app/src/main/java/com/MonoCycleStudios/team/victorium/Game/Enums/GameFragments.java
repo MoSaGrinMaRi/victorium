@@ -2,6 +2,7 @@ package com.MonoCycleStudios.team.victorium.Game.Enums;
 
 public enum GameFragments {
     NONE("[none]"),
+    GROUND_EVENT("[groundEvent]"),
     ALERT("[alert]"),
     NOTIFY("[waitForPlayers]"),
     QUESTION("[question]"),

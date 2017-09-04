@@ -28,18 +28,15 @@ public class Question implements Serializable {
         return questionBody;
     }
 
-    public QuestionType getQuestionType() {
-        return questionType;
+    public QuestionCategory getQuestionCategory() {
+        return questionCategory;
     }
 
     public String[] getAnswers() {
         return Answers;
     }
 
-    public boolean checkAnswers(int userAnswer) {   //  !!! Should we support shuffled answers?
-        if(userAnswer >= 0 && userAnswer < 4)
-            return (rightAnswer == userAnswer);
-        else
-            return false;
+    public boolean checkAnswers(int userAnswer) {   //  !!! Should we support shuffled answers for each user?
+        return userAnswer >= 0 && userAnswer < 4 && (rightAnswer == userAnswer);
     }
 }
