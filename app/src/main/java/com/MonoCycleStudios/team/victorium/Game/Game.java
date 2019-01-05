@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -21,12 +22,15 @@ import com.MonoCycleStudios.team.victorium.Connection.Server;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameCommandType;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameFragments;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameState;
+import com.MonoCycleStudios.team.victorium.Game.Enums.PlayerState;
 import com.MonoCycleStudios.team.victorium.Game.Enums.QuestionCategory;
 import com.MonoCycleStudios.team.victorium.Game.Enums.QuestionType;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.Alert;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.Ground;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.GroundEvent;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.GroundEvents.GroundEvents;
+import com.MonoCycleStudios.team.victorium.Game.Fragments.GroundEvents.RegionFX;
+import com.MonoCycleStudios.team.victorium.Game.Fragments.GroundEvents.RegionMenu;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.TimeDisplacer;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.Notifier;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.Questioner;
@@ -38,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Random;
 
 public class Game extends AppCompatActivity {
 
@@ -65,6 +70,7 @@ public class Game extends AppCompatActivity {
     ListView lv;
     BitmapFactory.Options bmo = new BitmapFactory.Options();
     public static Bitmap castleAtlas;
+    public static Bitmap pawnAtlas;
     public static Bitmap categoryAtlas;
 
     @Override
@@ -73,6 +79,10 @@ public class Game extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         instance = this;
+
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+
+        showFragment(GameFragments.GROUND_EVENT);
 
         lv = (ListView) findViewById(R.id.connectionsListView_2);
         lv.setAdapter(Lobby.adapter);
@@ -95,12 +105,16 @@ public class Game extends AppCompatActivity {
         bmo.inScaled = true;
 //        bmo.inSampleSize = 32;
         bmo.inDensity = 4112;
-        bmo.inTargetDensity = (4112/16);
+        bmo.inTargetDensity = (4112/8);
         castleAtlas = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.castle_atlas, bmo);
 
         bmo.inDensity = 1280;
         bmo.inTargetDensity = 1280;
         categoryAtlas = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.category_atlas, bmo);
+
+        bmo.inDensity = 1566;
+        bmo.inTargetDensity = (1566/6); //  x2 in drawing
+        pawnAtlas = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.pawn_atlas, bmo);
 
         System.out.println("YEEEEEEE=================EEEEY!" + gameServer);
         if(gameServer != null) {
@@ -119,7 +133,7 @@ public class Game extends AppCompatActivity {
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
             super.onBackPressed();
-            //  **  //
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             return;
         }
 
@@ -163,6 +177,11 @@ public class Game extends AppCompatActivity {
             case GROUND_EVENT:{
                 if(fragment4 == null) {
                     fragment4 = new GroundEvent();
+
+                    if (!isFinishing()) {
+                        ft.replace(R.id.fragmentGroundEventPlaceholder, fragment4);
+                        ft.commit();
+                    }
                 }else if(obj != null && obj.length > 1){
                         System.out.println("4567890 "+obj[0]);
 
@@ -173,10 +192,6 @@ public class Game extends AppCompatActivity {
                         else if(((String)obj[1]).equalsIgnoreCase("remove"))
                             fragment4.removeView((GroundEvents) obj[0], (String)obj[2]);
 
-                }
-                if (!isFinishing()) {
-                    ft.replace(R.id.fragmentGroundEventPlaceholder, fragment4, "tag-1");
-                    ft.commit();
                 }
             }break;
 //            case AnotherNotifier1:
@@ -336,21 +351,42 @@ public class Game extends AppCompatActivity {
                                 @Override
                                 public void onFinish() {
 
-                                    Object[] newQuestion = QuestionParser.getQuestion("none");
-                                    Question q = (Question)newQuestion[0];
-
-                                    gameServer.notifyPlayer(Lobby.getPlayersList().get(0), new MonoPackage(GameCommandType.QUESTION.getStr(),CommandType.GAMEDATA.getStr(),q));
-                                    gameServer.notifyPlayer(Lobby.getPlayersList().get(1), new MonoPackage(GameCommandType.QUESTION.getStr(),CommandType.GAMEDATA.getStr(),q));
+//                                    Object[] newQuestion = QuestionParser.getQuestion("none");
+//                                    Question q = (Question)newQuestion[0];
+//
+//                                    gameServer.notifyPlayer(Lobby.getPlayersList().get(0), new MonoPackage(GameCommandType.QUESTION.getStr(),CommandType.GAMEDATA.getStr(),q));
+//                                    gameServer.notifyPlayer(Lobby.getPlayersList().get(1), new MonoPackage(GameCommandType.QUESTION.getStr(),CommandType.GAMEDATA.getStr(),q));
 
                                 }
                             });
 
                     }break;
                     case "update":{
+                        int regionID = Integer.parseInt(tmp.getDescOfObject());
+
+                        if(!GameRule.isFirstHalf) {
+                            final RegionFX rfx = new RegionFX();
+//                            final int regionInd = gameGround.regions.lastIndexOf(new Region(regionID,-1,false,null,-1));
+//                            Region r = gameGround.regions.get(regionID);
+
+//                            rfx.setFXType(""+r.getCost());
+                            String[] coords = gameGround.getRegionCoords(gameGround.getMapIDFromRegionID(regionID)).split(":;");
+                            int x, y;
+                            x = Integer.parseInt(coords[0]);
+                            y = Integer.parseInt(coords[1]);
+                            rfx.setPosition(x, y);
+
+                            System.out.println("567890- " + x + " " + y);
+//                            Game.getInstance().showFragment(GameFragments.GROUND_EVENT, rfx, "remove", "all");
+                            Game.getInstance().showFragment(GameFragments.GROUND_EVENT, rfx, "add");
+
+//                            rfx.blockingCode();
+                        }
+
                         if(tmp.getObj() instanceof Player)
-                            gameGround.updateRegion(Integer.parseInt(tmp.getDescOfObject()),(Player)tmp.getObj());
+                            gameGround.updateRegion(regionID, (Player) tmp.getObj());
                         else if(tmp.getObj() instanceof String)
-                            gameGround.updateRegion(Integer.parseInt(tmp.getDescOfObject()),null);
+                            gameGround.updateRegion(Integer.parseInt(tmp.getDescOfObject()), null);
                     }break;
                 }
             }
@@ -361,14 +397,18 @@ public class Game extends AppCompatActivity {
                         MonoPackage tmp = (MonoPackage)monoPackage.getObj();
 
                         Player p = Lobby.getPlayersList().get(Lobby.getPlayersList().indexOf((tmp.getObj())));
-                        int score = Integer.parseInt(tmp.getDescOfObject());
+                        if(tmp.getDescOfObject().startsWith("s")){
+                            int score = Integer.parseInt(tmp.getDescOfObject().substring(1));
+                            p.setPlayerScore(score);
+                        }else{
+                            int score = Integer.parseInt(tmp.getDescOfObject());
+                            p.updatePlayerScore(score);
+                        }
 
 //                        if(score > 0)
 //                            Game.getInstance().showFragment(GameFragments.ALERT, p.getPlayerName() + " earn " + score , 2);
 //                        else
 //                            Game.getInstance().showFragment(GameFragments.ALERT, p.getPlayerName() + " lost " + score , 2);
-
-                        p.updatePlayerScore(score);
 
                         System.out.println("[2][][] "+ p.getPlayerScore() + p.getPlayerName() );
 
@@ -460,8 +500,10 @@ public class Game extends AppCompatActivity {
                         new Handler().postDelayed(new Runnable() {
                             public void run() {
                                 finish();
+                                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+
                             }
-                        }, 10000);
+                        }, 8000);
 
                     }break;
                 }
@@ -471,9 +513,13 @@ public class Game extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+
+//        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         Lobby.thisActivity.stopAndClose();
 
         Ground.regions = new ArrayList<>();
+
+        GameRule.cleanup();
 
         playersNumber = -1;
         gameState = GameState.WAITING_FOR_START;
@@ -530,21 +576,51 @@ public class Game extends AppCompatActivity {
                     gameServer.notifyAllClients(new MonoPackage(GameCommandType.EXECUTESTART.getStr(),CommandType.GAMEDATA.getStr(),null));
                     gameState = GameState.RUNNING;
 
+                    ArrayList<Region> freeRegions = new ArrayList<>();
+                    freeRegions.addAll(gameGround.regions);
+
                     for(int i = 0; i < playersNumber; i++){
-//                        Region rg = Ground.regions.get(new Random().nextInt((20 - 2) + 1) + 2);
-//                        if(rg.owner == null){
-//                            rg.owner = Lobby.getPlayersList().get(i);
-//                            rg.setIsBase(true);
-//                        }else{
-//                            --i;
-//                        }
 
-                        int[] preLocated = {24,6,18,12,2,0};
+                        if(freeRegions.size() <= 0){    //  in case no space to put next base, regenerate new
+                            freeRegions.addAll(gameGround.regions);
+                            for(int j = 0; j < gameGround.regions.size()-1; j++) {
+                                gameGround.regions.get(j).owner = null;
+                                gameGround.regions.get(j).isBase = false;
+                            }
+                            i = 0;
+                        }
 
-                        Region rg = Ground.regions.get(preLocated[i]);
+                        do {
+                            System.out.println("AL9RM!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                            gameRule.justWait(100);
+                            freeRegions.addAll(gameGround.regions);
+                        }while (freeRegions.size() <= 0);
+
+                        Region rg = Ground.regions.get(freeRegions.get(new Random().nextInt(freeRegions.size() - 1)).id);
+
+
                         if(rg.owner == null){
                             rg.owner = Lobby.getPlayersList().get(i);
+                            System.out.println("tyuio0 "+ rg.owner + " " +Lobby.getPlayersList().get(i).getPlayerState());
                             rg.setIsBase(true);
+
+//                            System.out.println("qwerty " + rg.id + "\n" + Arrays.toString(freeRegions.toArray()) + "\n" + freeRegions.size() + " " + gameGround.regions.size());
+                            freeRegions.remove(rg);
+
+                            for(Region r : rg.getNeighbourhoods()){
+                                freeRegions.remove(r);
+                                if(playersNumber <= 4) {    //  TEMP !!!    4 breakpoint, if 4 and less, try to make 2 region margin
+                                    for (Region r2 : r.getNeighbourhoods()) {
+                                        freeRegions.remove(r2);
+                                        if (playersNumber <= 2) {    //  TEMP !!!    2 breakpoint, if 2 and less, try to make 3 region margin
+                                            for (Region r3 : r2.getNeighbourhoods()) {
+                                                freeRegions.remove(r3);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+//                            System.out.println("qwerty " + rg.id + "\n" + Arrays.toString(freeRegions.toArray()) + "\n" + freeRegions.size() + " " + gameGround.regions.size());
                         }else{
                             --i;
                         }
@@ -571,14 +647,13 @@ public class Game extends AppCompatActivity {
                 public void onTickUpdate(int currentTick, boolean isFirstHalf, boolean isNextCard) {
                     if(isUpdate) {
                         if(isNextCard)
-                            gameRule.update(-1, queueTurns.get(fragment2.getCardIndex() + 1),null);
+                            gameRule.update(-1, Lobby.getPlayersList().get(queueTurns.get(fragment2.getCardIndex() + 1).getPlayerID()), null);
 
                         gameServer.notifyAllClients(new MonoPackage(GameCommandType.GAMERULE.getStr(), CommandType.GAMEDATA.getStr(),
                                 new MonoPackage("update", isNextCard ? "nextCard" : "nope",
                                         new MonoPackage("", "", new Player[]{GameRule.activePlayer,GameRule.defencePlayer}))));
 
-//                        gameServer.notifyAllClients(new MonoPackage(GameCommandType.GAMERULE.getStr(),CommandType.GAMEDATA.getStr(),
-//                                new MonoPackage("finish","",getWinner(Lobby.getPlayersList()))));
+                        gameRule.updateCheck();
                     }else{
                         isUpdate = true;
                     }
@@ -717,9 +792,9 @@ public class Game extends AppCompatActivity {
                     }
 
                     for (int i = 0; i < Lobby.getPlayersList().size(); i++) {
-//                        if (Lobby.getPlayersList().get(i).getPlayerGameState() == GameState.LAUNCHING) {
+                        if (Lobby.getPlayersList().get(i).getPlayerGameState() == GameState.LAUNCHING) {
                             j++;
-//                        }
+                        }
                     }
                 }
             }

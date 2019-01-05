@@ -3,7 +3,13 @@ package com.MonoCycleStudios.team.victorium.Game;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.MonoCycleStudios.team.victorium.Connection.Client;
+import com.MonoCycleStudios.team.victorium.Connection.Enums.CommandType;
+import com.MonoCycleStudios.team.victorium.Connection.Lobby;
+import com.MonoCycleStudios.team.victorium.Connection.MonoPackage;
+import com.MonoCycleStudios.team.victorium.Game.Enums.GameCommandType;
 import com.MonoCycleStudios.team.victorium.Game.Enums.PlayerState;
+import com.MonoCycleStudios.team.victorium.Game.Fragments.Ground;
 import com.MonoCycleStudios.team.victorium.R;
 
 import java.io.Serializable;
@@ -36,6 +42,9 @@ public class Region implements Serializable{
         this.currentHP = getMaxHP();
         this.owner = owner;
         this.cost = cost;
+
+        if(owner != null)
+            System.out.println("tyuio1 "+ owner + " " +owner.getPlayerState());
 //        this.rgBorder = rgBorder;
     }
 
@@ -43,10 +52,40 @@ public class Region implements Serializable{
         if(newOwner == null)
             --this.currentHP;
         else {
-            if(isBase && this.owner != null) {
+            if(isBase && this.owner != null && this.owner != newOwner) {
                 isBaseDestroyed = true;
                 owner.setPlayerState(PlayerState.DEFEAT);
+                Lobby.getPlayersList().get(owner.getPlayerID()).setPlayerState(PlayerState.DEFEAT);
+
+                int allCost = 0;
+
+                for(int i = 0; i < Ground.regions.size(); i++){
+                    if(Ground.regions.get(i).owner.equals(this.owner) && Ground.regions.get(i).id != this.id){
+//                        Ground.regions.get(i).owner = newOwner;
+//                        Game.getInstance().useGameServer("all", null,
+//                                new MonoPackage(GameCommandType.PLAYER.getStr(), CommandType.GAMEDATA.getStr(),
+//                                        new MonoPackage("score", ""+Ground.regions.get((int) param).getCost(), p)));
+                        Client.iPlayer.getPlayerGame().commandProcess(
+                                new MonoPackage(GameCommandType.REGIONS.getStr(), "",
+                                        new MonoPackage("update", ""+Ground.regions.get(i).id, newOwner))
+                        );
+
+                        allCost += Ground.regions.get(i).getCost();
+
+                    }
+                }
+
+                Client.iPlayer.getPlayerGame().commandProcess(
+                        new MonoPackage(GameCommandType.PLAYER.getStr(), "",
+                                new MonoPackage("score", "s"+0, this.owner))
+                );
+                Client.iPlayer.getPlayerGame().commandProcess(
+                        new MonoPackage(GameCommandType.PLAYER.getStr(), "",
+                                new MonoPackage("score", ""+allCost, newOwner))
+                );
+
             }
+
             this.owner = newOwner;
             this.currentHP = getMaxHP();
         }
@@ -79,34 +118,57 @@ public class Region implements Serializable{
     }
 
     private void setPawnBitmap(Character ch){
-        int resource = -1;
+        int frameWidth = 522/6;
+        int frameHeight = 820/6;
+        int frameCountX = 0;    //  MAX = 3; Only 3 different type
+        int frameCountY = 0;    //  MAX = 2; Only 2 different color for each
+
+//        int resource = -1;
         switch (ch.getColor()){
             case RED:
-                resource = R.drawable.man_red;
+//                resource = R.drawable.man_red;
+                frameCountX = 0;
+                frameCountY = 0;
                 break;
             case BLUE:
-                resource = R.drawable.wizard_blue;
+//                resource = R.drawable.wizard_blue;
+                frameCountX = 1;
+                frameCountY = 0;
                 break;
             case ORANGE:
-                resource = R.drawable.warrior_orange;
+//                resource = R.drawable.warrior_orange;
+                frameCountX = 2;
+                frameCountY = 0;
                 break;
             case GREEN:
-                resource = R.drawable.man_green;
+//                resource = R.drawable.man_green;
+                frameCountX = 0;
+                frameCountY = 1;
                 break;
             case BLACK:
-                resource = R.drawable.wizard_dark;
+//                resource = R.drawable.wizard_dark;
+                frameCountX = 1;
+                frameCountY = 1;
                 break;
             case PURPLE:
-                resource = R.drawable.warrior_purple;
+//                resource = R.drawable.warrior_purple;
+                frameCountX = 2;
+                frameCountY = 1;
                 break;
 
         }
-        pawnBitmap = BitmapFactory.decodeResource(Game.getInstance().getApplicationContext().getResources(), resource);
-        pawnBitmap = Bitmap.createScaledBitmap(pawnBitmap, pawnBitmap.getWidth() / 24, pawnBitmap.getHeight() / 24, true);
+//        pawnBitmap = BitmapFactory.decodeResource(Game.getInstance().getApplicationContext().getResources(), resource);
+//        pawnBitmap = Bitmap.createScaledBitmap(pawnBitmap, pawnBitmap.getWidth() / 24, pawnBitmap.getHeight() / 24, true);
+
+        this.pawnBitmap = Bitmap.createBitmap(Game.pawnAtlas,
+                frameWidth * frameCountX,
+                frameHeight * frameCountY,
+                frameWidth,
+                frameHeight);
     }
     private void setBaseBitmap(Character ch){
-        int frameWidth = 1028/16;
-        int frameHeight = 640/16;
+        int frameWidth = 1028/8;
+        int frameHeight = 640/8;
         int frameCountX = 0;    //  MAX = 4; Only 4 castle state
         int frameCountY = 0;    //  MAX = Lobby.MAX_PLAYERS; Only 6 players can play
 
@@ -205,5 +267,14 @@ public class Region implements Serializable{
 
     public int hashCode() {
         return java.util.Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Region{" +
+                "id=" + id +
+//                ", isBase=" + isBase +
+//                ", owner=" + owner +
+                '}';
     }
 }

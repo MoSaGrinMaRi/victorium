@@ -463,6 +463,8 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
                         Lobby.playerArrayList.add(myPlayer);
 //                            }
 
+                        checkStartAvailable();
+
                         MonoPackage mpTMP = new MonoPackage("Player",CommandType.NEWPLAYER.getStr(),myPlayer);
                         if (!outCommand.offer(mpTMP)) {   //  [Log error]
                             System.out.println("Error on adding outCommand " + mpTMP.fullToString());

@@ -1,9 +1,13 @@
 package com.MonoCycleStudios.team.victorium.Connection;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.support.transition.TransitionManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -35,9 +40,10 @@ public class Lobby extends AppCompatActivity {
     public static int MIN_PLAYERS_TO_START = 2;
 
     public static ListView lv;
-    public static TextView tv;
+    private static LinearLayout ll;
     public static OurArrayListAdapter adapter;
     public static Button b1;
+    public static Button b2;
     public static Button b3;
     public EditText tvSip;
     public static Server s1;
@@ -49,6 +55,9 @@ public class Lobby extends AppCompatActivity {
 
     static ArrayList<Player> playerArrayList = new ArrayList<>();
 
+    BitmapFactory.Options bmo = new BitmapFactory.Options();
+    public static Bitmap flagAtlas;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,30 +65,54 @@ public class Lobby extends AppCompatActivity {
 
         thisActivity = this;
 
-        b1 = (Button)findViewById(R.id.connectBtn);
+
+//        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        overridePendingTransition(R.animator.slideout_right, R.animator.slidein_left);
+
+        ll = (LinearLayout) findViewById(R.id.llLobbyPlayersList);
+
+        b1 = (Button)findViewById(R.id.btnConnect);
 
         b1.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick (View v){
-                ((Button)findViewById(R.id.connectBtn)).setEnabled(false);
-                ((Button)findViewById(R.id.connectBtn)).setClickable(false);
-                ((Button)findViewById(R.id.connectBtn)).setText("Connecting");
+                ((Button)findViewById(R.id.btnConnect)).setEnabled(false);
+                ((Button)findViewById(R.id.btnConnect)).setClickable(false);
+//                ((Button)findViewById(R.id.connectBtn)).setText("Connecting");
 
                 c1 = new Client();
                 System.out.println("[=2.1=].................");
 //                c1.init(Lobby.this);
                 c1.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, lIsServer ? getMyLocalIP() : tvSip.getText().toString(), lPlayerName);
                 System.out.println("[=2.2=].................");
+
+                LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                        0,
+                        0,
+                        40.0f
+                );
+                findViewById(R.id.view2).setLayoutParams(param);
+                TransitionManager.beginDelayedTransition(((LinearLayout)findViewById(R.id.llLobbyControl)));
+                TransitionManager.beginDelayedTransition(ll);
+                ll.setVisibility(View.VISIBLE);
+                tvSip.setEnabled(false);
             }
         });
 
-        b3 = (Button)findViewById(R.id.launchGame);
+        b2 = (Button)findViewById(R.id.btnLobbyBack);
+        b2.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick (View v){
+                onBackPressed();
+            }
+        });
+
+        b3 = (Button)findViewById(R.id.btnLaunchGame);
         b3.setEnabled(false);
         b3.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick (View v){
                 b3.setEnabled(false);
-                statusUpdate("Loading");
                 s1.notifyAllClients(new MonoPackage("", CommandType.STARTGAME.getStr(),null));
                 s1.stopListening(false);
             }
@@ -87,9 +120,7 @@ public class Lobby extends AppCompatActivity {
 
         lv = (ListView) findViewById(R.id.connectionsListView);
 
-        tv = (TextView) findViewById(R.id.status);
-        tv.setText(lPlayerName);
-        tvSip = (EditText) findViewById(R.id.ipAddress);
+        tvSip = (EditText) findViewById(R.id.InpIpAddress);
         if (lIsServer){
             System.out.println("set invisible");
             tvSip.setEnabled(false);
@@ -106,22 +137,15 @@ public class Lobby extends AppCompatActivity {
             b3.setVisibility(View.INVISIBLE);
         }
 
-        Button bS1 = (Button)findViewById(R.id.btnSend1);
-        Button bS2 = (Button)findViewById(R.id.btnSend2);
-
-        bS1.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick (View v){ c1.addOutCommand("String","[rData]","1");
-            }
-        });
-        bS2.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick (View v){ c1.addOutCommand("String","[rData]","2");
-            }
-        });
-
         adapter = new OurArrayListAdapter(this, android.R.layout.simple_list_item_1, playerArrayList);
         forceREUpdateAdapter();
+
+        bmo.inScaled = true;
+//        bmo.inSampleSize = 32;
+        bmo.inDensity = 468;
+        bmo.inTargetDensity = 468;
+        flagAtlas = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.flag_atlas, bmo);
+
     }
 
     public class OurArrayListAdapter extends ArrayAdapter<Player> {
@@ -147,23 +171,53 @@ public class Lobby extends AppCompatActivity {
             if (p != null) {
                 ImageView im1 = (ImageView) v.findViewById(R.id.imageView);
                 TextView tt1 = (TextView) v.findViewById(R.id.playerName);
-                TextView tt2 = (TextView) v.findViewById(R.id.playerID);
                 TextView tt3 = (TextView) v.findViewById(R.id.playerScore);
 
                 if (tt1 != null)
                     tt1.setText(p.getPlayerName());
-                if (tt2 != null)
-                    tt2.setText(String.valueOf(p.getPlayerID()));
                 if (tt3 != null) {
                     System.out.println("[1][][] "+ p.getPlayerScore() + p.getPlayerName() );
                     tt3.setText(String.valueOf(p.getPlayerScore()));
                 }
                 if (im1 != null) {
-                    im1.setColorFilter(p.getPlayerCharacter().getColor().getARGB());
-                    System.out.println("[][][] " + Client.iPlayer != null + " " + p.getPlayerID() + "|" + (Client.iPlayer != null ? Client.iPlayer.getPlayerID() :-1) + "="  +(p.getPlayerID() == (Client.iPlayer != null ? Client.iPlayer.getPlayerID() :-1)));
-                    if(Client.iPlayer != null && p.getPlayerID() == Client.iPlayer.getPlayerID()) {
-                        im1.setBackground(getDrawable(R.drawable.shape_tablerow_image));
+
+                    int frameWidth = 78;
+                    int frameHeight = 140;
+                    int frameCountX = 0;    //  MAX = 6; Only 6 player
+
+                    switch (p.getPlayerCharacter().getColor()){
+                        case RED:
+                            frameCountX = 0;
+                            break;
+                        case BLUE:
+                            frameCountX = 1;
+                            break;
+                        case ORANGE:
+                            frameCountX = 2;
+                            break;
+                        case GREEN:
+                            frameCountX = 3;
+                            break;
+                        case BLACK:
+                            frameCountX = 4;
+                            break;
+                        case PURPLE:
+                            frameCountX = 5;
+                            break;
+
                     }
+
+                    im1.setImageBitmap(Bitmap.createBitmap(Lobby.flagAtlas,
+                            frameWidth * frameCountX,
+                            0,
+                            frameWidth,
+                            frameHeight));
+
+//                    im1.setColorFilter(p.getPlayerCharacter().getColor().getARGB());
+//                    System.out.println("[][][] " + Client.iPlayer != null + " " + p.getPlayerID() + "|" + (Client.iPlayer != null ? Client.iPlayer.getPlayerID() :-1) + "="  +(p.getPlayerID() == (Client.iPlayer != null ? Client.iPlayer.getPlayerID() :-1)));
+//                    if(Client.iPlayer != null && p.getPlayerID() == Client.iPlayer.getPlayerID()) {
+//                        im1.setBackground(getDrawable(R.drawable.shape_tablerow_image));
+//                    }
                 }
             }
             return v;
@@ -179,7 +233,7 @@ public class Lobby extends AppCompatActivity {
     }
 
     public static synchronized void statusUpdate(String s){
-        tv.setText("[S] " + s);
+        System.out.println("[LOBBY STATUS] " + s);
     }
 
     public void setConfig(boolean isServer, String playerName){
@@ -194,6 +248,7 @@ public class Lobby extends AppCompatActivity {
         Collections.sort(Lobby.getPlayersList());
 
         thisActivity.startActivity(new Intent(thisActivity, Game.getInstance().getClass()));
+        thisActivity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
         if(lIsServer){
             Game.getInstance().setup(s1, playerArrayList.size());
@@ -282,11 +337,18 @@ public class Lobby extends AppCompatActivity {
             c1 = null;
         }
 
+        TransitionManager.beginDelayedTransition(((LinearLayout)findViewById(R.id.llLobbyControl)));
+        TransitionManager.beginDelayedTransition(ll);
+        ll.setVisibility(View.GONE);
+
         playerArrayList.clear();
 
         thisActivity = null;
-
-        finish();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            finishAfterTransition();
+        }else{
+            finish();
+        }
     }
 
     @Override
@@ -294,6 +356,7 @@ public class Lobby extends AppCompatActivity {
         System.out.println("BACK PRESSED!!!" + (s1 == null) + " ][ " + (c1 == null));
 
         stopAndClose();
+        overridePendingTransition(R.animator.slideout_left, R.animator.slidein_right);
 
         super.onBackPressed();
     }

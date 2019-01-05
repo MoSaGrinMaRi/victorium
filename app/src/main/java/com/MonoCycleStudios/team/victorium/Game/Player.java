@@ -71,7 +71,8 @@ public class Player implements Serializable, Comparable{
         this.playerGameState = playerGameState;
     }
     public void setPlayerState(PlayerState playerState) {
-        this.playerState = playerState;
+        if(this.playerState != PlayerState.DEFEAT || playerState == PlayerState.NONE)
+            this.playerState = playerState;
     }
     public void setPlayerScore(int score) {
         this.score = score;

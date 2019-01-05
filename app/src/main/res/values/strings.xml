@@ -6,12 +6,18 @@
         <item>Client</item>
         <item>Server</item>
     </string-array>
-    <string name="UserNicknameText">UserName</string>
-    <string name="ConnectBtnText">Next</string>
+    <string name="UserNicknameText">Guest</string>
+    <string name="btnSingUpFB">Увійти за допомогою FB чи G+</string>
+    <string name="btnCreateGame">Створити гру</string>
+    <string name="btnFindGame">Знайти гру</string>
+    <string name="btnMuteSound">:c</string>
+    <string name="btnMuteMusic">:c</string>
 
     <!--    lobby   -->
+    <string name="btnBack">Назад</string>
     <string name="ipAddressText">192.168.0.106</string>
-    <string name="ConnectBtnLobbyText">Connect</string>
+    <string name="btnConnectGame">Приєднатися</string>
+    <string name="btnStartGame">Розпочати!</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

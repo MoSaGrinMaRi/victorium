@@ -24,6 +24,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
@@ -1668,18 +1669,23 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 						try {
 							if (rg != null && rg.owner != null) {    //	&& V
 
+								Matrix matrix = new Matrix();
+								float factor = mmScreenDensity > 320 ? 0.75f : 0.52f;
+								matrix.postScale(factor, factor);
+
 								if (rg.isBase) {
-									canvas.drawBitmap(rg.getBase(),
-											(float) (this.getOriginX() / magicMultiplier / 2) - rg.getBase().getWidth() / 2,
-											(float) (this.getOriginY() / magicMultiplier / 2) - rg.getBase().getHeight(), null);
+									matrix.postTranslate((float) (this.getOriginX() / magicMultiplier / 2) - (rg.getBase().getWidth()*factor) / 2,
+											(float) (this.getOriginY() / magicMultiplier / 2) - (rg.getBase().getHeight()*factor));
+
+									canvas.drawBitmap(rg.getBase(),matrix, paint);
 								} else {
-									canvas.drawBitmap(rg.getPawn(),
-											(float) (this.getOriginX() / magicMultiplier / 2) - rg.getPawn().getWidth() / 2,
-											(float) (this.getOriginY() / magicMultiplier / 2) - rg.getPawn().getHeight(), null);
+									matrix.postTranslate((float) (this.getOriginX() / magicMultiplier / 2) - (rg.getPawn().getWidth()*factor) / 2,
+											(float) (this.getOriginY() / magicMultiplier / 2) - (rg.getPawn().getHeight()*factor));
+									canvas.drawBitmap(rg.getPawn(),matrix, paint);
 								}
 
-
-								paint.setTextSize(mmScreenDensity > 320 ? 20 : 14);
+								int yPadding = mmScreenDensity > 320 ? 20 : 14;
+								paint.setTextSize(yPadding);
 
 								Rect bounds = new Rect();
 								String txt = "" + rg.getCost();
@@ -1705,9 +1711,14 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 								paint.setColor(Color.BLACK);
 								canvas.drawText("" + rg.getCost(),
 										(float) (this.getOriginX() / magicMultiplier / 2) - text_width / 2,
-										(float) (this.getOriginY() / magicMultiplier / 2) + 14, paint);
+										(float) (this.getOriginY() / magicMultiplier / 2) + yPadding, paint);
 
 							}
+
+							paint.setColor(Color.BLACK);
+							canvas.drawText("" + rg.id,
+									(float) (this.getOriginX() / magicMultiplier / 2),
+									(float) (this.getOriginY() / magicMultiplier / 2), paint);
 						} catch (NullPointerException npe) {
 							npe.printStackTrace();
 						}

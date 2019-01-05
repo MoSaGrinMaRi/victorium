@@ -1,5 +1,6 @@
 package com.MonoCycleStudios.team.victorium.Game.Fragments.GroundEvents;
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -13,6 +14,8 @@ import android.widget.TextView;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameFragments;
 import com.MonoCycleStudios.team.victorium.Game.Game;
 import com.MonoCycleStudios.team.victorium.R;
+
+import java.lang.reflect.Field;
 
 public class RegionMenu extends Fragment implements GroundEvents {
 
@@ -85,6 +88,17 @@ public class RegionMenu extends Fragment implements GroundEvents {
     }
 
     @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        _w = flWrapper.getWidth();
+        _h = flWrapper.getHeight();
+
+        System.out.println("}{3}{}{{{{{{{}{}{}{{{}{}{}{}" + _w);
+
+//        Game.getInstance().showFragment(GameFragments.GROUND_EVENT, getFragment(), "update");
+//        flWrapper.setAlpha(1);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         if (txtLabel != null) {
@@ -97,6 +111,28 @@ public class RegionMenu extends Fragment implements GroundEvents {
         System.out.println("}{2}{}{{{{{{{}{}{}{{{}{}{}{}");
 //        Game.getInstance().showFragment(GameFragments.GROUND_EVENT, this, "update");
 
+    }
+
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        try {
+            Field childFragmentManager = Fragment.class.getDeclaredField("mChildFragmentManager");
+            childFragmentManager.setAccessible(true);
+            childFragmentManager.set(this, null);
+
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void flipMenu(){

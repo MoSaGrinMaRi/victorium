@@ -83,11 +83,12 @@
                     android:layout_weight="90"
                     android:fontFamily="serif-monospace"
                     android:gravity="center"
+                    android:maxLines="6"
                     android:textAlignment="center"
                     android:textColor="@android:color/white"
                     android:textSize="24sp"
                     android:textStyle="bold"
-                    android:typeface="serif"/>
+                    android:typeface="serif" />
             </LinearLayout>
 
             <Button

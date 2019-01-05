@@ -200,11 +200,11 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
                     if (monoPackage.typeOfObject.equalsIgnoreCase("Player")) {
                         iPlayer = (Player) monoPackage.obj;
                         iPlayer.setPlayerClient(this);
-                        Lobby.b1.setText("Connected");
+                        Lobby.b1.setText("Підєднано");
                     }
                 }break;
                 case RDATA:{
-                    Lobby.tv.setText("[C] got: " + monoPackage.obj);
+                    Lobby.statusUpdate("[C] got: " + monoPackage.obj);
                 }break;
                 case STARTGAME:{
                     System.out.println("?SA?D?AS?AS?ASD?AD?");

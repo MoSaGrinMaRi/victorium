@@ -7,6 +7,23 @@
     android:background="@android:color/background_light"
     tools:context="com.MonoCycleStudios.team.victorium.SplashScreen">
 
+    <!--<com.cesards.cropimageview.CropImageView-->
+        <!--xmlns:custom="http://schemas.android.com/apk/res-auto"-->
+        <!--android:id="@+id/imageView3"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--custom:crop="bottomLeft"-->
+        <!--android:src="@drawable/background2_2_top"/>-->
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignTop="@+id/txtMCS"
+        android:scaleType="fitXY"
+        android:src="@drawable/tst4_top" />
+
     <pl.droidsonroids.gif.GifImageView
         android:id="@+id/imageView123"
         android:layout_width="wrap_content"
@@ -15,6 +32,18 @@
         android:layout_centerInParent="true"
         android:layout_marginLeft="60dp"
         android:layout_marginRight="60dp"
-        android:layout_marginTop="60dp" />
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="66sp" />
+
+    <TextView
+        android:id="@+id/txtMCS"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="30sp"
+        android:text="MONOCYCLE STUDIOS"
+        android:textColor="@color/mBlack"
+        android:textSize="36sp" />
 
 </RelativeLayout>

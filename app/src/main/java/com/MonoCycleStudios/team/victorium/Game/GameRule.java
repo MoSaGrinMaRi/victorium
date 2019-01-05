@@ -5,6 +5,7 @@ import android.os.Looper;
 
 import com.MonoCycleStudios.team.victorium.Connection.Client;
 import com.MonoCycleStudios.team.victorium.Connection.Enums.CommandType;
+import com.MonoCycleStudios.team.victorium.Connection.Lobby;
 import com.MonoCycleStudios.team.victorium.Connection.MonoPackage;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameCommandType;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameFragments;
@@ -44,11 +45,14 @@ public class GameRule {
     private static QuestionChecker questionChecker = new QuestionChecker(null);
 
     GameRule(Player p){
+        cleanup();
         activePlayer = p;
+    }
 
+    public static void cleanup(){
         isFirstHalf = true;
         isFinished = false;
-        defencePlayer = null;
+        activePlayer = null;
         defencePlayer = null;
         activeRegion = null;
         tick = 0;
@@ -83,7 +87,7 @@ public class GameRule {
         tick++;
         System.out.println("[][1][]" + tick + " | " + isFirstHalf);
 
-        if(!isFirstHalf && tick>= (25 - Game.getInstance().playersNumber)*3){
+        if(( !isFirstHalf && tick >= (25 - Game.getInstance().playersNumber)*3 ) || isFinished){
             isFinished = true;
             if(mCallbackList != null) {
                 for (OnUpdateHandler h : mCallbackList){
@@ -113,7 +117,33 @@ public class GameRule {
         activePlayer = actPlayer;
         defencePlayer = defPlayer;
 
+        int remainingPlayers = 0;
+        for(Player p : Lobby.getPlayersList()){
+            if(p.getPlayerState() != PlayerState.DEFEAT)
+                remainingPlayers++;
+        }
+        if(remainingPlayers == 1)
+            isFinished = true;
+
+        System.out.println("tyuio4 "+ activePlayer + " " +activePlayer.getPlayerState() + " " + activePlayer.getPlayerState().equals(PlayerState.DEFEAT));
+//        if(activePlayer.getPlayerState().equals(PlayerState.DEFEAT)){
+//
+//            new Thread(new Runnable() {
+//                public void run() {
+//                    new Handler().postDelayed(new Runnable() {
+//                        public void run() {
+//                            incrementTick(true);
+//                        }
+//                    }, 500);
+//                }
+//            });
+//
+//        }
+    }
+
+    public static void updateCheck(){
         if(activePlayer.getPlayerState().equals(PlayerState.DEFEAT)){
+            justWait(1000);
             incrementTick(true);
         }
     }
@@ -162,11 +192,14 @@ public class GameRule {
                     }
                 }
             }else if(str.equalsIgnoreCase(action[3])){  //  "attack"
-                Client.getInstance().iPlayer.setPlayerState(PlayerState.ATTACK);
+                if(Client.getInstance().iPlayer.getPlayerState() != PlayerState.DEFEAT)
+                    Client.getInstance().iPlayer.setPlayerState(PlayerState.ATTACK);
             }else if(str.equalsIgnoreCase(action[4])){  //  "under attack"
-                Client.getInstance().iPlayer.setPlayerState(PlayerState.DEFEND);
+                if(Client.getInstance().iPlayer.getPlayerState() != PlayerState.DEFEAT)
+                    Client.getInstance().iPlayer.setPlayerState(PlayerState.DEFEND);
             }else if(str.equalsIgnoreCase(action[5])){  //  "spec battle"
-                Client.getInstance().iPlayer.setPlayerState(PlayerState.SPEC);
+                if(Client.getInstance().iPlayer.getPlayerState() != PlayerState.DEFEAT)
+                    Client.getInstance().iPlayer.setPlayerState(PlayerState.SPEC);
             }else if(str.equalsIgnoreCase(action[6])){  //  "chose answer"
                 if(isFirstHalf) {
                     System.out.println("well, nothing, for this part of game ¯\\_(ツ)_/¯");
@@ -308,7 +341,7 @@ public class GameRule {
 
                     } else {
 
-                        Ground.regions.get((int) param).owner = p;
+//                        Ground.regions.get((int) param).update(p);
 
                         Game.getInstance().useGameServer("all", null,
                                 new MonoPackage(GameCommandType.PLAYER.getStr(), CommandType.GAMEDATA.getStr(),

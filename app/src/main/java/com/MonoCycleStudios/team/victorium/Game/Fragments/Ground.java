@@ -28,6 +28,7 @@ public class Ground extends Fragment {
         View view = inflater.inflate(R.layout.fragment_ground, container, false);
 
         mImageMap = (ImageMap) view.findViewById(R.id.map);
+        setRegions(regions);
 //        mImageMap.setImageResource(R.drawable.filleduamapregion_720_838);
 
         mImageMap.addOnImageMapClickedHandler(new ImageMap.OnImageMapClickedHandler()
@@ -172,5 +173,20 @@ public class Ground extends Fragment {
     public static void updateRegion(int id, Player newOwner/*, int newCost*/){
         regions.get(id).update(newOwner/*, newCost*/);
         redrawMap();
+    }
+
+    public static int getRegionIDFromMapID(int mapID){
+        return regions.indexOf(new Region(-1,mapID,false,null,-1));
+    }
+
+    public static int getMapIDFromRegionID(int regionID){
+        return regions.get(regions.indexOf(new Region(regionID,-1,false,null,-1))).mapID;
+    }
+
+    public static String getRegionCoords(int rgID){
+        return "" +
+                ((int)(mImageMap.mIdToArea.get(rgID).getOriginX() / mImageMap.mIdToArea.get(rgID).getMagicMultiplier() / 2)) +
+                ":;" +
+                ((int)(mImageMap.mIdToArea.get(rgID).getOriginY() / mImageMap.mIdToArea.get(rgID).getMagicMultiplier() / 2));
     }
 }

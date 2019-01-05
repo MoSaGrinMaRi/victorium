@@ -6,7 +6,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+
+import com.MonoCycleStudios.team.victorium.widget.Utils.FontFamily;
 
 import java.io.IOException;
 
@@ -21,6 +24,9 @@ public class SplashScreen extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
+
+        TextView tv = (TextView) findViewById(R.id.txtMCS);
+        tv.setTypeface(FontFamily.raleway_bl);
 
         final GifImageView imgView = (GifImageView) findViewById(R.id.imageView123);
         GifDrawable gifFromResource;
@@ -52,7 +58,7 @@ public class SplashScreen extends AppCompatActivity {
                         dosmth();
 
                     }
-                }, SPLASH_TIME_OUT-1500);
+                }, SPLASH_TIME_OUT-2000);
 
 
             }
@@ -62,5 +68,7 @@ public class SplashScreen extends AppCompatActivity {
     void dosmth(){
         startActivity(new Intent(this, MainActivity.class));
         finish();
+
+        overridePendingTransition(R.animator.slideout_bottom, R.animator.slidein_top);
     }
 }
