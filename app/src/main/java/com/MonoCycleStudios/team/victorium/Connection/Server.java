@@ -489,13 +489,12 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
 
         void inputStreamCancel(){
             System.out.println("[St]onInputStreamCancel");
+            listening = false;
             try {
                 oin.close();
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            listening = false;
             this.cancel(true);
         }
 
