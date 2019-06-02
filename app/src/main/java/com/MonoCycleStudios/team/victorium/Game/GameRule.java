@@ -351,13 +351,16 @@ public class GameRule {
                                 new MonoPackage(GameCommandType.PLAYER.getStr(), CommandType.GAMEDATA.getStr(),
                                         new MonoPackage("score", "-"+Ground.regions.get((int) param).getCost(), defencePlayer)));
 
-                       justWait(500);
+                        justWait(500);
+                        justWait(500);
+                        justWait(500);
 
                         Game.getInstance().useGameServer("all", null,
                                 new MonoPackage(GameCommandType.REGIONS.getStr(), CommandType.GAMEDATA.getStr(),
                                         new MonoPackage("update", (int) param + "", p)
                                 ));
 
+                        justWait(500);
                         justWait(500);
 
                     }
