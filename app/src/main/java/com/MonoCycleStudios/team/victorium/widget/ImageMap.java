@@ -41,6 +41,7 @@ import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.widget.Scroller;
 
+import com.MonoCycleStudios.team.victorium.Connection.Lobby;
 import com.MonoCycleStudios.team.victorium.Game.Enums.CharacterColor;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.Ground;
 import com.MonoCycleStudios.team.victorium.Game.GameRule;
@@ -208,7 +209,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 		this.mScaleFromOriginal = a.getBoolean(R.styleable.ImageMap_scaleFromOriginal, false);
 		this.mMaxSize = a.getFloat(R.styleable.ImageMap_maxSizeFactor, defaultMaxSize);
 
-		this.mapName = a.getString(R.styleable.ImageMap_map);
+		this.mapName = Lobby.gameMapName;
 		if (mapName != null)
 		{
 			loadMap(mapName);
@@ -1530,9 +1531,9 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 
 			while ((i+1)<v.length) {
 
-				double magicMultiplier = 3056.0/1920.0;
-				int x = Integer.parseInt(v[i]);
-				int y = Integer.parseInt(v[i+1]);
+				double magicMultiplier = 1;//3056.0/1920.0;
+				int x = Integer.parseInt(v[i]) + 120;
+				int y = Integer.parseInt(v[i+1]) + 80;
 				x /= magicMultiplier;
 				y /= magicMultiplier;
 				xpoints.add(x);
@@ -1658,13 +1659,15 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 						paint.setStyle(Paint.Style.STROKE);
 						canvas.drawPath(areaPath, paint);
 
-						paint.setStyle(Paint.Style.FILL);
-						paint.setAlpha(50);
-						canvas.drawPath(areaPath, paint);
+						if (rg != null && rg.owner != null) {
+							paint.setStyle(Paint.Style.FILL);
+							paint.setAlpha(50);
+							canvas.drawPath(areaPath, paint);
+						}
 
 					}
 					break;
-					case 1: {    //	icon
+					case 2: {    //	icon
 
 						try {
 							if (rg != null && rg.owner != null) {    //	&& V
@@ -1715,34 +1718,52 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 
 							}
 
-							paint.setColor(Color.BLACK);
-							canvas.drawText("" + rg.id,
-									(float) (this.getOriginX() / magicMultiplier / 2),
-									(float) (this.getOriginY() / magicMultiplier / 2), paint);
+//							paint.setColor(Color.BLACK);
+//							canvas.drawText("" + rg.id,
+//									(float) (this.getOriginX() / magicMultiplier / 2),
+//									(float) (this.getOriginY() / magicMultiplier / 2), paint);
 						} catch (NullPointerException npe) {
 							npe.printStackTrace();
 						}
 
 					}
 					break;
-					case 2: {    //	overlay
+					case 1: {    //	overlay
 						if (rg != null) {
 
 							if (!rg.isInteractive) {
-								paint.setColor(Color.BLACK);
-								paint.setAlpha(75);
-								if (rg.isActive)
-									paint.setAlpha(50);
+								if (rg.owner != null) {
+									paint.setColor(Color.BLACK);
+									paint.setAlpha(75);
+//								} else {
+//									paint.setColor(Color.WHITE);
+//									paint.setAlpha(50);
+//									canvas.drawPath(areaPath, paint);
+								}
+								if (rg.isActive) {
+									paint.setAlpha(25);
+								}
+								canvas.drawPath(areaPath, paint);
 							} else {
+								paint.setStyle(Paint.Style.FILL);
+								paint.setColor(Color.WHITE);
+								paint.setAlpha(75);
+								canvas.drawPath(areaPath, paint);
+
 								paint.setStyle(Paint.Style.STROKE);
 								paint.setStrokeWidth(1);
-								paint.setColor(Color.YELLOW);
+								if (rg.owner != null) {
+									paint.setColor(Color.YELLOW);
+								} else {
+									paint.setColor(Color.WHITE);
+								}
+								canvas.drawPath(areaPath, paint);
 							}
-							canvas.drawPath(areaPath, paint);
 
 						}
 						break;
 					}
+
 				}
 				// draw the bounding box
 

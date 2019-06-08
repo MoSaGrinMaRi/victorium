@@ -1,12 +1,17 @@
 package com.MonoCycleStudios.team.victorium.Game.Fragments;
 import android.app.Fragment;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +19,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.MonoCycleStudios.team.victorium.Connection.Client;
+import com.MonoCycleStudios.team.victorium.Connection.Lobby;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameFragments;
 import com.MonoCycleStudios.team.victorium.Game.Enums.PlayerState;
 import com.MonoCycleStudios.team.victorium.Game.Enums.QuestionCategory;
@@ -29,6 +36,8 @@ import com.MonoCycleStudios.team.victorium.widget.MyCountDownTimer;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.MonoCycleStudios.team.victorium.R.color.mWhite;
 
 public class Questioner extends Fragment {
 
@@ -46,12 +55,13 @@ public class Questioner extends Fragment {
 
     Button[] buttons = new Button[4];
     TextView tv;
-    ImageView civ;
+    TextView timertv;
+//    ImageView civ;
     ImageView liv;
     ImageView riv;
     ProgressBar lpb;
-    ProgressBar rpb;
-    LinearLayout ll;
+//    ProgressBar rpb;
+    RelativeLayout rlWrapper;
     boolean isVisible = true;
     boolean isInteractive = true;
 
@@ -67,61 +77,42 @@ public class Questioner extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_question, container, false);
 
-        ll = (LinearLayout) view.findViewById(R.id.llQuestionWrapper);
+        rlWrapper = (RelativeLayout) view.findViewById(R.id.rlWrapper);
         lpb = (ProgressBar) view.findViewById(R.id.leftProgressBarFlipped);
-        rpb = (ProgressBar) view.findViewById(R.id.rightProgressBarFlipped);
+        timertv = (TextView) view.findViewById(R.id.timerTv);
+//        rpb = (ProgressBar) view.findViewById(R.id.rightProgressBarFlipped);
         tv = (TextView) view.findViewById(R.id.textView);
         buttons[0] = (Button) view.findViewById(R.id.button1);
         buttons[1] = (Button) view.findViewById(R.id.button2);
         buttons[2] = (Button) view.findViewById(R.id.button3);
         buttons[3] = (Button) view.findViewById(R.id.button4);
-        civ = (ImageView) view.findViewById(R.id.categoryImg);
+//        civ = (ImageView) view.findViewById(R.id.categoryImg);
         liv = (ImageView) view.findViewById(R.id.leftImgView);
         riv = (ImageView) view.findViewById(R.id.rightImgView);
+
 
         buttons[0].setOnClickListener(new View.OnClickListener(){   //  TEMP !!!
             @Override
             public void onClick (View v){
-                GameRule.check(Client.getInstance().iPlayer,"chose answer",0+":;"+mcdt.currentMillis);
-//                gd.setCornerRadii(new float[]{30, 30, 30, 30, 0, 0, 30, 30});
-                buttons[0].setBackgroundResource(R.drawable.shape_tablerow_image);
-                GradientDrawable gd = (GradientDrawable) buttons[0].getBackground().getCurrent();
-                gd.setStroke(12, Client.getInstance().iPlayer.getPlayerCharacter().getColor().getARGB());
-
-                setAllButtonInactive();
+                selectAnswer(0);
             }
         });
         buttons[1].setOnClickListener(new View.OnClickListener(){   //  TEMP !!!
             @Override
             public void onClick (View v){
-                GameRule.check(Client.getInstance().iPlayer,"chose answer",1+":;"+mcdt.currentMillis);
-                buttons[1].setBackgroundResource(R.drawable.shape_tablerow_image);
-                GradientDrawable gd = (GradientDrawable) buttons[1].getBackground().getCurrent();
-                gd.setStroke(12, Client.getInstance().iPlayer.getPlayerCharacter().getColor().getARGB());
-
-                setAllButtonInactive();
+                selectAnswer(1);
             }
         });
         buttons[2].setOnClickListener(new View.OnClickListener(){   //  TEMP !!!
             @Override
             public void onClick (View v){
-                GameRule.check(Client.getInstance().iPlayer,"chose answer",2+":;"+mcdt.currentMillis);
-                buttons[2].setBackgroundResource(R.drawable.shape_tablerow_image);
-                GradientDrawable gd = (GradientDrawable) buttons[2].getBackground().getCurrent();
-                gd.setStroke(12, Client.getInstance().iPlayer.getPlayerCharacter().getColor().getARGB());
-
-                setAllButtonInactive();
+                selectAnswer(2);
             }
         });
         buttons[3].setOnClickListener(new View.OnClickListener(){   //  TEMP !!!
             @Override
             public void onClick (View v){
-                GameRule.check(Client.getInstance().iPlayer,"chose answer",3+":;"+mcdt.currentMillis);
-                buttons[3].setBackgroundResource(R.drawable.shape_tablerow_image);
-                GradientDrawable gd = (GradientDrawable) buttons[3].getBackground().getCurrent();
-                gd.setStroke(12, Client.getInstance().iPlayer.getPlayerCharacter().getColor().getARGB());
-
-                setAllButtonInactive();
+                selectAnswer(3);
             }
         });
 
@@ -130,32 +121,91 @@ public class Questioner extends Fragment {
         return view;
     }
 
+    private void selectAnswer(int index){
+        GameRule.check(Client.getInstance().iPlayer,"chose answer",index+":;"+mcdt.currentMillis);
+        int[] location = new int[2];
+        int[] location2 = new int[2];
+        buttons[index].getLocationOnScreen(location);
+        if(fighters[0].equals(Client.getInstance().iPlayer)){
+            liv.getLocationOnScreen(location2);
+            liv.animate().translationX(location[0]-location2[0] + 60).translationY(location[1]-location2[1] + buttons[index].getHeight()/2 - liv.getHeight()/2).setDuration(300);
+        }
+        if(fighters[1].equals(Client.getInstance().iPlayer)) {
+            riv.getLocationOnScreen(location2);
+            riv.animate().translationX(location[0]-location2[0] - 60 + buttons[index].getWidth() - riv.getWidth()).translationY(location[1]-location2[1] + buttons[index].getHeight()/2 - riv.getHeight()/2).setDuration(300);
+        }
+
+        setAllButtonInactive();
+    }
+
     @Override
     public void onStart() {
         super.onStart();
         if(isVisible) {
             if (questionToShow != null) {
 
-                civ.setImageBitmap(getCategoryImg(questionToShow.getQuestionCategory()));
+//                civ.setImageBitmap(getCategoryImg(questionToShow.getQuestionCategory()));
                 tv.setText(questionToShow.getQuestion());
                 buttons[0].setText(questionToShow.getAnswers()[0]);
                 buttons[1].setText(questionToShow.getAnswers()[1]);
                 buttons[2].setText(questionToShow.getAnswers()[2]);
                 buttons[3].setText(questionToShow.getAnswers()[3]);
                 if(fighters != null) {
-                    liv.setColorFilter(fighters[0].getPlayerCharacter().getColor().getARGB());
-                    riv.setColorFilter(fighters[1].getPlayerCharacter().getColor().getARGB());
+//                    liv.setColorFilter(fighters[0].getPlayerCharacter().getColor().getARGB());
+//                    riv.setColorFilter(fighters[1].getPlayerCharacter().getColor().getARGB());
+                    int frameWidth = 316;
+                    int frameHeight = 316;
+                    int frameCountX = 0;    //  MAX = 6; Only 6 player
+                    for(int i = 0; i < 2; i++) {
+
+                        switch (fighters[i].getPlayerCharacter().getColor()) {
+                            case RED:
+                                frameCountX = 0;
+                                break;
+                            case BLUE:
+                                frameCountX = 1;
+                                break;
+                            case ORANGE:
+                                frameCountX = 2;
+                                break;
+                            case GREEN:
+                                frameCountX = 3;
+                                break;
+                            case BLACK:
+                                frameCountX = 4;
+                                break;
+                            case PURPLE:
+                                frameCountX = 5;
+                                break;
+
+                        }
+                        if(i == 0) {
+                            liv.setImageBitmap(Bitmap.createBitmap(Lobby.avatarAtlas,
+                                    frameWidth * frameCountX,
+                                    0,
+                                    frameWidth,
+                                    frameHeight));
+                        }else{
+                            riv.setImageBitmap(Bitmap.createBitmap(Lobby.avatarAtlas,
+                                    frameWidth * frameCountX,
+                                    0,
+                                    frameWidth,
+                                    frameHeight));
+                        }
+                    }
+
+
                 }
                 if(!isInteractive){
                     setAllButtonInactive();
                 }
             }
         }else{
-            ll.setVisibility(View.GONE);
+            rlWrapper.setVisibility(View.GONE);
         }
 
         if(questionToShow != null)
-            setTimer(15000, 20);    //  TEMP !!! 15sec to answer the question
+            setTimer(12000, 30);    //  TEMP !!! 12sec to answer the question
     }
 
     Bitmap getCategoryImg(QuestionCategory qc){
@@ -224,61 +274,93 @@ public class Questioner extends Fragment {
         mcdt.cancel();
         for(int i = 0; i < buttons.length; i++){
             if(i == rightAnswer) {
-                buttons[i].setHeight(buttons[i].getHeight() + 50);
-                buttons[i].setBackgroundResource(R.drawable.question_bg_rightanswer);
-            }else {
-                buttons[i].setBackgroundResource(R.drawable.question_bg_placeholder);
+//                buttons[i].setHeight(buttons[i].getHeight() + 50);
+//                ContextCompat.getColor(getActivity(), R.color.mWhite);
+
+                buttons[i].setTextColor(ContextCompat.getColor(getActivity(), R.color.mBlack));
+                Drawable drawable = buttons[i].getBackground();
+                drawable = DrawableCompat.wrap(drawable);
+                DrawableCompat.setTint(drawable.mutate(), ContextCompat.getColor(getActivity(), R.color.mWhite));
+
+
+//                buttons[i].getProgressDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
+//                buttons[i].setColorFilter(ContextCompat.getColor(getActivity(), R.color.mWhite));
+//                imageView.setColorFilter(ContextCompat.getColor(context, R.color.COLOR_YOUR_COLOR), android.graphics.PorterDuff.Mode.MULTIPLY);
+//                buttons[i].setBackgroundResource(R.drawable.question_bg_rightanswer);
+//            }else {
+//                buttons[i].setBackgroundResource(R.drawable.question_bg_placeholder);
             }
 
-            GradientDrawable drawBord = (GradientDrawable) buttons[i].getBackground().getCurrent();
-            GradientDrawable[] layers = {
-                    drawBord
-            };
-            LayerDrawable layerDrawable = new LayerDrawable(layers);
-            layerDrawable.setLayerInset(0, 0, 0, 0, 0);
-            buttons[i].setBackground(layerDrawable);
+//            GradientDrawable drawBord = (GradientDrawable) buttons[i].getBackground().getCurrent();
+//            GradientDrawable[] layers = {
+//                    drawBord
+//            };
+//            LayerDrawable layerDrawable = new LayerDrawable(layers);
+//            layerDrawable.setLayerInset(0, 0, 0, 0, 0);
+//            buttons[i].setBackground(layerDrawable);
         }
 
+        int[] location = new int[2];
+        int[] location2 = new int[2];
         for (Map.Entry entry: answers.entrySet()) {
             Player key = (Player) entry.getKey();
             Integer value = (Integer) entry.getValue();
             System.out.println(key + " ; " + value);
 
-            LayerDrawable curr = (LayerDrawable) buttons[value].getBackground().getCurrent();
 
-            buttons[value].setBackgroundResource(R.drawable.question_answer_chosed);
-            GradientDrawable newLayer = (GradientDrawable) buttons[value].getBackground().getCurrent();
-
-            switch(curr.getNumberOfLayers()){
-                case 1:{
-
-                    newLayer.setStroke(12, key.getPlayerCharacter().getColor().getARGB());
-
-                    buttons[value].setBackground(new LayerDrawable(new Drawable[]{
-                            curr.getDrawable(0),
-                            newLayer,
-                    }));
-                }break;
-                case 2:{
-
-                    newLayer.setStroke(12, key.getPlayerCharacter().getColor().getARGB(), 150, 150);
-
-                    buttons[value].setBackground(new LayerDrawable(new Drawable[]{
-                            curr.getDrawable(0),
-                            curr.getDrawable(1),
-                            newLayer,
-                    }));
-                }break;
+            buttons[value].getLocationOnScreen(location);
+//            int x = location[0];
+//            int y = location[1];
+            if(fighters[0].equals(key) && !key.equals(Client.getInstance().iPlayer)){
+                liv.getLocationOnScreen(location2);
+                liv.animate().translationX(location[0]-location2[0] + 60).translationY(location[1]-location2[1] + buttons[value].getHeight()/2 - liv.getHeight()/2).setDuration(300);
             }
+            if(fighters[1].equals(key) && !key.equals(Client.getInstance().iPlayer)) {
+                riv.getLocationOnScreen(location2);
+                riv.animate().translationX(location[0]-location2[0] - 60 + buttons[value].getWidth() - riv.getWidth()).translationY(location[1]-location2[1] + buttons[value].getHeight()/2  - riv.getHeight()/2).setDuration(300);
+            }
+
+//            LayerDrawable curr = (LayerDrawable) buttons[value].getBackground().getCurrent();
+
+//            buttons[value].setBackgroundResource(R.drawable.question_answer_chosed);
+//            GradientDrawable newLayer = (GradientDrawable) buttons[value].getBackground().getCurrent();
+
+//            switch(curr.getNumberOfLayers()){
+//                case 1:{
+//
+//                    newLayer.setStroke(12, key.getPlayerCharacter().getColor().getARGB());
+//
+//                    buttons[value].setBackground(new LayerDrawable(new Drawable[]{
+//                            curr.getDrawable(0),
+//                            newLayer,
+//                    }));
+//                }break;
+//                case 2:{
+//
+//                    newLayer.setStroke(12, key.getPlayerCharacter().getColor().getARGB(), 150, 150);
+//
+//                    buttons[value].setBackground(new LayerDrawable(new Drawable[]{
+//                            curr.getDrawable(0),
+//                            curr.getDrawable(1),
+//                            newLayer,
+//                    }));
+//                }break;
+//            }
         }
     }
 
 
     void updateProgressBars(long currentMillis){
-        if(isLeftPBUpdate)
-            lpb.setProgress((int)((currentMillis / (mcdt.askedMillis * 1.0))*100));
-        if(isRightPBUpdate)
-            rpb.setProgress((int)((currentMillis / (mcdt.askedMillis * 1.0))*100));
+        if(isLeftPBUpdate || isRightPBUpdate) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                lpb.setProgress(100 - (int) ((currentMillis / (mcdt.askedMillis * 1.0)) * 100), true);
+            }else{
+                lpb.setProgress(100 - (int) ((currentMillis / (mcdt.askedMillis * 1.0)) * 100));
+            }
+            timertv.setText(""+(currentMillis/1000)+"s");
+        }
+//        if(isRightPBUpdate)
+//            rpb.setProgress((int)((currentMillis / (mcdt.askedMillis * 1.0))*100));
     }
 
     public void setTimer(final long millisInFuture, final long countDownInterval){

@@ -6,13 +6,13 @@
     <LinearLayout
         android:id="@+id/pqtLinearLayout"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="60dp"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/pqtButton1"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn1"
             android:textSize="1sp" />
@@ -20,7 +20,7 @@
         <Button
             android:id="@+id/pqtButton2"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn2"
             android:textSize="1sp" />
@@ -28,7 +28,7 @@
         <Button
             android:id="@+id/pqtButton3"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn3"
             android:textSize="1sp" />
@@ -36,7 +36,7 @@
         <Button
             android:id="@+id/pqtButton4"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn4"
             android:textSize="1sp" />
@@ -44,7 +44,7 @@
         <Button
             android:id="@+id/pqtButton5"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn5"
             android:textSize="1sp" />
@@ -52,7 +52,7 @@
         <Button
             android:id="@+id/pqtButton6"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn6"
             android:textSize="1sp" />
@@ -60,7 +60,7 @@
         <Button
             android:id="@+id/pqtButton7"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn7"
             android:textSize="1sp" />
@@ -68,7 +68,7 @@
         <Button
             android:id="@+id/pqtButton8"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn8"
             android:textSize="1sp" />
@@ -76,7 +76,7 @@
         <Button
             android:id="@+id/pqtButton9"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn9"
             android:textSize="1sp" />
@@ -84,7 +84,7 @@
         <Button
             android:id="@+id/pqtButton10"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn10"
             android:textSize="1sp" />
@@ -92,7 +92,7 @@
         <Button
             android:id="@+id/pqtButton11"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn11"
             android:textSize="1sp" />
@@ -100,7 +100,7 @@
         <Button
             android:id="@+id/pqtButton12"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn12"
             android:textSize="1sp" />
@@ -108,7 +108,7 @@
         <Button
             android:id="@+id/pqtButton13"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn13"
             android:textSize="1sp" />
@@ -116,7 +116,7 @@
         <Button
             android:id="@+id/pqtButton14"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn14"
             android:textSize="1sp" />
@@ -124,7 +124,7 @@
         <Button
             android:id="@+id/pqtButton15"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn15"
             android:textSize="1sp" />
@@ -132,7 +132,7 @@
         <Button
             android:id="@+id/pqtButton16"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn16"
             android:textSize="1sp" />
@@ -140,7 +140,7 @@
         <Button
             android:id="@+id/pqtButton17"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn17"
             android:textSize="1sp" />
@@ -148,7 +148,7 @@
         <Button
             android:id="@+id/pqtButton18"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn18"
             android:textSize="1sp" />
@@ -156,7 +156,7 @@
         <Button
             android:id="@+id/pqtButton19"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn19"
             android:textSize="1sp" />
@@ -164,7 +164,7 @@
         <Button
             android:id="@+id/pqtButton20"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn20"
             android:textSize="1sp" />
@@ -172,7 +172,7 @@
         <Button
             android:id="@+id/pqtButton21"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn21"
             android:textSize="1sp" />
@@ -180,7 +180,7 @@
         <Button
             android:id="@+id/pqtButton22"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn22"
             android:textSize="1sp" />
@@ -188,7 +188,7 @@
         <Button
             android:id="@+id/pqtButton23"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:tag="pqtBtn23"
             android:textSize="1sp" />

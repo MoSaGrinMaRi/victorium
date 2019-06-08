@@ -1,5 +1,7 @@
 package com.MonoCycleStudios.team.victorium.Game;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.graphics.Bitmap;
@@ -11,7 +13,10 @@ import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.MonoCycleStudios.team.victorium.Connection.Client;
@@ -37,6 +42,8 @@ import com.MonoCycleStudios.team.victorium.Game.Fragments.Questioner;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.QueueTurners;
 import com.MonoCycleStudios.team.victorium.R;
 import com.MonoCycleStudios.team.victorium.widget.MyCountDownTimer;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,7 +74,14 @@ public class Game extends AppCompatActivity {
     private static Ground gameGround; //    for later change battlefield
     private static GameCore gameCore;
     public static boolean isServer = false;
+
+    RelativeLayout rl;
     ListView lv;
+    TextView tv;
+    Button btn;
+    boolean isListShown = true;
+    Animator showLv, hideLv, showBtn, hideBtn, showTv, hideTv;
+
     BitmapFactory.Options bmo = new BitmapFactory.Options();
     public static Bitmap castleAtlas;
     public static Bitmap pawnAtlas;
@@ -80,13 +94,41 @@ public class Game extends AppCompatActivity {
         setContentView(R.layout.activity_game);
         instance = this;
 
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        overridePendingTransition(R.animator.slideout_right, R.animator.slidein_left);
 
         showFragment(GameFragments.GROUND_EVENT);
 
+        rl = (RelativeLayout) findViewById(R.id.connectionRl);
+
+        tv = (TextView) findViewById(R.id.textView2);
+
         lv = (ListView) findViewById(R.id.connectionsListView_2);
         lv.setAdapter(Lobby.adapter);
+        lv.setDivider(null);
 //        Lobby.forceREUpdateAdapter();
+
+        btn = (Button) findViewById(R.id.connectionToggleBtn);
+        btn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick (View v){
+            if(isListShown){
+                hideLv.setTarget(rl);
+                hideLv.start();
+                hideBtn.setTarget(btn);
+                hideBtn.start();
+                hideTv.setTarget(tv);
+                hideTv.start();
+            }else{
+                showLv.setTarget(rl);
+                showLv.start();
+                showBtn.setTarget(btn);
+                showBtn.start();
+                showTv.setTarget(tv);
+                showTv.start();
+            }
+            isListShown = !isListShown;
+            }
+        });
 
         System.out.println(gameState + " [=] " + gameServer);
         if(gameState == GameState.WAITING_FOR_START && gameServer != null){
@@ -104,16 +146,16 @@ public class Game extends AppCompatActivity {
 
         bmo.inScaled = true;
 //        bmo.inSampleSize = 32;
-        bmo.inDensity = 4112;
-        bmo.inTargetDensity = (4112/8);
+        bmo.inDensity = 1028;//4112;
+        bmo.inTargetDensity = (1028/2);//(4112/8);
         castleAtlas = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.castle_atlas, bmo);
 
         bmo.inDensity = 1280;
         bmo.inTargetDensity = 1280;
         categoryAtlas = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.category_atlas, bmo);
 
-        bmo.inDensity = 1566;
-        bmo.inTargetDensity = (1566/6); //  x2 in drawing
+        bmo.inDensity = 522;//1566;
+        bmo.inTargetDensity = (522/2);//(1566/6); //  x2 in drawing
         pawnAtlas = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.pawn_atlas, bmo);
 
         System.out.println("YEEEEEEE=================EEEEY!" + gameServer);
@@ -126,6 +168,13 @@ public class Game extends AppCompatActivity {
         showFragment(GameFragments.NOTIFY, "We wait for all of Players... SRY");
 
         gameState = GameState.LAUNCHING;
+
+        showLv = AnimatorInflater.loadAnimator(Game.this, R.animator.slidein_left_list);
+        hideLv = AnimatorInflater.loadAnimator(Game.this, R.animator.slideout_right_list);
+        showBtn = AnimatorInflater.loadAnimator(Game.this, R.animator.slidein_left_list_btn);
+        hideBtn = AnimatorInflater.loadAnimator(Game.this, R.animator.slideout_right_list_btn);
+        showTv = AnimatorInflater.loadAnimator(Game.this, R.animator.fadein);
+        hideTv = AnimatorInflater.loadAnimator(Game.this, R.animator.fadeout);
     }
 
     boolean doubleBackToExitPressedOnce = false;
@@ -327,6 +376,9 @@ public class Game extends AppCompatActivity {
             break;
             case EXECUTESTART: {
                 Client.getInstance().iPlayer.setPlayerGameState(GameState.RUNNING);
+                Lobby.isShowStatus = false;
+                if(isListShown)
+                    btn.callOnClick();
                 showFragment(GameFragments.NOTIFY, "Capture the field!", 4);
             }
             break;
@@ -338,6 +390,7 @@ public class Game extends AppCompatActivity {
                 MonoPackage tmp = (MonoPackage)monoPackage.getObj();
                 switch(tmp.getTypeOfObject()){
                     case "set":{
+                        System.out.println("ddd" + tmp.getObj());
                         gameGround.setRegions((ArrayList<Region>)tmp.getObj());
 
                         showFragment(GameFragments.TIMER, 6000, 16*(Client.iPlayer.getPlayerID()*2+1));
@@ -698,7 +751,7 @@ public class Game extends AppCompatActivity {
             ArrayList<Player> generatedPlayersQueueTurn = new ArrayList<>();
 
             Player first;
-            for(int i = 0; i < 25/playersNumber - 1; i++) {
+            for(int i = 0; i < 24/playersNumber - 1; i++) {
                 for(int j = 0; j < playersNumber; j++) {
                     generatedPlayersQueueTurn.add(playerArrayList.get(j));
                 }
@@ -707,7 +760,7 @@ public class Game extends AppCompatActivity {
                 playerArrayList.remove(0);
                 playerArrayList.add(playerArrayList.size(), first);
             }
-            if(25%playersNumber != 0){
+            if(24%playersNumber != 0){
                 if(GameRule.isFirstHalf)
                     generatedPlayersQueueTurn.add(playerArrayList.get(0));
                 else {
@@ -727,7 +780,7 @@ public class Game extends AppCompatActivity {
             ArrayList<Player> generatedPlayersQueueTurn = new ArrayList<>();
 
             Player last;
-            for(int i = 0; i < 25/playersNumber - 1; i++) {
+            for(int i = 0; i < 24/playersNumber - 1; i++) {
                 for(int j = 0; j < playersNumber; j++) {
                     generatedPlayersQueueTurn.add(playerArrayList.get(j));
                 }
@@ -746,7 +799,7 @@ public class Game extends AppCompatActivity {
                 playerArrayList.remove(playerArrayList.size()-1);
                 playerArrayList.add(0, last);
             }
-            if(25%playersNumber != 0){
+            if(24%playersNumber != 0){
                 if(GameRule.isFirstHalf)
                     generatedPlayersQueueTurn.add(playerArrayList.get(0));
                 else {
@@ -772,6 +825,12 @@ public class Game extends AppCompatActivity {
             while (!isPrepared) {
 
                 gameServer.notifyAllClients(new MonoPackage(GameCommandType.URGAMESTATUS.getStr(),CommandType.GAMEDATA.getStr(),null));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Lobby.forceREUpdateAdapter();
+                    }
+                });
                 if (j >= playersNumber) {
                     isPrepared = true;
                     gameState = GameState.PREPARING;
@@ -786,7 +845,7 @@ public class Game extends AppCompatActivity {
 
                     try {
                         Collections.sort(Lobby.getPlayersList());
-                        Thread.sleep(4000);
+                        Thread.sleep(3100);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

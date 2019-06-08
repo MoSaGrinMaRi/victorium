@@ -87,7 +87,7 @@ public class GameRule {
         tick++;
         System.out.println("[][1][]" + tick + " | " + isFirstHalf);
 
-        if(( !isFirstHalf && tick >= (25 - Game.getInstance().playersNumber)*3 ) || isFinished){
+        if(( !isFirstHalf && tick >= (24 - Game.getInstance().playersNumber)*3 ) || isFinished){
             isFinished = true;
             if(mCallbackList != null) {
                 for (OnUpdateHandler h : mCallbackList){
@@ -97,7 +97,7 @@ public class GameRule {
             return;
         }
         if(!isFinished) {
-            if (isFirstHalf && tick >= 25 - Game.getInstance().playersNumber) {
+            if (isFirstHalf && tick >= 24 - Game.getInstance().playersNumber) {
                 isFirstHalf = false;
                 if (mCallbackList != null) {
                     for (OnUpdateHandler h : mCallbackList) {
@@ -260,7 +260,7 @@ public class GameRule {
                         System.out.println("Ho-rey22w!");
 //                        Ground.regions.get(Integer.parseInt((String) param)).owner = p;
 
-                        Object[] newQuestion = QuestionParser.getQuestion("random");
+                        Object[] newQuestion = QuestionParser.getRandomQuestion();
                         int rightAnswer = (int)newQuestion[1];
                         Question tmpQuest = (Question)newQuestion[0];
 
@@ -429,7 +429,7 @@ public class GameRule {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    mcdt = new MyCountDownTimer(15000+300, 20);     //      TEMP !!! 15sec to answer the question + 300 addition millis due ping and stuff
+                    mcdt = new MyCountDownTimer(12000+300, 20);     //      TEMP !!! 12sec to answer the question + 300 addition millis due ping and stuff
 
                     mcdt.addOnUpdateHandler(new MyCountDownTimer.OnUpdateHandler() {
                         @Override
@@ -468,6 +468,11 @@ public class GameRule {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+            for (int a = 0; a <= 10; a++)
+            System.out.println("actions "+a+": "+action[a]);
+
+            System.out.println("winners.size()" + winners.size());
 
             if(winners.size() >= 2){
                 System.out.println("Well, we need to pop one more question \\0/");

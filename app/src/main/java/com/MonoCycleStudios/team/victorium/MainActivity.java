@@ -1,6 +1,8 @@
 package com.MonoCycleStudios.team.victorium;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
@@ -21,6 +23,11 @@ public class MainActivity extends AppCompatActivity {
 
     EditText tvUN;
     Intent intent;
+
+    BitmapFactory.Options bmo = new BitmapFactory.Options();
+    public static Bitmap avatarAtlas;
+    int frameWidth = 316;
+    int frameHeight = 316;
 //    Spinner spinner;
 //    String selected;
     @Override
@@ -41,12 +48,24 @@ public class MainActivity extends AppCompatActivity {
 
         Button btnCreate = (Button)findViewById(R.id.BtnCreateGame);
         Button btnFind = (Button)findViewById(R.id.BtnFindGame);
-        Button btnLink = (Button)findViewById(R.id.BtnLinkProfile);
+//        Button btnLink = (Button)findViewById(R.id.BtnLinkProfile);
 
         btnCreate.setTypeface(FontFamily.raleway_sb);
         btnFind.setTypeface(FontFamily.raleway_sb);
         tvUN.setTypeface(FontFamily.raleway_sb);
-        btnLink.setTypeface(FontFamily.raleway_sb);
+//        btnLink.setTypeface(FontFamily.raleway_sb);
+
+        bmo.inScaled = true;
+//        bmo.inSampleSize = 32;
+        bmo.inDensity = 316;
+        bmo.inTargetDensity = 316;
+        avatarAtlas = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.avatar_atlas, bmo);
+
+        ((ImageView) findViewById(R.id.imageView2)).setImageBitmap(Bitmap.createBitmap(avatarAtlas,
+                0,
+                0,
+                frameWidth,
+                frameHeight));
 
         intent = new Intent(this, Lobby.class);
 
@@ -57,26 +76,25 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 isFirstLoco = !isFirstLoco;
                 int drawableID = isFirstLoco ? R.drawable.victorium_loco_1 : R.drawable.victorium_loco_1_2;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    ((ImageView) findViewById(R.id.imageView5)).setImageDrawable(v.getContext().getDrawable(drawableID));
-                } else {
-                    ((ImageView) findViewById(R.id.imageView5)).setImageDrawable(ContextCompat.getDrawable(v.getContext(), drawableID));
-                }
+                ((ImageView) findViewById(R.id.imageView5)).setImageDrawable(v.getContext().getDrawable(drawableID));
             }
         });
 
         ImageView pic = (ImageView) findViewById(R.id.imageView2);
         pic.setOnClickListener(new View.OnClickListener() {
-            boolean isFirstLoco = false;
+            int frameCountX = 0;    //  MAX = 6; Only 6 player
             @Override
             public void onClick(View v) {
-                isFirstLoco = !isFirstLoco;
-                int drawableID = isFirstLoco ? R.mipmap.appico_m_r : R.mipmap.appico_w_b;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    ((ImageView) findViewById(R.id.imageView2)).setImageDrawable(v.getContext().getDrawable(drawableID));
-                } else {
-                    ((ImageView) findViewById(R.id.imageView2)).setImageDrawable(ContextCompat.getDrawable(v.getContext(), drawableID));
+                if(++frameCountX >= 6){
+                    frameCountX = 0;
                 }
+
+                ((ImageView) findViewById(R.id.imageView2)).setImageBitmap(Bitmap.createBitmap(avatarAtlas, //Lobby.flagAtlas
+                        frameWidth * frameCountX,
+                        0,
+                        frameWidth,
+                        frameHeight));
+
             }
         });
 
@@ -86,14 +104,8 @@ public class MainActivity extends AppCompatActivity {
                 if(Lobby.getMyLocalIP() == null)
                     Toast.makeText(getApplicationContext(), "Connect to the internet!", Toast.LENGTH_SHORT).show();
                 else{
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        Button b1 = (Button) findViewById(R.id.BtnCreateGame);
-                        ActivityOptionsCompat optionsCompat = setAO(b1);
-                        startActivity(intent, optionsCompat.toBundle());
-                    }
-                    else{
-                        startActivity(intent);
-                    }
+                    startActivity(intent);
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
                     System.out.println("User name is: '" + tvUN.getText().toString() + "'");
 
@@ -107,14 +119,9 @@ public class MainActivity extends AppCompatActivity {
         btnFind.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    Button b1 = (Button) findViewById(R.id.BtnFindGame);
-                    ActivityOptionsCompat optionsCompat = setAO(b1);
-                    startActivity(intent, optionsCompat.toBundle());
-                }
-                else{
-                    startActivity(intent);
-                }
+
+                startActivity(intent);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
                 System.out.println("User name is: '" + tvUN.getText().toString() + "'");
 

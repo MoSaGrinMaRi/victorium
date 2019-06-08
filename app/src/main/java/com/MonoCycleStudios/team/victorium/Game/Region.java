@@ -118,8 +118,8 @@ public class Region implements Serializable{
     }
 
     private void setPawnBitmap(Character ch){
-        int frameWidth = 522/6;
-        int frameHeight = 820/6;
+        int frameWidth = 174/2; //522/6;
+        int frameHeight = 274/2;//820/6;
         int frameCountX = 0;    //  MAX = 3; Only 3 different type
         int frameCountY = 0;    //  MAX = 2; Only 2 different color for each
 
@@ -167,8 +167,8 @@ public class Region implements Serializable{
                 frameHeight);
     }
     private void setBaseBitmap(Character ch){
-        int frameWidth = 1028/8;
-        int frameHeight = 640/8;
+        int frameWidth = 257/2; //1028/8;
+        int frameHeight = 156/2;//640/8;
         int frameCountX = 0;    //  MAX = 4; Only 4 castle state
         int frameCountY = 0;    //  MAX = Lobby.MAX_PLAYERS; Only 6 players can play
 
@@ -245,6 +245,7 @@ public class Region implements Serializable{
     }
 
     public void computeNeighbourhoods(ArrayList<Region> allRegion){
+        System.out.println("neighbourhoodsID"+Arrays.toString(neighbourhoodsID));
         for(String s : neighbourhoodsID){
             neighbourhoods.add(
                     allRegion.get(Integer.parseInt(s))

@@ -41,7 +41,7 @@ public class Ground extends Fragment {
                     final int regionInd = regions.lastIndexOf(new Region(-1,id,false,null,-1));
                     Region r = regions.get(regionInd);
 
-                    rm.setButtonText(GameRule.isFirstHalf ? "Capture" : "Attack");
+//                    rm.setButtonText(GameRule.isFirstHalf ? "Capture" : "Attack");
                     rm.setLabelText(""+r.getCost());
                     rm.setOnClick(new View.OnClickListener(){
                         @Override
@@ -52,7 +52,7 @@ public class Ground extends Fragment {
                     });
                     int x,y;
                     x = (int)(imageMap.mIdToArea.get(id).getOriginX() / imageMap.mIdToArea.get(id).getMagicMultiplier() / 2);
-                    y = (int)(imageMap.mIdToArea.get(id).getOriginY() / imageMap.mIdToArea.get(id).getMagicMultiplier() / 2);
+                    y = (int)(imageMap.mIdToArea.get(id).getOriginY() / imageMap.mIdToArea.get(id).getMagicMultiplier() / 2) + 60;
                     rm.setPosition(x,y);
 
                     System.out.println("567890- "+x + " " +y);

@@ -217,7 +217,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
         switch (CommandType.getTypeOf(command.descOfObject)) {
             case STARTGAME: {
                 System.out.println(st.myPlayer.getPlayerName() + "setPlaying True");
-                st.setPlaying(true);
+                st.setPlaying(true, command.obj.toString());
             }break;
             case NEWPLAYER:{
                 if(st.myPlayer != null) {
@@ -305,9 +305,9 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
         void setListening(boolean listening){
             this.listening = listening;
         }
-        void setPlaying(boolean playing){
+        void setPlaying(boolean playing, String gamemapName){
             System.out.println("[St]Setting out command to start");
-            setOutCommand("String", "[startGame]", null);
+            setOutCommand("String", "[startGame]", gamemapName);
             this.playing = playing;
         }
 

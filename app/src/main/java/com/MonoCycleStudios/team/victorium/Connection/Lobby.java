@@ -22,6 +22,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.MonoCycleStudios.team.victorium.Connection.Enums.CommandType;
+import com.MonoCycleStudios.team.victorium.Game.Enums.GameState;
 import com.MonoCycleStudios.team.victorium.Game.Game;
 import com.MonoCycleStudios.team.victorium.Game.Player;
 import com.MonoCycleStudios.team.victorium.R;
@@ -32,6 +33,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Random;
 
 public class Lobby extends AppCompatActivity {
 
@@ -41,6 +43,8 @@ public class Lobby extends AppCompatActivity {
 
     public static ListView lv;
     private static LinearLayout ll;
+    private static ImageView imBG;
+    private static ImageView imEdit;
     public static OurArrayListAdapter adapter;
     public static Button b1;
     public static Button b2;
@@ -51,12 +55,24 @@ public class Lobby extends AppCompatActivity {
     static String lPlayerName;
     static boolean lIsServer = false;
 
+    Random rand;
+    private String[] gamemaps = {
+//            "uamapregions",
+//            "mmplain"
+            "mmnew",
+            "mmnew"
+    };
+    public static String gameMapName = "mmnew";
+    public static boolean isShowScore = false;
+    public static boolean isShowStatus= false;
+
     public static Lobby thisActivity;   // need another approach, i guess...
 
     static ArrayList<Player> playerArrayList = new ArrayList<>();
 
     BitmapFactory.Options bmo = new BitmapFactory.Options();
     public static Bitmap flagAtlas;
+    public static Bitmap avatarAtlas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,11 +81,16 @@ public class Lobby extends AppCompatActivity {
 
         thisActivity = this;
 
+        isShowScore = false;
 
-//        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        overridePendingTransition(R.animator.slideout_right, R.animator.slidein_left);
+        rand = new Random();
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+//        overridePendingTransition(R.animator.slideout_right, R.animator.slidein_left);
 
         ll = (LinearLayout) findViewById(R.id.llLobbyPlayersList);
+        imBG = (ImageView) findViewById(R.id.connectionsBgImageView);
+
+        imEdit = (ImageView) findViewById(R.id.imageView4);
 
         b1 = (Button)findViewById(R.id.btnConnect);
 
@@ -95,6 +116,8 @@ public class Lobby extends AppCompatActivity {
                 TransitionManager.beginDelayedTransition(((LinearLayout)findViewById(R.id.llLobbyControl)));
                 TransitionManager.beginDelayedTransition(ll);
                 ll.setVisibility(View.VISIBLE);
+                imBG.setVisibility(View.VISIBLE);
+                imEdit.setVisibility(View.GONE);
                 tvSip.setEnabled(false);
             }
         });
@@ -113,12 +136,13 @@ public class Lobby extends AppCompatActivity {
             @Override
             public void onClick (View v){
                 b3.setEnabled(false);
-                s1.notifyAllClients(new MonoPackage("", CommandType.STARTGAME.getStr(),null));
+                s1.notifyAllClients(new MonoPackage("", CommandType.STARTGAME.getStr(), gamemaps[rand.nextInt(2)]));
                 s1.stopListening(false);
             }
         });
 
         lv = (ListView) findViewById(R.id.connectionsListView);
+        lv.setDivider(null);
 
         tvSip = (EditText) findViewById(R.id.InpIpAddress);
         if (lIsServer){
@@ -140,11 +164,20 @@ public class Lobby extends AppCompatActivity {
         adapter = new OurArrayListAdapter(this, android.R.layout.simple_list_item_1, playerArrayList);
         forceREUpdateAdapter();
 
+//        TODO: Move to queue turn to use
+//        bmo.inScaled = true;
+////        bmo.inSampleSize = 32;
+//        bmo.inDensity = 286;//468;
+//        bmo.inTargetDensity = 286;//468;
+//        flagAtlas = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.flag_atlas, bmo);
+
+
+
         bmo.inScaled = true;
 //        bmo.inSampleSize = 32;
-        bmo.inDensity = 468;
-        bmo.inTargetDensity = 468;
-        flagAtlas = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.flag_atlas, bmo);
+        bmo.inDensity = 316;
+        bmo.inTargetDensity = 316;
+        avatarAtlas = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.avatar_atlas, bmo);
 
     }
 
@@ -176,13 +209,23 @@ public class Lobby extends AppCompatActivity {
                 if (tt1 != null)
                     tt1.setText(p.getPlayerName());
                 if (tt3 != null) {
-                    System.out.println("[1][][] "+ p.getPlayerScore() + p.getPlayerName() );
-                    tt3.setText(String.valueOf(p.getPlayerScore()));
+                    System.out.println("[1][][] "+ p.getPlayerScore() + p.getPlayerName() + p.getPlayerGameState() );
+                    if(Lobby.isShowScore) {
+                        tt3.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                        tt3.requestLayout();
+                        tt3.setText(String.valueOf(p.getPlayerScore()));
+                    }else{
+                        tt3.getLayoutParams().height = 0;
+                        tt3.requestLayout();
+                    }
                 }
                 if (im1 != null) {
 
-                    int frameWidth = 78;
-                    int frameHeight = 140;
+                    //        TODO: Move to queue turn to use
+//                    int frameWidth = 48;//78;
+//                    int frameHeight = 110;//140;
+                    int frameWidth = 316;
+                    int frameHeight = 316;
                     int frameCountX = 0;    //  MAX = 6; Only 6 player
 
                     switch (p.getPlayerCharacter().getColor()){
@@ -207,7 +250,7 @@ public class Lobby extends AppCompatActivity {
 
                     }
 
-                    im1.setImageBitmap(Bitmap.createBitmap(Lobby.flagAtlas,
+                    im1.setImageBitmap(Bitmap.createBitmap(Lobby.avatarAtlas, //Lobby.flagAtlas
                             frameWidth * frameCountX,
                             0,
                             frameWidth,
@@ -218,6 +261,16 @@ public class Lobby extends AppCompatActivity {
 //                    if(Client.iPlayer != null && p.getPlayerID() == Client.iPlayer.getPlayerID()) {
 //                        im1.setBackground(getDrawable(R.drawable.shape_tablerow_image));
 //                    }
+                }
+
+                if(Lobby.isShowStatus){
+                    if(Lobby.getPlayersList().get(position).getPlayerGameState() != GameState.LAUNCHING){
+                        v.setAlpha(0.5f);
+                    }else{
+                        v.setAlpha(1);
+                    }
+                }else{
+                    v.setAlpha(1);
                 }
             }
             return v;
@@ -247,8 +300,11 @@ public class Lobby extends AppCompatActivity {
 
         Collections.sort(Lobby.getPlayersList());
 
+        isShowScore = true;
+        isShowStatus= true;
+
         thisActivity.startActivity(new Intent(thisActivity, Game.getInstance().getClass()));
-        thisActivity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        thisActivity.overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
 
         if(lIsServer){
             Game.getInstance().setup(s1, playerArrayList.size());
@@ -344,11 +400,7 @@ public class Lobby extends AppCompatActivity {
         playerArrayList.clear();
 
         thisActivity = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            finishAfterTransition();
-        }else{
-            finish();
-        }
+        finishAfterTransition();
     }
 
     @Override
@@ -356,7 +408,7 @@ public class Lobby extends AppCompatActivity {
         System.out.println("BACK PRESSED!!!" + (s1 == null) + " ][ " + (c1 == null));
 
         stopAndClose();
-        overridePendingTransition(R.animator.slideout_left, R.animator.slidein_right);
+        overridePendingTransition(R.animator.slideout_right, R.animator.slidein_left);
 
         super.onBackPressed();
     }

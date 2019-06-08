@@ -4,5 +4,5 @@
         android:interpolator="@android:anim/decelerate_interpolator"
         android:propertyName="translationY"
         android:duration="600"
-        android:valueTo="20"/>
+        android:valueTo="30"/>
 </set>

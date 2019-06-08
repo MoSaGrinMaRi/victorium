@@ -1,6 +1,7 @@
 package com.MonoCycleStudios.team.victorium;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -9,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import com.MonoCycleStudios.team.victorium.Game.QuestionParser;
 import com.MonoCycleStudios.team.victorium.widget.Utils.FontFamily;
 
 import java.io.IOException;
@@ -54,7 +56,7 @@ public class SplashScreen extends AppCompatActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-
+                        new AsyncRequest().execute();
                         dosmth();
 
                     }
@@ -71,4 +73,21 @@ public class SplashScreen extends AppCompatActivity {
 
         overridePendingTransition(R.animator.slideout_bottom, R.animator.slidein_top);
     }
+
+
+
+    private class AsyncRequest extends AsyncTask<String, Integer, String> {
+
+        @Override
+        protected String doInBackground(String... arg) {
+            QuestionParser.prepareQuestions(getApplicationContext());
+            return "done?";
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+        }
+    }
+
 }

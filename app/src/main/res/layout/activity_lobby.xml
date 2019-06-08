@@ -10,13 +10,13 @@
         android:id="@+id/imageView3"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/tst4_deco"
+        android:src="@drawable/an_bg_over"
         custom:crop="topLeft"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         tools:ignore="MissingConstraints">
 
         <LinearLayout
@@ -45,7 +45,7 @@
                     android:layout_marginBottom="20dp"
                     android:background="@drawable/btn_wood_long"
                     android:text="@string/btnBack"
-                    android:textColor="@color/mWhite"
+                    android:textColor="@color/mBlack"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:transitionName="sharedGameBack"
@@ -58,31 +58,48 @@
                     android:layout_weight="10"
                     android:visibility="visible" />
 
-                <EditText
-                    android:id="@+id/InpIpAddress"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="42dp"
-                    android:layout_marginBottom="20dp"
-                    android:background="@drawable/inp_wood"
-                    android:ems="10"
-                    android:gravity="center"
-                    android:inputType="text|textNoSuggestions"
-                    android:maxLines="1"
-                    android:selectAllOnFocus="false"
-                    android:text="@string/ipAddressText"
-                    android:textAlignment="center"
-                    android:textColor="@color/mWhite"
-                    android:textSize="16sp"
-                    android:visibility="visible" />
+                    android:layout_height="32dp"
+                    android:layout_marginBottom="20dp">
+
+                    <EditText
+                        android:id="@+id/InpIpAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="32dp"
+                        android:background="@drawable/input"
+                        android:ems="10"
+                        android:gravity="center"
+                        android:inputType="text|textNoSuggestions"
+                        android:maxLines="1"
+                        android:selectAllOnFocus="false"
+                        android:text="@string/ipAddressText"
+                        android:textAlignment="center"
+                        android:textColor="@color/mWhite"
+                        android:textSize="16sp"
+                        android:visibility="visible" />
+
+                    <ImageView
+                        android:id="@+id/imageView4"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginBottom="-10dp"
+                        android:layout_marginEnd="-10dp"
+                        android:layout_marginTop="-10dp"
+                        android:src="@drawable/btn_edit"
+                        android:visibility="visible" />
+                </RelativeLayout>
 
                 <Button
                     android:id="@+id/btnConnect"
                     android:layout_width="match_parent"
                     android:layout_height="42dp"
                     android:layout_marginBottom="20dp"
-                    android:background="@drawable/btn_wood_long"
+                    android:background="@drawable/btn_wood_long_2"
                     android:text="@string/btnConnectGame"
-                    android:textColor="@color/mWhite"
+                    android:textColor="@color/mBlack"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:typeface="normal" />
@@ -99,9 +116,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="42dp"
                     android:layout_marginBottom="20dp"
-                    android:background="@drawable/btn_wood_long"
+                    android:background="@drawable/btn_wood_long_2"
                     android:text="@string/btnStartGame"
-                    android:textColor="@color/mWhite"
+                    android:textColor="@color/mBlack"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:typeface="normal"
@@ -114,17 +131,33 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="50"
-                android:orientation="vertical"
+                android:gravity="right"
+                android:orientation="horizontal"
                 android:visibility="gone">
 
                 <ListView
                     android:id="@+id/connectionsListView"
-                    android:layout_width="match_parent"
+                    android:layout_width="150dp"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="39dp"
                     android:scrollbars="none|vertical" />
+
             </LinearLayout>
+
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/connectionsBgImageView"
+            android:layout_width="250dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="-15dp"
+            android:layout_marginLeft="-250dp"
+            android:layout_marginRight="-25dp"
+            android:layout_marginTop="-15dp"
+            android:layout_weight="0.90"
+            android:scaleType="fitXY"
+            android:translationZ="-10dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/userlist_bg" />
 
     </LinearLayout>
 

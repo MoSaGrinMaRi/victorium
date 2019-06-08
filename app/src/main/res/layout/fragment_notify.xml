@@ -16,8 +16,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:paddingBottom="100dp"
-        android:paddingTop="100dp"
+        android:paddingBottom="50dp"
+        android:paddingTop="50dp"
         android:weightSum="25">
 
         <View
@@ -30,10 +30,17 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="15"
+            android:background="@drawable/popup"
             android:clickable="true"
             android:enabled="true"
-            android:text="2"
-            android:textSize="18sp" />
+            android:paddingBottom="30dp"
+            android:paddingLeft="40dp"
+            android:paddingRight="40dp"
+            android:paddingTop="40dp"
+            android:text="222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:visibility="visible" />
     </LinearLayout>
 
 </FrameLayout>

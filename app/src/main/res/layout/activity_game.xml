@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -36,11 +37,12 @@
         android:weightSum="100">
 
         <FrameLayout
-            android:id="@+id/fragmentTimer"
+            android:id="@+id/fragmentQueueTurns"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="top"
-            android:layout_weight="30" />
+            android:layout_marginTop="-20dp"
+            android:layout_weight="60" />
 
         <View
             android:layout_width="0dp"
@@ -48,27 +50,80 @@
             android:layout_weight="10" />
 
         <FrameLayout
-            android:id="@+id/fragmentQueueTurns"
+            android:id="@+id/fragmentTimer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="top"
-            android:layout_weight="60" />
+            android:layout_weight="30" />
+
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="right"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:weightSum="1">
 
-        <ListView
-            android:id="@+id/connectionsListView_2"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:scrollbars="none|vertical">
+        <RelativeLayout
+            android:id="@+id/connectionRl"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="right">
 
-        </ListView>
+            <Button
+                android:id="@+id/connectionToggleBtn"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginLeft="20dp"
+                android:background="@drawable/btn_wood_short"
+                android:scaleX="-1"
+                android:text="" />
+
+            <LinearLayout
+                android:layout_width="150dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="60dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Connected:"
+                    android:textColor="@color/mBlack"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <ListView
+                    android:id="@+id/connectionsListView_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="290dp"
+                    android:layout_below="@+id/connectionToggleBtn"
+                    android:layout_gravity="bottom"
+                    android:scrollbars="none|vertical"
+                    android:translationZ="10dp"
+                    android:layout_weight="0.16"></ListView>
+
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/imageView6"
+                android:layout_width="220dp"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="-15dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="-30dp"
+                android:layout_marginTop="-15dp"
+                android:layout_weight="0.23"
+                android:scaleType="fitXY"
+                android:translationZ="-10dp"
+                android:visibility="visible"
+                app:srcCompat="@drawable/userlist_bg" />
+
+        </RelativeLayout>
 
     </LinearLayout>
 
@@ -90,6 +145,8 @@
     <FrameLayout
         android:id="@+id/fragmentWarningPlaceholder"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent" >
+
+    </FrameLayout>
 
 </merge>

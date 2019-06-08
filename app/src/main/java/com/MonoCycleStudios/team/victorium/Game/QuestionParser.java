@@ -1,103 +1,124 @@
 package com.MonoCycleStudios.team.victorium.Game;
 
+import android.content.Context;
+
+import com.MonoCycleStudios.team.victorium.Connection.Lobby;
 import com.MonoCycleStudios.team.victorium.Game.Enums.QuestionCategory;
 import com.MonoCycleStudios.team.victorium.Game.Enums.QuestionType;
+import com.MonoCycleStudios.team.victorium.R;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Scanner;
+
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class QuestionParser {
 
-    private static String[][] allQuestions = {
-            {
-                    "None:;Привіт :) Так будуть виглядати справжні питання, зліва, замість мене, буде категорія, удачі...:;Окей:;Угу,  я і так знав:;А,  кто ето?:;\\0/"
-            },
-            {
-                    "Math:;Скільки буде 2+2?:;NaN:;2:;0:;+4",
-                    "Math:;Скільки буде 4+2?:;NaN:;8:;+6:;-2"
-            },
-            {
-                    "History:;Хто першим ступив на поверхню Місяця?:;+Ніл Армстронг:;Луіс Армстронг:;Олександр Попов:;Джейсм Дін",
-                    "History:;Коли почалась Перша світова війна?:;1814:;+1914:;1916:;1936"
-            },
-            {
-                    "Film:;В якому році Леонардо Ді Капріо отримав оскар?:;2008:;Не отримав:;2012:;+2016"
-            },
-            {
-                    "Geography:;Скільки материків на Землі?:;5:;7:;+6:;4"
-            },
-            {
-                    "Sport:;Скільки раз Володимир Кличко, із 69 проведених поєдинків, програв?:;4:;2:;+5:;6"
-            },
-            {
-                    "Music:;Хто одержав найбільшу кількість Греммі?:;Вуітні Хьюстон:;Каньє Вест:;Джейсм Хетфілд:;+Георг Шолті"
-            },
-            {
-                    "Literature:;Як звали бога війни у грецбкій міфології?:;Аїд:;Марс:;+Арес:;Юпітер"
-            },
-            {
-                    "Biology:;Хто запропонував модель ДНК?:;+Френсісом Кріком і Джеймсом Ватсоном:;Роберт Кох:;Йоган Мендель:;Луі Пастер"
-            },
-            {
-                    "Meme:;Що буде в результаті? \n \'int a = 2 << 2;\':;4:;2:;NaN:;+8"
-            }
-    };
+    private final static String question_filename = "questions.mm";
+    private static int questionColvo = 0;
 
-    public static Object[] getQuestion(String param){
-        String s;
-        int indCategory = 0;
+    public static void prepareQuestions(Context context){
 
-        if (param.equalsIgnoreCase("random")){
-            indCategory = new Random().nextInt(allQuestions.length-1)+1;
-        }else{
-            switch (QuestionCategory.getTypeOf(param.toLowerCase())) {
-                case NONE: {
-                    indCategory = 0;
+        if(!context.getFileStreamPath(question_filename).exists()){// internal file is missing
+            // than create file and write from base_questions
+//            File file = new File(context.getFilesDir(), question_filename);
+
+            InputStream s = context.getResources().openRawResource(R.raw.base_questions);
+
+            BufferedInputStream bis = new BufferedInputStream(s, 1024);
+
+            int i;
+
+            FileOutputStream outputStream;
+            try {
+                outputStream = context.openFileOutput(question_filename, Context.MODE_PRIVATE);
+                while((i = bis.read())!= -1){
+                    outputStream.write(i);
                 }
-                break;
-                case MATH: {
-                    indCategory = 1;
-                }
-                break;
-                case HISTORY: {
-                    indCategory = 2;
-                }
-                break;
-                case FILM: {
-                    indCategory = 3;
-                }
-                break;
-                case GEOGRAPHY: {
-                    indCategory = 4;
-                }
-                break;
-                case SPORT: {
-                    indCategory = 5;
-                }
-                break;
-                case MUSIC: {
-                    indCategory = 6;
-                }
-                break;
-                case LITERATURE: {
-                    indCategory = 7;
-                }
-                break;
-                case BIOLOGY: {
-                    indCategory = 8;
-                }
-                break;
-                case MEME: {
-                    indCategory = 9;
-                }
-                break;
+                outputStream.close();
+                s.close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
-        s = allQuestions[indCategory][new Random().nextInt((allQuestions[indCategory].length))];
+        // than try to download new questions from server anyway
+
+        String ss;
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().url("https://victorium.mowemax.com/get-all-questions-raw.php").build();
+        try (Response response = client.newCall(request).execute()) {
+
+            FileOutputStream outputStream;
+            try {
+                outputStream = context.openFileOutput(question_filename, Context.MODE_PRIVATE);
+                ss = response.body().string();
+                Scanner scanner = new Scanner(ss);
+                while (scanner.hasNextLine()) {
+                    outputStream.write((scanner.nextLine()+"\n").getBytes());
+                }
+                scanner.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        } catch (IOException | NullPointerException e) {
+            e.printStackTrace();
+        }
+        questionColvo = QuestionParser.countLines(new File(context.getFilesDir(), question_filename));
+        System.out.println("magic happen?"+questionColvo);
+    }
+
+    public static Object[] getRandomQuestion(){
+        String s;
+
+        s = getQuestionAtLine(new Random().nextInt(questionColvo-1)+1);
 
         return parse(s);
     }
+
+    private static String getQuestionAtLine(int lineNumber){
+        String ss = "";
+        try(BufferedReader br = new BufferedReader(new FileReader(new File(Lobby.thisActivity.getApplicationContext().getFilesDir(), question_filename)))) {
+            String line;
+            int lineCount = 0;
+            while ((line = br.readLine()) != null) {
+                if(lineCount++ == lineNumber) {
+                    ss = line;
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ss;
+    }
+
+    private static int countLines(File input) {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(input));
+            int lineCount = 0;
+            while (br.readLine() != null) {
+                lineCount++;
+            }
+            return lineCount;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return 0;
+}
 
     private static Object[] parse(String s){
         String[] que = s.split(":;");
