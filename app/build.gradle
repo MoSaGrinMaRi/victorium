@@ -4,14 +4,14 @@ android {
     signingConfigs {
     }
     compileSdkVersion 26
-    buildToolsVersion '28.0.3'
+    buildToolsVersion '25.0.2'
     defaultConfig {
         applicationId "com.MonoCycleStudios.team.victorium"
         minSdkVersion 21
         multiDexEnabled true
         targetSdkVersion 26
-        versionCode 1
-        versionName "1.0"
+        versionCode 11
+        versionName "1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
