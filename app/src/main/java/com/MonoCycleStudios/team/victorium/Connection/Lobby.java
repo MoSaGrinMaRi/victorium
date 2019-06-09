@@ -5,9 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.support.transition.TransitionManager;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -26,6 +24,8 @@ import com.MonoCycleStudios.team.victorium.Game.Enums.GameState;
 import com.MonoCycleStudios.team.victorium.Game.Game;
 import com.MonoCycleStudios.team.victorium.Game.Player;
 import com.MonoCycleStudios.team.victorium.R;
+import com.MonoCycleStudios.team.victorium.widget.Utils.FontFamily;
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -57,8 +57,6 @@ public class Lobby extends AppCompatActivity {
 
     Random rand;
     private String[] gamemaps = {
-//            "uamapregions",
-//            "mmplain"
             "mmnew",
             "mmnew"
     };
@@ -71,7 +69,6 @@ public class Lobby extends AppCompatActivity {
     static ArrayList<Player> playerArrayList = new ArrayList<>();
 
     BitmapFactory.Options bmo = new BitmapFactory.Options();
-    public static Bitmap flagAtlas;
     public static Bitmap avatarAtlas;
 
     @Override
@@ -85,27 +82,26 @@ public class Lobby extends AppCompatActivity {
 
         rand = new Random();
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-//        overridePendingTransition(R.animator.slideout_right, R.animator.slidein_left);
 
-        ll = (LinearLayout) findViewById(R.id.llLobbyPlayersList);
-        imBG = (ImageView) findViewById(R.id.connectionsBgImageView);
+        ll = findViewById(R.id.llLobbyPlayersList);
+        imBG = findViewById(R.id.connectionsBgImageView);
 
-        imEdit = (ImageView) findViewById(R.id.imageView4);
+        imEdit = findViewById(R.id.imageView4);
 
-        b1 = (Button)findViewById(R.id.btnConnect);
+        b1 = findViewById(R.id.btnConnect);
 
         b1.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick (View v){
                 ((Button)findViewById(R.id.btnConnect)).setEnabled(false);
                 ((Button)findViewById(R.id.btnConnect)).setClickable(false);
-//                ((Button)findViewById(R.id.connectBtn)).setText("Connecting");
+                ((Button)findViewById(R.id.btnConnect)).setText("Connecting...");
 
                 c1 = new Client();
-                System.out.println("[=2.1=].................");
-//                c1.init(Lobby.this);
+                MMSystem.out.println("[=2.1=].................");
+
                 c1.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, lIsServer ? getMyLocalIP() : tvSip.getText().toString(), lPlayerName);
-                System.out.println("[=2.2=].................");
+                MMSystem.out.println("[=2.2=].................");
 
                 LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
                         0,
@@ -122,7 +118,7 @@ public class Lobby extends AppCompatActivity {
             }
         });
 
-        b2 = (Button)findViewById(R.id.btnLobbyBack);
+        b2 = findViewById(R.id.btnLobbyBack);
         b2.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick (View v){
@@ -130,7 +126,7 @@ public class Lobby extends AppCompatActivity {
             }
         });
 
-        b3 = (Button)findViewById(R.id.btnLaunchGame);
+        b3 = findViewById(R.id.btnLaunchGame);
         b3.setEnabled(false);
         b3.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -141,19 +137,23 @@ public class Lobby extends AppCompatActivity {
             }
         });
 
-        lv = (ListView) findViewById(R.id.connectionsListView);
+        b1.setTypeface(FontFamily.hammers_r);
+        b2.setTypeface(FontFamily.hammers_r);
+        b3.setTypeface(FontFamily.hammers_r);
+
+        lv = findViewById(R.id.connectionsListView);
         lv.setDivider(null);
 
-        tvSip = (EditText) findViewById(R.id.InpIpAddress);
+        tvSip = findViewById(R.id.InpIpAddress);
         if (lIsServer){
-            System.out.println("set invisible");
+            MMSystem.out.println("set invisible");
             tvSip.setEnabled(false);
             tvSip.setText(getMyLocalIP());
-            System.out.println("[=1=].................");
+            MMSystem.out.println("[=1=].................");
             s1 = new Server();
-            System.out.println("[=1.1=].................");
+            MMSystem.out.println("[=1.1=].................");
             s1.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "");
-            System.out.println("[=1.2=].................");
+            MMSystem.out.println("[=1.2=].................");
 
             b1.performClick();
             b1.setVisibility(View.INVISIBLE);
@@ -164,15 +164,6 @@ public class Lobby extends AppCompatActivity {
         adapter = new OurArrayListAdapter(this, android.R.layout.simple_list_item_1, playerArrayList);
         forceREUpdateAdapter();
 
-//        TODO: Move to queue turn to use
-//        bmo.inScaled = true;
-////        bmo.inSampleSize = 32;
-//        bmo.inDensity = 286;//468;
-//        bmo.inTargetDensity = 286;//468;
-//        flagAtlas = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.flag_atlas, bmo);
-
-
-
         bmo.inScaled = true;
 //        bmo.inSampleSize = 32;
         bmo.inDensity = 316;
@@ -182,9 +173,6 @@ public class Lobby extends AppCompatActivity {
     }
 
     public class OurArrayListAdapter extends ArrayAdapter<Player> {
-//        public OurArrayListAdapter(Context context, int textViewResourceId) {
-//            super(context, textViewResourceId);
-//        }
 
         public OurArrayListAdapter(Context context, int resource, ArrayList<Player> items) {
             super(context, resource, items);
@@ -202,14 +190,14 @@ public class Lobby extends AppCompatActivity {
 
             Player p = getItem(position);
             if (p != null) {
-                ImageView im1 = (ImageView) v.findViewById(R.id.imageView);
-                TextView tt1 = (TextView) v.findViewById(R.id.playerName);
-                TextView tt3 = (TextView) v.findViewById(R.id.playerScore);
+                ImageView im1 = v.findViewById(R.id.imageView);
+                TextView tt1 = v.findViewById(R.id.playerName);
+                TextView tt3 = v.findViewById(R.id.playerScore);
 
                 if (tt1 != null)
                     tt1.setText(p.getPlayerName());
                 if (tt3 != null) {
-                    System.out.println("[1][][] "+ p.getPlayerScore() + p.getPlayerName() + p.getPlayerGameState() );
+                    MMSystem.out.println("[1][][] "+ p.getPlayerScore() + p.getPlayerName() + p.getPlayerGameState() );
                     if(Lobby.isShowScore) {
                         tt3.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
                         tt3.requestLayout();
@@ -250,17 +238,11 @@ public class Lobby extends AppCompatActivity {
 
                     }
 
-                    im1.setImageBitmap(Bitmap.createBitmap(Lobby.avatarAtlas, //Lobby.flagAtlas
+                    im1.setImageBitmap(Bitmap.createBitmap(Lobby.avatarAtlas,
                             frameWidth * frameCountX,
                             0,
                             frameWidth,
                             frameHeight));
-
-//                    im1.setColorFilter(p.getPlayerCharacter().getColor().getARGB());
-//                    System.out.println("[][][] " + Client.iPlayer != null + " " + p.getPlayerID() + "|" + (Client.iPlayer != null ? Client.iPlayer.getPlayerID() :-1) + "="  +(p.getPlayerID() == (Client.iPlayer != null ? Client.iPlayer.getPlayerID() :-1)));
-//                    if(Client.iPlayer != null && p.getPlayerID() == Client.iPlayer.getPlayerID()) {
-//                        im1.setBackground(getDrawable(R.drawable.shape_tablerow_image));
-//                    }
                 }
 
                 if(Lobby.isShowStatus){
@@ -286,7 +268,7 @@ public class Lobby extends AppCompatActivity {
     }
 
     public static synchronized void statusUpdate(String s){
-        System.out.println("[LOBBY STATUS] " + s);
+        MMSystem.out.println("[LOBBY STATUS] " + s);
     }
 
     public void setConfig(boolean isServer, String playerName){
@@ -296,7 +278,7 @@ public class Lobby extends AppCompatActivity {
 
     public static void startGameActivity(){
 
-        System.out.println("YEY!");
+        MMSystem.out.println("YEY!");
 
         Collections.sort(Lobby.getPlayersList());
 
@@ -365,12 +347,12 @@ public class Lobby extends AppCompatActivity {
     public static int getUnusedIndex(){
         int i = 0;
         for(; i < Lobby.MAX_PLAYERS && i < playerArrayList.size(); i++){
-            System.out.println("]]=[[ " + (playerArrayList.size()-1) + " }{ " + i + " }{ " + playerArrayList.get(i).getPlayerID());
+            MMSystem.out.println("]]=[[ " + (playerArrayList.size()-1) + " }{ " + i + " }{ " + playerArrayList.get(i).getPlayerID());
             if(i != playerArrayList.get(i).getPlayerID()){
                 return i;
             }
         }
-        System.out.println("]]+[[ " +i);
+        MMSystem.out.println("]]+[[ " +i);
         return i;
     }
 
@@ -405,10 +387,11 @@ public class Lobby extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        System.out.println("BACK PRESSED!!!" + (s1 == null) + " ][ " + (c1 == null));
+        MMSystem.out.println("BACK PRESSED!!!" + (s1 == null) + " ][ " + (c1 == null));
 
         stopAndClose();
-        overridePendingTransition(R.animator.slideout_right, R.animator.slidein_left);
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+//        overridePendingTransition(R.animator.slideout_right, R.animator.slidein_left);
 
         super.onBackPressed();
     }

@@ -33,6 +33,7 @@ import com.MonoCycleStudios.team.victorium.Game.Player;
 import com.MonoCycleStudios.team.victorium.Game.Question;
 import com.MonoCycleStudios.team.victorium.R;
 import com.MonoCycleStudios.team.victorium.widget.MyCountDownTimer;
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -305,7 +306,7 @@ public class Questioner extends Fragment {
         for (Map.Entry entry: answers.entrySet()) {
             Player key = (Player) entry.getKey();
             Integer value = (Integer) entry.getValue();
-            System.out.println(key + " ; " + value);
+            MMSystem.out.println(key + " ; " + value);
 
 
             buttons[value].getLocationOnScreen(location);

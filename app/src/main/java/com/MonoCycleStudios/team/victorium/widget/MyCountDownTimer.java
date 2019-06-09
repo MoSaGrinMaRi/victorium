@@ -2,6 +2,8 @@ package com.MonoCycleStudios.team.victorium.widget;
 
 import android.os.CountDownTimer;
 
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
+
 import java.util.ArrayList;
 
 public class MyCountDownTimer extends CountDownTimer {
@@ -65,7 +67,7 @@ public class MyCountDownTimer extends CountDownTimer {
     @Override
     public void onFinish() {
         onFinishTicking();
-        System.out.println("TIME IS OVER !!!");
+        MMSystem.out.println("TIME IS OVER !!!");
     }
 
     public static int getOnlyMillis(long millisUntilFinished){

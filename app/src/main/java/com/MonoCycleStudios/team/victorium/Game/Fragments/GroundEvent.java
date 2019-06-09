@@ -16,6 +16,7 @@ import com.MonoCycleStudios.team.victorium.Game.Fragments.GroundEvents.GroundEve
 import com.MonoCycleStudios.team.victorium.Game.Fragments.GroundEvents.RegionFX;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.GroundEvents.RegionMenu;
 import com.MonoCycleStudios.team.victorium.R;
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,7 +88,7 @@ public class GroundEvent extends Fragment {
 //                fl.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 //                rl.addView(fl);
 //
-//                System.out.println("3456789  " + rl.getChildAt(0).getId() + fl.getId());
+//                MMSystem.out.println("3456789  " + rl.getChildAt(0).getId() + fl.getId());
 //
 //                FragmentManager fm = getFragmentManager();
 //                FragmentTransaction ft = fm.beginTransaction();
@@ -137,7 +138,7 @@ public class GroundEvent extends Fragment {
                 }
 
                 RelativeLayout.LayoutParams vlp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                System.out.println("f.getX(), f.getY(): " + f.getX() + "  " + f.getY() + " | " + x + " " +y);
+                MMSystem.out.println("f.getX(), f.getY(): " + f.getX() + "  " + f.getY() + " | " + x + " " +y);
                 vlp.setMargins(x, y, 0, 0);
                 entry.getView().setLayoutParams(vlp);
             }
@@ -156,7 +157,7 @@ public class GroundEvent extends Fragment {
 //                }
 //
 //                RelativeLayout.LayoutParams vlp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//                System.out.println("f.getX(), f.getY(): " + f.getX() + "  " + f.getY() + " | " + x + " " +y);
+//                MMSystem.out.println("f.getX(), f.getY(): " + f.getX() + "  " + f.getY() + " | " + x + " " +y);
 //                vlp.setMargins(x, y, 0, 0);
 //                key.setLayoutParams(vlp);
 //            }

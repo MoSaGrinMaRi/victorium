@@ -19,7 +19,6 @@ public enum CommandType {
     }
     public static CommandType getTypeOf(String command) {
         for (CommandType i : CommandType.values()) {
-//            System.out.println("(E)[CT]" + command + " =?= " + i.stringValue.toLowerCase() + " -=- " + command.equalsIgnoreCase(i.stringValue.toLowerCase()) + i);
             if(command.equalsIgnoreCase(i.stringValue.toLowerCase()))
                 return i;
         }

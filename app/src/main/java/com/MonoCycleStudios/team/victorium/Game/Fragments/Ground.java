@@ -15,6 +15,7 @@ import com.MonoCycleStudios.team.victorium.Game.Player;
 import com.MonoCycleStudios.team.victorium.Game.Region;
 import com.MonoCycleStudios.team.victorium.R;
 import com.MonoCycleStudios.team.victorium.widget.ImageMap;
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
 
 import java.util.ArrayList;
 
@@ -55,7 +56,7 @@ public class Ground extends Fragment {
                     y = (int)(imageMap.mIdToArea.get(id).getOriginY() / imageMap.mIdToArea.get(id).getMagicMultiplier() / 2) + 60;
                     rm.setPosition(x,y);
 
-                    System.out.println("567890- "+x + " " +y);
+                    MMSystem.out.println("567890- "+x + " " +y);
                     Game.getInstance().showFragment(GameFragments.GROUND_EVENT, rm, "remove", "all");
                     Game.getInstance().showFragment(GameFragments.GROUND_EVENT, rm, "add");
                 }

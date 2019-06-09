@@ -1,5 +1,7 @@
 package com.MonoCycleStudios.team.victorium.Game.Enums;
 
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
+
 public enum GameFragments {
     NONE("[none]"),
     GROUND_EVENT("[groundEvent]"),
@@ -19,7 +21,7 @@ public enum GameFragments {
     }
     public static GameFragments getTypeOf(String command) {
         for (GameFragments i : GameFragments.values()) {
-            System.out.println("(E)[CT]" + command + " =?= " + i.stringValue.toLowerCase() + " -=- " + command.equalsIgnoreCase(i.stringValue.toLowerCase()) + i);
+            MMSystem.out.println("(E)[CT]" + command + " =?= " + i.stringValue.toLowerCase() + " -=- " + command.equalsIgnoreCase(i.stringValue.toLowerCase()) + i);
             if(command.equalsIgnoreCase(i.stringValue.toLowerCase()))
                 return i;
         }

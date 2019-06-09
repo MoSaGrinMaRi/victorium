@@ -27,10 +27,10 @@ public class SplashScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
 
-        TextView tv = (TextView) findViewById(R.id.txtMCS);
-        tv.setTypeface(FontFamily.raleway_bl);
+        TextView tv = findViewById(R.id.txtMCS);
+        tv.setTypeface(FontFamily.hammers_r);
 
-        final GifImageView imgView = (GifImageView) findViewById(R.id.imageView123);
+        final GifImageView imgView = findViewById(R.id.imageView123);
         GifDrawable gifFromResource;
         try {
 
@@ -81,7 +81,7 @@ public class SplashScreen extends AppCompatActivity {
         @Override
         protected String doInBackground(String... arg) {
             QuestionParser.prepareQuestions(getApplicationContext());
-            return "done?";
+            return "done";
         }
 
         @Override

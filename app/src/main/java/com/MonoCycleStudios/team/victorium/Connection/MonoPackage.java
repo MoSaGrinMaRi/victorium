@@ -1,8 +1,5 @@
 package com.MonoCycleStudios.team.victorium.Connection;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 public class MonoPackage implements Serializable {

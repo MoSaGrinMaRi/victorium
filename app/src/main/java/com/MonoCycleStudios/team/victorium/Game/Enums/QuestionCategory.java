@@ -1,5 +1,7 @@
 package com.MonoCycleStudios.team.victorium.Game.Enums;
 
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
+
 public enum QuestionCategory {
     NONE("none"),
     MATH("math"),
@@ -22,7 +24,7 @@ public enum QuestionCategory {
     }
     public static QuestionCategory getTypeOf(String command) {
         for (QuestionCategory i : QuestionCategory.values()) {
-            System.out.println("(E)[QC]" + command + " =?= " + i.stringValue.toLowerCase() + " -=- " + command.equalsIgnoreCase(i.stringValue.toLowerCase()) + i);
+            MMSystem.out.println("(E)[QC]" + command + " =?= " + i.stringValue.toLowerCase() + " -=- " + command.equalsIgnoreCase(i.stringValue.toLowerCase()) + i);
             if(command.equalsIgnoreCase(i.stringValue.toLowerCase()))
                 return i;
         }

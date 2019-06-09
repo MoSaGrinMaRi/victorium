@@ -12,6 +12,7 @@ import android.widget.FrameLayout;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameFragments;
 import com.MonoCycleStudios.team.victorium.Game.Game;
 import com.MonoCycleStudios.team.victorium.R;
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
 
 import java.io.IOException;
 
@@ -39,11 +40,11 @@ public class RegionFX extends Fragment implements GroundEvents {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        System.out.println("}{1}{}{{{{{{{}{}{}{{{}{}{}{}");
+        MMSystem.out.println("}{1}{}{{{{{{{}{}{}{{{}{}{}{}");
         View view = inflater.inflate(R.layout.fragment_ge_region_fx, container, false);
 
-        flWrapper = (FrameLayout) view.findViewById(R.id.rfx_wrapper);
-        gifImageView = (GifImageView) view.findViewById(R.id.regionFX_GifPlaceholder);
+        flWrapper = view.findViewById(R.id.rfx_wrapper);
+        gifImageView = view.findViewById(R.id.regionFX_GifPlaceholder);
         flWrapper.setAlpha(0);
         view.post(new Runnable() {
             @Override
@@ -52,7 +53,7 @@ public class RegionFX extends Fragment implements GroundEvents {
             _w = flWrapper.getWidth();
             _h = flWrapper.getHeight();
 
-            System.out.println("}{3}{}{{{{{{{}{}{}{{{}{}{}{}" + _w);
+            MMSystem.out.println("}{3}{}{{{{{{{}{}{}{{{}{}{}{}" + _w);
 
             try {
 
@@ -83,14 +84,8 @@ public class RegionFX extends Fragment implements GroundEvents {
     @Override
     public void onStart() {
         super.onStart();
-//        if (txtLabel != null) {
-//            tv.setText(txtLabel);
-//        }
-//        if (txtButton != null) {
-//            btn.setText(txtButton);
-//        }
 
-        System.out.println("}{2}{}{{{{{{{}{}{}{{{}{}{}{}");
+        MMSystem.out.println("}{2}{}{{{{{{{}{}{}{{{}{}{}{}");
     }
 
 

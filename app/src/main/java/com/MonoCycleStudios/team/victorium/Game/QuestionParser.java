@@ -6,6 +6,7 @@ import com.MonoCycleStudios.team.victorium.Connection.Lobby;
 import com.MonoCycleStudios.team.victorium.Game.Enums.QuestionCategory;
 import com.MonoCycleStudios.team.victorium.Game.Enums.QuestionType;
 import com.MonoCycleStudios.team.victorium.R;
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -78,7 +79,7 @@ public class QuestionParser {
             e.printStackTrace();
         }
         questionColvo = QuestionParser.countLines(new File(context.getFilesDir(), question_filename));
-        System.out.println("magic happen?"+questionColvo);
+        MMSystem.out.println("magic happen?"+questionColvo);
     }
 
     public static Object[] getRandomQuestion(){

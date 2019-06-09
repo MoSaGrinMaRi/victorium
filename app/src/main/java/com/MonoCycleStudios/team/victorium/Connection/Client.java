@@ -6,13 +6,12 @@ import com.MonoCycleStudios.team.victorium.Connection.Enums.CommandType;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameCommandType;
 import com.MonoCycleStudios.team.victorium.Game.Game;
 import com.MonoCycleStudios.team.victorium.Game.Player;
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
 
 import java.net.*;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.NoSuchElementException;
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -52,9 +51,9 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
         addOutCommand(new MonoPackage(type, outCommand, params));
     }
     public void addOutCommand(MonoPackage monoPackage){
-        System.out.println(" - "+Client.getInstance().outCommand.size()+" - ");
+        MMSystem.out.println(" - "+Client.getInstance().outCommand.size()+" - ");
         outCommand.offer(monoPackage);
-        System.out.println(" - "+Client.getInstance().outCommand.size()+" - ");
+        MMSystem.out.println(" - "+Client.getInstance().outCommand.size()+" - ");
     }
 
     private static ObjectInputStream oin;
@@ -62,24 +61,24 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
 
     @Override
     protected void onPreExecute() {
-        System.out.println("[=2.0=].................");
+        MMSystem.out.println("[=2.0=].................");
     }
 
     @Override
     protected Void doInBackground(String... params) {
 
-        System.out.println("=!= "+Lobby.getMyLocalIP());
+        MMSystem.out.println("=!= "+Lobby.getMyLocalIP());
         if(params.length != 0) {
-            System.out.println("=!= "+Lobby.getMyLocalIP());
+            MMSystem.out.println("=!= "+Lobby.getMyLocalIP());
             address = params[0].startsWith("192.168.") ? params[0] : Lobby.getMyLocalIP();
             playerName = params[1];
         }else{
             return null;
         }
 
-        System.out.println("[=2.3=].................");
+        MMSystem.out.println("[=2.3=].................");
 
-        System.out.println("[=2.4=].................");
+        MMSystem.out.println("[=2.4=].................");
         InetAddress ipAddress = null;
         try {
             ipAddress = InetAddress.getByName(address);
@@ -87,14 +86,14 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
             e.printStackTrace();
         }
 
-        System.out.println("[=2.5=].................");
-        System.out.println("Any of you heard of a socket with IP address " + address + " and port " + port + "?");
+        MMSystem.out.println("[=2.5=].................");
+        MMSystem.out.println("Any of you heard of a socket with IP address " + address + " and port " + port + "?");
         try {
             socket = new Socket(ipAddress, port);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Yes! I just connected!");
+        MMSystem.out.println("Yes! I just connected!");
 
 /**
  *                 [!] All OBJECTS u'll sent, SHOULD BE Serializable
@@ -121,7 +120,7 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
             return null;
         }
 
-        System.out.println("Yes! I just connected!2");
+        MMSystem.out.println("Yes! I just connected!2");
 
         InputStreamWaiter isw = new InputStreamWaiter();
         Thread tisw = new Thread(isw);
@@ -137,7 +136,7 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
             return null;
         }
 
-        System.out.println("Yes! I just connected!3");
+        MMSystem.out.println("Yes! I just connected!3");
 
         while (!isCancelled()) {
 
@@ -146,7 +145,7 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
                     MonoPackage command = null;
 
                     try {
-                        System.out.println("Out[C] " + outCommand.size());
+                        MMSystem.out.println("Out[C] " + outCommand.size());
                         command = outCommand.poll();
                     } catch (NullPointerException npe) {
                         npe.printStackTrace();
@@ -182,7 +181,7 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
     private void processData(MonoPackage monoPackage){
         if(monoPackage == null){return;}
         if((CommandType.getTypeOf(monoPackage.descOfObject)) != CommandType.NONE){
-            System.out.println("?SA?D?AS?AS?ASD?AD? + " + monoPackage.fullToString());
+            MMSystem.out.println("?SA?D?AS?AS?ASD?AD? + " + monoPackage.fullToString());
             if((CommandType.getTypeOf(monoPackage.descOfObject)) == CommandType.PING)
                 addOutCommand(monoPackage);
             else
@@ -207,7 +206,7 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
                     Lobby.statusUpdate("[C] got: " + monoPackage.obj);
                 }break;
                 case STARTGAME:{
-                    System.out.println("?SA?D?AS?AS?ASD?AD?");
+                    MMSystem.out.println("?SA?D?AS?AS?ASD?AD?");
                     Lobby.gameMapName = monoPackage.obj.toString();
                     Lobby.startGameActivity();
                 }break;
@@ -240,7 +239,7 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
         } catch (IOException e) {
             e.printStackTrace();
 
-        }System.out.println("[C]OnPostExec");
+        }MMSystem.out.println("[C]OnPostExec");
     }
 
     @Override
@@ -257,7 +256,7 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
 
         instance = null;
 
-        System.out.println("[C]OnCancel");
+        MMSystem.out.println("[C]OnCancel");
     }
 
     private class InputStreamWaiter implements Runnable{
@@ -275,7 +274,7 @@ public class Client extends AsyncTask<String, MonoPackage, Void> {
                     synchronized (objReceived) {
                         objReceived.offer(monoPackage);
                     }
-                    System.out.println("[][][1] " + monoPackage);
+                    MMSystem.out.println("[][][1] " + monoPackage);
                 } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
                     c.cancel(true);

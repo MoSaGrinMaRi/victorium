@@ -12,6 +12,7 @@ import com.MonoCycleStudios.team.victorium.Game.Enums.GameFragments;
 import com.MonoCycleStudios.team.victorium.Game.Enums.PlayerState;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.Ground;
 import com.MonoCycleStudios.team.victorium.widget.MyCountDownTimer;
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,7 +86,7 @@ public class GameRule {
 
     private static void incrementTick(boolean isNextCard){
         tick++;
-        System.out.println("[][1][]" + tick + " | " + isFirstHalf);
+        MMSystem.out.println("[][1][]" + tick + " | " + isFirstHalf);
 
         if(( !isFirstHalf && tick >= (24 - Game.getInstance().playersNumber)*3 ) || isFinished){
             isFinished = true;
@@ -125,7 +126,7 @@ public class GameRule {
         if(remainingPlayers == 1)
             isFinished = true;
 
-        System.out.println("tyuio4 "+ activePlayer + " " +activePlayer.getPlayerState() + " " + activePlayer.getPlayerState().equals(PlayerState.DEFEAT));
+        MMSystem.out.println("tyuio4 "+ activePlayer + " " +activePlayer.getPlayerState() + " " + activePlayer.getPlayerState().equals(PlayerState.DEFEAT));
 //        if(activePlayer.getPlayerState().equals(PlayerState.DEFEAT)){
 //
 //            new Thread(new Runnable() {
@@ -151,7 +152,7 @@ public class GameRule {
     public static boolean check(Player p, String str, Object param){
         {
             if(str.equalsIgnoreCase(action[0])){
-                System.out.println("wow");
+                MMSystem.out.println("wow");
             }else if(str.equalsIgnoreCase(action[1])){  //  "hit region"
                 if(isFirstHalf) {
                     if (activePlayer.equals(p)) {
@@ -172,8 +173,8 @@ public class GameRule {
                 if(isFirstHalf) {
                     if (activePlayer.equals(p)) {
 
-                        System.out.println(activePlayer.toString());
-                        System.out.println(p.toString() + " []  " + param.toString());
+                        MMSystem.out.println(activePlayer.toString());
+                        MMSystem.out.println(p.toString() + " []  " + param.toString());
                         Client.getInstance().addOutCommand(
                                 GameCommandType.GAMERULE.getStr(), CommandType.GAMEDATA.getStr(),
                                 new MonoPackage("check", "required", new MonoPackage(str, param.toString(), p))
@@ -202,7 +203,7 @@ public class GameRule {
                     Client.getInstance().iPlayer.setPlayerState(PlayerState.SPEC);
             }else if(str.equalsIgnoreCase(action[6])){  //  "chose answer"
                 if(isFirstHalf) {
-                    System.out.println("well, nothing, for this part of game ¯\\_(ツ)_/¯");
+                    MMSystem.out.println("well, nothing, for this part of game ¯\\_(ツ)_/¯");
                 }else{
                     if (activePlayer.equals(p) || defencePlayer.equals(p)) {
                         Client.getInstance().addOutCommand(
@@ -227,7 +228,7 @@ public class GameRule {
     static void logic(Player p, String str, Object param){
         if(Game.isServer){
             if(str.equalsIgnoreCase(action[0])){
-                System.out.println("wow");
+                MMSystem.out.println("wow");
             }else if(str.equalsIgnoreCase(action[1])){
 
             }else if(str.equalsIgnoreCase(action[2])){
@@ -235,10 +236,10 @@ public class GameRule {
                 if(isFirstHalf) {
                     if (p.getPlayerID() != activePlayer.getPlayerID()) {
 
-                        System.out.println("Ho-rey21!");
+                        MMSystem.out.println("Ho-rey21!");
                     } else if (Ground.regions.get(Integer.parseInt((String) param)).owner == null) {
 
-                        System.out.println("Ho-rey22!");
+                        MMSystem.out.println("Ho-rey22!");
                         Ground.regions.get(Integer.parseInt((String) param)).owner = p;
 
                         Game.getInstance().useGameServer("all", null,
@@ -254,10 +255,10 @@ public class GameRule {
                 }else{
                     if (p.getPlayerID() != activePlayer.getPlayerID()) {
 
-                        System.out.println("Ho-rey21w!");
+                        MMSystem.out.println("Ho-rey21w!");
                     } else if (Ground.regions.get(Integer.parseInt((String) param)).owner != null) {
 
-                        System.out.println("Ho-rey22w!");
+                        MMSystem.out.println("Ho-rey22w!");
 //                        Ground.regions.get(Integer.parseInt((String) param)).owner = p;
 
                         Object[] newQuestion = QuestionParser.getRandomQuestion();
@@ -456,7 +457,7 @@ public class GameRule {
             for (Map.Entry entry : answers.entrySet()) {
                 Player key = (Player) entry.getKey();
                 Integer value = (Integer) entry.getValue();
-                System.out.println(key + " : " + value);
+                MMSystem.out.println(key + " : " + value);
                 if(question.checkAnswers(value))
                     winners.add(key);
             }
@@ -470,13 +471,13 @@ public class GameRule {
             }
 
             for (int a = 0; a <= 10; a++)
-            System.out.println("actions "+a+": "+action[a]);
+            MMSystem.out.println("actions "+a+": "+action[a]);
 
-            System.out.println("winners.size()" + winners.size());
+            MMSystem.out.println("winners.size()" + winners.size());
 
             if(winners.size() >= 2){
-                System.out.println("Well, we need to pop one more question \\0/");
-                System.out.println("Or check who faster");
+                MMSystem.out.println("Well, we need to pop one more question \\0/");
+                MMSystem.out.println("Or check who faster");
 
                 // Super system to check if one int larger then another /0\
 
@@ -500,7 +501,7 @@ public class GameRule {
                     new MonoPackage(GameCommandType.QUESTION.getStr(),CommandType.GAMEDATA.getStr(),
                             new MonoPackage("got answer","",p)));
 
-            System.out.println(" { "+isBothAnswered+" } " + p + " " + ind);
+            MMSystem.out.println(" { "+isBothAnswered+" } " + p + " " + ind);
         }
 
         void setTimeRunsOut(){

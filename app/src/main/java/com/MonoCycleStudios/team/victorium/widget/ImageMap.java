@@ -47,6 +47,7 @@ import com.MonoCycleStudios.team.victorium.Game.Fragments.Ground;
 import com.MonoCycleStudios.team.victorium.Game.GameRule;
 import com.MonoCycleStudios.team.victorium.Game.Region;
 import com.MonoCycleStudios.team.victorium.R;
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
 
 import org.jetbrains.annotations.NotNull;
 import org.xmlpull.v1.XmlPullParser;
@@ -678,7 +679,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 				if (resize) {
 					mResizeFactorX = ((float) newWidth / mImageWidth);
 					mResizeFactorY = ((float) newHeight / mImageHeight);
-					System.out.println(mMaxWidth + " / " + mMaxHeight + " / " + mMinWidth + " / " + mMinHeight +
+					MMSystem.out.println(mMaxWidth + " / " + mMaxHeight + " / " + mMinWidth + " / " + mMinHeight +
 							" / " + newWidth + " / " + newHeight + " / " + mViewWidth + " / " + mViewHeight + " / " + mResizeFactorX + " / " + mResizeFactorY);
 					//scaleBitmap(newWidth, newHeight);
 				} else {
@@ -690,7 +691,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 
 					mRightBound = 0;
 					mBottomBound = 0;
-					System.out.println(mMaxWidth + " / " + mMaxHeight + " / " + mMinWidth + " / " + mMinHeight +
+					MMSystem.out.println(mMaxWidth + " / " + mMaxHeight + " / " + mMinWidth + " / " + mMinHeight +
 							" / " + newWidth + " / " + newHeight + " / " + mViewWidth + " / " + mViewHeight + " / " + mRightBound + " / " + mBottomBound);
 
 				}
@@ -727,7 +728,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 			// try to create a new bitmap
 			// If you get a recycled bitmap exception here, check to make sure
 			// you are not setting the bitmap both from XML and in code
-			System.out.println( "[1]" + newWidth + " ][ " +
+			MMSystem.out.println( "[1]" + newWidth + " ][ " +
 					newHeight + " ][ " +
 					mExpandWidth + " ][ " +
 					mExpandHeight + " ][ " +
@@ -750,7 +751,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 
 				mRightBound = mExpandWidth>mViewWidth ? 0 - (mExpandWidth - mViewWidth) : 0;
 				mBottomBound = mExpandHeight>mViewHeight ? 0 - (mExpandHeight - mViewHeight) : 0;
-                System.out.println( "[2]" + newWidth + " ][ " +
+                MMSystem.out.println( "[2]" + newWidth + " ][ " +
 						newHeight + " ][ " +
 						mExpandWidth + " ][ " +
                         mExpandHeight + " ][ " +
@@ -1153,7 +1154,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 				int distanceChange=(int)(newDistance-mInitialDistance);
 				int delta=distanceChange-mLastDistanceChange;
 
-				System.out.println(mInitialDistance + " | " + delta + " | " + newDistance + " | " + mScrollTop + " | " + mScrollLeft + " | " + mResizeFactorX + " | " + mResizeFactorY);
+				MMSystem.out.println(mInitialDistance + " | " + delta + " | " + newDistance + " | " + mScrollTop + " | " + mScrollLeft + " | " + mResizeFactorX + " | " + mResizeFactorY);
 				if (Math.abs(delta)>mTouchSlop) {
 					mLastDistanceChange=distanceChange;
 					resizeBitmap(delta);
@@ -1512,7 +1513,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 				Ground.regions.add(newRG);
 			}
 
-//			System.out.println(" id = " + id);
+//			MMSystem.out.println(" id = " + id);
 
 			// split the list of coordinates into points of the
 			// polygon and compute a bounding box
@@ -1618,7 +1619,7 @@ public class ImageMap extends android.support.v7.widget.AppCompatImageView
 		@Override
 		public boolean isInArea(float testx, float testy)
 		{
-//			System.out.println("TEST: " + testx + "?"+testy + " !! " +_x +"?"+_y);
+//			MMSystem.out.println("TEST: " + testx + "?"+testy + " !! " +_x +"?"+_y);
 			int i, j;
 			boolean c = false;
 			for (i = 0, j = _points-1; i < _points; j = i++) {

@@ -18,6 +18,7 @@ import com.MonoCycleStudios.team.victorium.Game.Game;
 import com.MonoCycleStudios.team.victorium.Game.Player;
 import com.MonoCycleStudios.team.victorium.Game.Question;
 import com.MonoCycleStudios.team.victorium.R;
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
 
 import java.util.ArrayList;
 
@@ -43,11 +44,9 @@ public class QueueTurners extends Fragment {
         View view = inflater.inflate(R.layout.fragment_queueturns, container, false);
 
         ll = (LinearLayout) view.findViewById(R.id.pqtLinearLayout);
-        System.out.println("=-=-=" + playerArrayList.size());
+        MMSystem.out.println("=-=-=" + playerArrayList.size());
         for(int i = 1; i <= 23; i++){   // TEMP!!! 23 GLOBAL VAR REGION AMOUNT(25) - 2
-//            System.out.println("=-=1-=");
             Button tmpBtn = (Button) view.findViewWithTag("pqtBtn"+i);
-//            System.out.println("=-=2-="+tmpBtn);
             buttonArrayList.add(tmpBtn);
         }
         return view;
@@ -110,7 +109,7 @@ public class QueueTurners extends Fragment {
     }
 
     public void showNextCard(){
-        System.out.println("=+-" + cardIndex);
+        MMSystem.out.println("=+-" + cardIndex);
         cardIndex++;
         Animator set = AnimatorInflater.loadAnimator(getActivity(), R.animator.card_hide);
         if(cardIndex > 0) {

@@ -10,6 +10,7 @@ import com.MonoCycleStudios.team.victorium.Game.Enums.GameCommandType;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameState;
 import com.MonoCycleStudios.team.victorium.Game.Game;
 import com.MonoCycleStudios.team.victorium.Game.Player;
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
 
 import java.net.*;
 import java.io.*;
@@ -41,7 +42,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
         try {
             if(Lobby.getMyLocalIP() == null) { return null; }
             serverSocket = new ServerSocket(Lobby.gPort);
-            System.out.println("Initialized");
+            MMSystem.out.println("Initialized");
 
             while (islisten || connectionList.size() <= Lobby.MAX_PLAYERS || !isCancelled()) {
                 connection = new ServerTread();
@@ -52,14 +53,14 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
 //                connection.getSocket().setKeepAlive(true);
                 publishProgress(new MonoPackage("[exe]",CommandType.RDATA.getStr(),""));
             }
-            System.out.println("-0-0-0-0-0-0-0-0-");
+            MMSystem.out.println("-0-0-0-0-0-0-0-0-");
             while(isObjWaiter || !isCancelled()){
                 Queue<MonoPackage> qmp = null;
                 for(int i = 0; i < connectionList.size(); i++){
                     if((qmp = connectionList.get(i).getObjToServer()).size() > 0){
                         for(int j = 0; j < qmp.size(); j++) {
                             MonoPackage pck = qmp.poll();
-                            System.out.println("12345678909999");
+                            MMSystem.out.println("12345678909999");
                             switch (CommandType.getTypeOf(pck.descOfObject)) {
                                 case GAMEDATA: {
                                     switch (GameCommandType.getTypeOf(pck.typeOfObject)) {
@@ -70,7 +71,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
                                         case QUESTION:
                                         case ALERT:
                                         case REGIONS:{
-                                            System.out.println("123456789098765");
+                                            MMSystem.out.println("123456789098765");
                                             Game.getInstance().commandProcess(pck);
                                         }
                                     }
@@ -85,7 +86,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
             System.err.println("Could not listen on port " + Lobby.gPort);
             ioe.printStackTrace();
         } catch(Exception x) {
-            System.out.println("We got an EXCEPTION, OH NO :c");
+            MMSystem.out.println("We got an EXCEPTION, OH NO :c");
             x.printStackTrace();
         }
         return null;
@@ -160,7 +161,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
             while (iter.hasNext()){
                 ServerTread st = iter.next();
 
-                System.out.println(st.toString() + " \" " + st.oPing  + " \" " + st.isMarkedToRemove);
+                MMSystem.out.println(st.toString() + " \" " + st.oPing  + " \" " + st.isMarkedToRemove);
                 if(st.oPing == -1){
                     if(st.isMarkedToRemove){
                         listToRemove.add(st);
@@ -204,7 +205,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
     public void notifyPlayer(Player p, MonoPackage command) {
         ServerTread st = findClient(p);
 
-        System.out.println("1234 st=" + st);
+        MMSystem.out.println("1234 st=" + st);
         if(st != null){
             notifyClient(st, command);
         }
@@ -216,12 +217,12 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
     public void notifyClient(ServerTread st, MonoPackage command) {
         switch (CommandType.getTypeOf(command.descOfObject)) {
             case STARTGAME: {
-                System.out.println(st.myPlayer.getPlayerName() + "setPlaying True");
+                MMSystem.out.println(st.myPlayer.getPlayerName() + "setPlaying True");
                 st.setPlaying(true, command.obj.toString());
             }break;
             case NEWPLAYER:{
                 if(st.myPlayer != null) {
-                    System.out.println("trying send List to " + st.myPlayer.getPlayerName() + " " + st.myPlayer.getPlayerID());
+                    MMSystem.out.println("trying send List to " + st.myPlayer.getPlayerName() + " " + st.myPlayer.getPlayerID());
                     st.setOutCommand("ArrayList", CommandType.PLAYERSDATA.getStr(), Lobby.playerArrayList);
                 }else{
                     Toast.makeText(Lobby.thisActivity.getApplicationContext(), "S1 tried to connect, but smth happened", Toast.LENGTH_SHORT).show();
@@ -231,31 +232,31 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
                 st.setOutCommand(command.typeOfObject,command.descOfObject,command.obj);
             }break;
             default: {
-                System.out.println("Smth went wrong. Command '" + command.fullToString() + "' didn't recognized.");
+                MMSystem.out.println("Smth went wrong. Command '" + command.fullToString() + "' didn't recognized.");
             }
         }
     }
 
     @Override
     protected void onPostExecute(Void aVoid) {
-        System.out.println("[S]OnPostExecute");
+        MMSystem.out.println("[S]OnPostExecute");
     }
 
     public void cancelChild(){
-        System.out.println("[S]onCancelChild");
+        MMSystem.out.println("[S]onCancelChild");
         if (connectionList != null && !connectionList.isEmpty()) {
-            System.out.println(connectionList.get(0).getStatus());
+            MMSystem.out.println(connectionList.get(0).getStatus());
 
             for (ServerTread i : connectionList) {
                 i.inputStreamCancel();
                 i.cancel(true);
             }
-            System.out.println(connectionList.get(0).getStatus());
+            MMSystem.out.println(connectionList.get(0).getStatus());
         }
     }
 
     public void stopListening(boolean isCompletely){
-        System.out.println("[S]onStopListening");
+        MMSystem.out.println("[S]onStopListening");
         islisten = false;
         if(isCompletely){
             try {
@@ -270,9 +271,9 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
                 @Override
                 public void run() {
                     try {
-                        System.out.println("-9-9-9-");
+                        MMSystem.out.println("-9-9-9-");
                         Socket tmpSock = new Socket(Lobby.getMyLocalIP(), Lobby.gPort);
-                        System.out.println("-8-8-8-");
+                        MMSystem.out.println("-8-8-8-");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -285,7 +286,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
 
     @Override
     protected void onCancelled() {
-        System.out.println("[S]OnCancel");
+        MMSystem.out.println("[S]OnCancel");
         islisten = false;
         connectionList = null;
         super.onCancelled();
@@ -306,7 +307,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
             this.listening = listening;
         }
         void setPlaying(boolean playing, String gamemapName){
-            System.out.println("[St]Setting out command to start");
+            MMSystem.out.println("[St]Setting out command to start");
             setOutCommand("String", "[startGame]", gamemapName);
             this.playing = playing;
         }
@@ -401,7 +402,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
                                     MonoPackage command = null;
 
                                     try {
-                                        System.out.println("Out[St] " + outCommand.size());
+                                        MMSystem.out.println("Out[St] " + outCommand.size());
                                         command = outCommand.poll();
                                     } catch (NullPointerException | NoSuchElementException npe) {
                                         npe.printStackTrace();
@@ -420,14 +421,14 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
                             }
                         }
                     }
-                    System.out.println("[2.2.4]");
+                    MMSystem.out.println("[2.2.4]");
 //                if (playing) {
 ////                    oout.writeByte(1);
 //                    oout.writeObject(new MonoPackage("String", "[startGame]", null));
 //                    oout.flush();
 //                }
 //                while (playing || !isCancelled()) {
-//                    System.out.println("[2.2.5]");
+//                    MMSystem.out.println("[2.2.5]");
 //                }
                 }
                 assert socket != null;
@@ -442,7 +443,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
         private void processData(MonoPackage monoPackage){
             if(monoPackage == null){return;}    //  strange but smtm happen
             if(monoPackage.descOfObject.equalsIgnoreCase("[rData]")){
-                System.out.println("[St] got: " + monoPackage.fullToString());
+                MMSystem.out.println("[St] got: " + monoPackage.fullToString());
                 outCommand.offer(monoPackage);
             }else{
                 publishProgress(monoPackage);
@@ -452,7 +453,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
         @Override
         protected void onProgressUpdate(MonoPackage... packages){
             if (packages.length != 0) {
-                System.out.println("-=[St] receive=-" + packages[0].fullToString());
+                MMSystem.out.println("-=[St] receive=-" + packages[0].fullToString());
                 switch (CommandType.getTypeOf(packages[0].descOfObject)) {
                     case NEWPLAYER: {
 //                            // TEMP!!!! Adding trice to locate more zones
@@ -467,7 +468,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
 
                         MonoPackage mpTMP = new MonoPackage("Player",CommandType.NEWPLAYER.getStr(),myPlayer);
                         if (!outCommand.offer(mpTMP)) {   //  [Log error]
-                            System.out.println("Error on adding outCommand " + mpTMP.fullToString());
+                            MMSystem.out.println("Error on adding outCommand " + mpTMP.fullToString());
                         }
 
                         Server.this.notifyAllClients(new MonoPackage("",CommandType.NEWPLAYER.getStr(),null));
@@ -475,20 +476,20 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
                     }
                     break;
                     case GAMEDATA: {
-                        System.out.println("1234567890987654321");
+                        MMSystem.out.println("1234567890987654321");
                         setObjToServer(packages[0]);
                     }break;
                     case PING:{
                         oPing = System.currentTimeMillis() - (Long)packages[0].obj;
-                        System.out.println(oPing);
+                        MMSystem.out.println(oPing);
                     }break;
                 }
-                System.out.println("[=!S!=] get " + packages[0].obj.toString() + ".................");
+                MMSystem.out.println("[=!S!=] get " + packages[0].obj.toString() + ".................");
             }
         }
 
         void inputStreamCancel(){
-            System.out.println("[St]onInputStreamCancel");
+            MMSystem.out.println("[St]onInputStreamCancel");
             listening = false;
             try {
                 oin.close();
@@ -500,7 +501,7 @@ public class Server extends AsyncTask<String, MonoPackage, Void> {
 
         @Override
         protected void onCancelled() {
-            System.out.println("[St]onCancel");
+            MMSystem.out.println("[St]onCancel");
             listening = false;
 
             try {

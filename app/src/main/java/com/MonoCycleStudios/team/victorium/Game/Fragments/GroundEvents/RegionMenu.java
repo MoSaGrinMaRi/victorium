@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.MonoCycleStudios.team.victorium.Game.Enums.GameFragments;
 import com.MonoCycleStudios.team.victorium.Game.Game;
 import com.MonoCycleStudios.team.victorium.R;
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
 
 import java.lang.reflect.Field;
 
@@ -49,16 +50,16 @@ public class RegionMenu extends Fragment implements GroundEvents {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        System.out.println("}{1}{}{{{{{{{}{}{}{{{}{}{}{}");
+        MMSystem.out.println("}{1}{}{{{{{{{}{}{}{{{}{}{}{}");
         View view = inflater.inflate(R.layout.fragment_ge_region_menu, container, false);
 
-        tv = (TextView) view.findViewById(R.id.tvCost);
-        btn = (Button) view.findViewById(R.id.btnAction);
+        tv = view.findViewById(R.id.tvCost);
+        btn = view.findViewById(R.id.btnAction);
 
-        arrow = (Button) view.findViewById(R.id.arrow);
-        llm = (LinearLayout) view.findViewById(R.id.llMenu);
+        arrow = view.findViewById(R.id.arrow);
+        llm = view.findViewById(R.id.llMenu);
 
-        flWrapper = (FrameLayout) view.findViewById(R.id.rm_wrapper);
+        flWrapper = view.findViewById(R.id.rm_wrapper);
         flWrapper.setAlpha(0);
         view.post(new Runnable() {
             @Override
@@ -67,7 +68,7 @@ public class RegionMenu extends Fragment implements GroundEvents {
                 _w = flWrapper.getWidth();
                 _h = flWrapper.getHeight();
 
-                System.out.println("}{3}{}{{{{{{{}{}{}{{{}{}{}{}" + _w);
+                MMSystem.out.println("}{3}{}{{{{{{{}{}{}{{{}{}{}{}" + _w);
 
                 Game.getInstance().showFragment(GameFragments.GROUND_EVENT, getFragment(), "update");
                 flWrapper.setAlpha(1);
@@ -92,7 +93,7 @@ public class RegionMenu extends Fragment implements GroundEvents {
         _w = flWrapper.getWidth();
         _h = flWrapper.getHeight();
 
-        System.out.println("}{3}{}{{{{{{{}{}{}{{{}{}{}{}" + _w);
+        MMSystem.out.println("}{3}{}{{{{{{{}{}{}{{{}{}{}{}" + _w);
 
 //        Game.getInstance().showFragment(GameFragments.GROUND_EVENT, getFragment(), "update");
 //        flWrapper.setAlpha(1);
@@ -108,7 +109,7 @@ public class RegionMenu extends Fragment implements GroundEvents {
             btn.setText(txtButton);
         }
 
-        System.out.println("}{2}{}{{{{{{{}{}{}{{{}{}{}{}");
+        MMSystem.out.println("}{2}{}{{{{{{{}{}{}{{{}{}{}{}");
 //        Game.getInstance().showFragment(GameFragments.GROUND_EVENT, this, "update");
 
     }
@@ -128,9 +129,7 @@ public class RegionMenu extends Fragment implements GroundEvents {
             childFragmentManager.setAccessible(true);
             childFragmentManager.set(this, null);
 
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }

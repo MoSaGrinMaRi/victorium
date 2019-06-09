@@ -1,5 +1,7 @@
 package com.MonoCycleStudios.team.victorium.Game.Enums;
 
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
+
 public enum GameCommandType {
     NONE("[none]"),
     URGAMESTATUS("[urGameStatus]"),
@@ -22,7 +24,7 @@ public enum GameCommandType {
     }
     public static GameCommandType getTypeOf(String command) {
         for (GameCommandType i : GameCommandType.values()) {
-            System.out.println("(E)[CT]" + command + " =?= " + i.stringValue.toLowerCase() + " -=- " + command.equalsIgnoreCase(i.stringValue.toLowerCase()) + i);
+            MMSystem.out.println("(E)[CT]" + command + " =?= " + i.stringValue.toLowerCase() + " -=- " + command.equalsIgnoreCase(i.stringValue.toLowerCase()) + i);
             if(command.equalsIgnoreCase(i.stringValue.toLowerCase()))
                 return i;
         }

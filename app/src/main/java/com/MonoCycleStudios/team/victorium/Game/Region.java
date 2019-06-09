@@ -11,6 +11,7 @@ import com.MonoCycleStudios.team.victorium.Game.Enums.GameCommandType;
 import com.MonoCycleStudios.team.victorium.Game.Enums.PlayerState;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.Ground;
 import com.MonoCycleStudios.team.victorium.R;
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class Region implements Serializable{
     public int currentHP = -1;
     public Player owner;
     private int cost;
-//    private AndroidImageMap rgBorder;     // now sure about it
+
     private ArrayList<Region> neighbourhoods = new ArrayList<>();
     private String[] neighbourhoodsID;
     private transient Bitmap pawnBitmap;
@@ -35,7 +36,7 @@ public class Region implements Serializable{
     public boolean isActive = true;
     public boolean isInteractive = true;
 
-    public Region(int id, int mapID, boolean isBase, Player owner, int cost/*, AndroidImageMap rgBorder*/){
+    public Region(int id, int mapID, boolean isBase, Player owner, int cost){
         this.id = id;
         this.mapID = mapID;
         this.isBase = isBase;
@@ -44,8 +45,7 @@ public class Region implements Serializable{
         this.cost = cost;
 
         if(owner != null)
-            System.out.println("tyuio1 "+ owner + " " +owner.getPlayerState());
-//        this.rgBorder = rgBorder;
+            MMSystem.out.println("tyuio1 "+ owner + " " +owner.getPlayerState());
     }
 
     public void update(Player newOwner/*, int newCost*/){
@@ -123,42 +123,33 @@ public class Region implements Serializable{
         int frameCountX = 0;    //  MAX = 3; Only 3 different type
         int frameCountY = 0;    //  MAX = 2; Only 2 different color for each
 
-//        int resource = -1;
         switch (ch.getColor()){
             case RED:
-//                resource = R.drawable.man_red;
                 frameCountX = 0;
                 frameCountY = 0;
                 break;
             case BLUE:
-//                resource = R.drawable.wizard_blue;
                 frameCountX = 1;
                 frameCountY = 0;
                 break;
             case ORANGE:
-//                resource = R.drawable.warrior_orange;
                 frameCountX = 2;
                 frameCountY = 0;
                 break;
             case GREEN:
-//                resource = R.drawable.man_green;
                 frameCountX = 0;
                 frameCountY = 1;
                 break;
             case BLACK:
-//                resource = R.drawable.wizard_dark;
                 frameCountX = 1;
                 frameCountY = 1;
                 break;
             case PURPLE:
-//                resource = R.drawable.warrior_purple;
                 frameCountX = 2;
                 frameCountY = 1;
                 break;
 
         }
-//        pawnBitmap = BitmapFactory.decodeResource(Game.getInstance().getApplicationContext().getResources(), resource);
-//        pawnBitmap = Bitmap.createScaledBitmap(pawnBitmap, pawnBitmap.getWidth() / 24, pawnBitmap.getHeight() / 24, true);
 
         this.pawnBitmap = Bitmap.createBitmap(Game.pawnAtlas,
                 frameWidth * frameCountX,
@@ -172,60 +163,46 @@ public class Region implements Serializable{
         int frameCountX = 0;    //  MAX = 4; Only 4 castle state
         int frameCountY = 0;    //  MAX = Lobby.MAX_PLAYERS; Only 6 players can play
 
-//        int resource = R.drawable.castle_atlas;
         switch (ch.getColor()){
             case RED:
                 frameCountY = 0;
-//                resource = R.drawable.castle_b;
                 break;
             case BLUE:
                 frameCountY = 1;
-//                resource = R.drawable.castle_b;
                 break;
             case ORANGE:
                 frameCountY = 2;
-//                resource = R.drawable.castle_b;
                 break;
             case GREEN:
                 frameCountY = 3;
-//                resource = R.drawable.castle_b;
                 break;
             case BLACK:
                 frameCountY = 4;
-//                resource = R.drawable.castle_b;
                 break;
             case PURPLE:
                 frameCountY = 5;
-//                resource = R.drawable.castle_b;
                 break;
         }
         switch (isBaseDestroyed ? 0 : currentHP){
             case 3:
                 frameCountX = 0;
-//                resource = R.drawable.castle_dst1_b;
-            break;
+                break;
             case 2:
                 frameCountX = 1;
-//                resource = R.drawable.castle_dst1_b;
                 break;
             case 1:
                 frameCountX = 2;
-//                resource = R.drawable.castle_dst2_b;
                 break;
             case 0:
                 frameCountX = 3;
-//                resource = R.drawable.castle_dst3_b;
                 break;
         }
 
-        //  TEMP !!! V move to some GameSetting or some, since a lot of allocation
-//        this.baseBitmap = BitmapFactory.decodeResource(Game.getInstance().getApplicationContext().getResources(), Game.castleAtlas);
         this.baseBitmap = Bitmap.createBitmap(Game.castleAtlas,
                 frameWidth * frameCountX,
                 frameHeight * frameCountY,
                 frameWidth,
                 frameHeight);
-//        this.baseBitmap = Bitmap.createScaledBitmap(baseBitmap, baseBitmap.getWidth() / 32, baseBitmap.getHeight() / 32, true);
     }
     public void setBitmaps(){
         if(owner != null)
@@ -245,7 +222,7 @@ public class Region implements Serializable{
     }
 
     public void computeNeighbourhoods(ArrayList<Region> allRegion){
-        System.out.println("neighbourhoodsID"+Arrays.toString(neighbourhoodsID));
+        MMSystem.out.println("neighbourhoodsID"+Arrays.toString(neighbourhoodsID));
         for(String s : neighbourhoodsID){
             neighbourhoods.add(
                     allRegion.get(Integer.parseInt(s))

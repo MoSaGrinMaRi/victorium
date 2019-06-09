@@ -12,10 +12,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.MonoCycleStudios.team.victorium.Connection.Lobby;
 import com.MonoCycleStudios.team.victorium.widget.Utils.FontFamily;
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
 
 import java.util.Random;
 
@@ -28,32 +30,24 @@ public class MainActivity extends AppCompatActivity {
     public static Bitmap avatarAtlas;
     int frameWidth = 316;
     int frameHeight = 316;
-//    Spinner spinner;
-//    String selected;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         overridePendingTransition(R.animator.slideout_bottom, R.animator.slidein_top);
-//
-//        overridePendingTransition(R.animator.slidein_left, R.animator.slidein_left);
 
-        tvUN = (EditText)findViewById(R.id.InpUserNickname);
+        tvUN = findViewById(R.id.InpUserNickname);
         tvUN.setText(tvUN.getText() + " #" + (new Random().nextInt((99 - 10) + 1) + 10));
 
-//        spinner = (Spinner) findViewById(R.id.ConnectionType);
-//        selected = spinner.getSelectedItem().toString();
-//        Toast.makeText(getApplicationContext(), selected, Toast.LENGTH_SHORT).show();
+        Button btnCreate = findViewById(R.id.BtnCreateGame);
+        Button btnFind = findViewById(R.id.BtnFindGame);
 
-        Button btnCreate = (Button)findViewById(R.id.BtnCreateGame);
-        Button btnFind = (Button)findViewById(R.id.BtnFindGame);
-//        Button btnLink = (Button)findViewById(R.id.BtnLinkProfile);
-
-        btnCreate.setTypeface(FontFamily.raleway_sb);
-        btnFind.setTypeface(FontFamily.raleway_sb);
-        tvUN.setTypeface(FontFamily.raleway_sb);
-//        btnLink.setTypeface(FontFamily.raleway_sb);
+        TextView title = findViewById(R.id.title);
+        title.setTypeface(FontFamily.hammers_r);
+        btnCreate.setTypeface(FontFamily.hammers_r);
+        btnFind.setTypeface(FontFamily.hammers_r);
+        tvUN.setTypeface(FontFamily.hammers_r);
 
         bmo.inScaled = true;
 //        bmo.inSampleSize = 32;
@@ -69,18 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
         intent = new Intent(this, Lobby.class);
 
-        ImageView loco = (ImageView) findViewById(R.id.imageView5);
-        loco.setOnClickListener(new View.OnClickListener() {
-            boolean isFirstLoco = false;
-            @Override
-            public void onClick(View v) {
-                isFirstLoco = !isFirstLoco;
-                int drawableID = isFirstLoco ? R.drawable.victorium_loco_1 : R.drawable.victorium_loco_1_2;
-                ((ImageView) findViewById(R.id.imageView5)).setImageDrawable(v.getContext().getDrawable(drawableID));
-            }
-        });
-
-        ImageView pic = (ImageView) findViewById(R.id.imageView2);
+        ImageView pic = findViewById(R.id.imageView2);
         pic.setOnClickListener(new View.OnClickListener() {
             int frameCountX = 0;    //  MAX = 6; Only 6 player
             @Override
@@ -89,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                     frameCountX = 0;
                 }
 
-                ((ImageView) findViewById(R.id.imageView2)).setImageBitmap(Bitmap.createBitmap(avatarAtlas, //Lobby.flagAtlas
+                ((ImageView) findViewById(R.id.imageView2)).setImageBitmap(Bitmap.createBitmap(avatarAtlas,
                         frameWidth * frameCountX,
                         0,
                         frameWidth,
@@ -107,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
-                    System.out.println("User name is: '" + tvUN.getText().toString() + "'");
+                    MMSystem.out.println("User name is: '" + tvUN.getText().toString() + "'");
 
                     Lobby myLobby = new Lobby();
                     myLobby.setConfig(true, tvUN.getText().toString());
@@ -123,17 +106,13 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
-                System.out.println("User name is: '" + tvUN.getText().toString() + "'");
+                MMSystem.out.println("User name is: '" + tvUN.getText().toString() + "'");
 
                 Lobby myLobby = new Lobby();
                 myLobby.setConfig(false, tvUN.getText().toString());
             }
         });
 
-    }
-
-    ActivityOptionsCompat setAO(View v){
-        return ActivityOptionsCompat.makeSceneTransitionAnimation(this, v, "sharedGameBack");
     }
 
     @Override

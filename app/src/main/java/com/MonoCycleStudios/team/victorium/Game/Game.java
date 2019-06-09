@@ -42,6 +42,7 @@ import com.MonoCycleStudios.team.victorium.Game.Fragments.Questioner;
 import com.MonoCycleStudios.team.victorium.Game.Fragments.QueueTurners;
 import com.MonoCycleStudios.team.victorium.R;
 import com.MonoCycleStudios.team.victorium.widget.MyCountDownTimer;
+import com.MonoCycleStudios.team.victorium.widget.Utils.MMSystem;
 
 import org.w3c.dom.Text;
 
@@ -98,16 +99,16 @@ public class Game extends AppCompatActivity {
 
         showFragment(GameFragments.GROUND_EVENT);
 
-        rl = (RelativeLayout) findViewById(R.id.connectionRl);
+        rl = findViewById(R.id.connectionRl);
 
-        tv = (TextView) findViewById(R.id.textView2);
+        tv = findViewById(R.id.textView2);
 
-        lv = (ListView) findViewById(R.id.connectionsListView_2);
+        lv = findViewById(R.id.connectionsListView_2);
         lv.setAdapter(Lobby.adapter);
         lv.setDivider(null);
 //        Lobby.forceREUpdateAdapter();
 
-        btn = (Button) findViewById(R.id.connectionToggleBtn);
+        btn = findViewById(R.id.connectionToggleBtn);
         btn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick (View v){
@@ -130,7 +131,7 @@ public class Game extends AppCompatActivity {
             }
         });
 
-        System.out.println(gameState + " [=] " + gameServer);
+        MMSystem.out.println(gameState + " [=] " + gameServer);
         if(gameState == GameState.WAITING_FOR_START && gameServer != null){
             new GamePrepare().start();
         }
@@ -158,7 +159,7 @@ public class Game extends AppCompatActivity {
         bmo.inTargetDensity = (522/2);//(1566/6); //  x2 in drawing
         pawnAtlas = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.pawn_atlas, bmo);
 
-        System.out.println("YEEEEEEE=================EEEEY!" + gameServer);
+        MMSystem.out.println("YEEEEEEE=================EEEEY!" + gameServer);
         if(gameServer != null) {
             gameCore = new GameCore();
             gameCore.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -216,9 +217,9 @@ public class Game extends AppCompatActivity {
     TimeDisplacer fragment3;
     public GroundEvent fragment4;
     public void showFragment(GameFragments gf, Object... obj) {
-        System.out.println("====================================================");
-        System.out.println("We got " + gf.getStr() + " and " + obj.toString());
-        System.out.println("====================================================");
+        MMSystem.out.println("====================================================");
+        MMSystem.out.println("We got " + gf.getStr() + " and " + obj.toString());
+        MMSystem.out.println("====================================================");
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
 
@@ -232,7 +233,7 @@ public class Game extends AppCompatActivity {
                         ft.commit();
                     }
                 }else if(obj != null && obj.length > 1){
-                        System.out.println("4567890 "+obj[0]);
+                        MMSystem.out.println("4567890 "+obj[0]);
 
                         if(((String)obj[1]).equalsIgnoreCase("add"))
                             fragment4.addView((GroundEvents) obj[0],-1);
@@ -368,7 +369,7 @@ public class Game extends AppCompatActivity {
     }
 
     public void commandProcess(MonoPackage monoPackage){
-        System.out.println("1234567890");
+        MMSystem.out.println("1234567890");
         switch (GameCommandType.getTypeOf(monoPackage.getTypeOfObject())) {
             case WAITFORPLAYERS: {
                 showFragment(GameFragments.NOTIFY, "We are all waiting.. sry");
@@ -390,7 +391,7 @@ public class Game extends AppCompatActivity {
                 MonoPackage tmp = (MonoPackage)monoPackage.getObj();
                 switch(tmp.getTypeOfObject()){
                     case "set":{
-                        System.out.println("ddd" + tmp.getObj());
+                        MMSystem.out.println("ddd" + tmp.getObj());
                         gameGround.setRegions((ArrayList<Region>)tmp.getObj());
 
                         showFragment(GameFragments.TIMER, 6000, 16*(Client.iPlayer.getPlayerID()*2+1));
@@ -429,7 +430,7 @@ public class Game extends AppCompatActivity {
                             y = Integer.parseInt(coords[1]);
                             rfx.setPosition(x, y);
 
-                            System.out.println("567890- " + x + " " + y);
+                            MMSystem.out.println("567890- " + x + " " + y);
 //                            Game.getInstance().showFragment(GameFragments.GROUND_EVENT, rfx, "remove", "all");
                             Game.getInstance().showFragment(GameFragments.GROUND_EVENT, rfx, "add");
 
@@ -463,12 +464,12 @@ public class Game extends AppCompatActivity {
 //                        else
 //                            Game.getInstance().showFragment(GameFragments.ALERT, p.getPlayerName() + " lost " + score , 2);
 
-                        System.out.println("[2][][] "+ p.getPlayerScore() + p.getPlayerName() );
+                        MMSystem.out.println("[2][][] "+ p.getPlayerScore() + p.getPlayerName() );
 
                         Lobby.forceREUpdateAdapter();
                         lv.setAdapter(Lobby.adapter);
 
-                        System.out.println("[3][][] "+ p.getPlayerScore() + p.getPlayerName() );
+                        MMSystem.out.println("[3][][] "+ p.getPlayerScore() + p.getPlayerName() );
 
                     }
                 }
@@ -492,7 +493,7 @@ public class Game extends AppCompatActivity {
                 showFragment(GameFragments.ALERT, monoPackage.getObj(), 3);
             }break;
             case GAMERULE:{
-                System.out.println("Ho-rey!-1" + ((MonoPackage)monoPackage.getObj()).getTypeOfObject());
+                MMSystem.out.println("Ho-rey!-1" + ((MonoPackage)monoPackage.getObj()).getTypeOfObject());
                 switch(((MonoPackage)monoPackage.getObj()).getTypeOfObject()){
                     case "update":{
                         MonoPackage tmp = (MonoPackage)((MonoPackage)monoPackage.getObj()).getObj();
@@ -523,14 +524,14 @@ public class Game extends AppCompatActivity {
                     case "check":{
                         if(((MonoPackage)monoPackage.getObj()).getDescOfObject().equalsIgnoreCase("required")){
                             MonoPackage tmp = (MonoPackage)((MonoPackage)monoPackage.getObj()).getObj();
-                            System.out.println("Ho-rey!");
+                            MMSystem.out.println("Ho-rey!");
                             GameRule.logic(
                                     (Player) tmp.getObj(),
                                     tmp.getTypeOfObject(),
                                     tmp.getDescOfObject()
                             );
                         }else{
-                            System.out.println("Ho-rey!-2");
+                            MMSystem.out.println("Ho-rey!-2");
                             MonoPackage tmp = (MonoPackage)((MonoPackage)monoPackage.getObj()).getObj();
                             GameRule.check(
                                     (Player) tmp.getObj(),
@@ -593,7 +594,7 @@ public class Game extends AppCompatActivity {
 
         }else if((str.equalsIgnoreCase("!players"))){
             for(Player tmp : Lobby.getPlayersList()){
-                System.out.println(!(tmp.equals(p1) || tmp.equals(p2)) + " " + tmp.toString() + " " +p1.toString() + " " +p2.toString()  );
+                MMSystem.out.println(!(tmp.equals(p1) || tmp.equals(p2)) + " " + tmp.toString() + " " +p1.toString() + " " +p2.toString()  );
                 if(!(tmp.equals(p1) || tmp.equals(p2)))
                     gameServer.notifyPlayer(tmp, monoPackage);
             }
@@ -644,7 +645,7 @@ public class Game extends AppCompatActivity {
                         }
 
                         do {
-                            System.out.println("AL9RM!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                            MMSystem.out.println("AL9RM!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                             gameRule.justWait(100);
                             freeRegions.addAll(gameGround.regions);
                         }while (freeRegions.size() <= 0);
@@ -654,10 +655,10 @@ public class Game extends AppCompatActivity {
 
                         if(rg.owner == null){
                             rg.owner = Lobby.getPlayersList().get(i);
-                            System.out.println("tyuio0 "+ rg.owner + " " +Lobby.getPlayersList().get(i).getPlayerState());
+                            MMSystem.out.println("tyuio0 "+ rg.owner + " " +Lobby.getPlayersList().get(i).getPlayerState());
                             rg.setIsBase(true);
 
-//                            System.out.println("qwerty " + rg.id + "\n" + Arrays.toString(freeRegions.toArray()) + "\n" + freeRegions.size() + " " + gameGround.regions.size());
+//                            MMSystem.out.println("qwerty " + rg.id + "\n" + Arrays.toString(freeRegions.toArray()) + "\n" + freeRegions.size() + " " + gameGround.regions.size());
                             freeRegions.remove(rg);
 
                             for(Region r : rg.getNeighbourhoods()){
@@ -673,7 +674,7 @@ public class Game extends AppCompatActivity {
                                     }
                                 }
                             }
-//                            System.out.println("qwerty " + rg.id + "\n" + Arrays.toString(freeRegions.toArray()) + "\n" + freeRegions.size() + " " + gameGround.regions.size());
+//                            MMSystem.out.println("qwerty " + rg.id + "\n" + Arrays.toString(freeRegions.toArray()) + "\n" + freeRegions.size() + " " + gameGround.regions.size());
                         }else{
                             --i;
                         }
@@ -772,7 +773,7 @@ public class Game extends AppCompatActivity {
                     generatedPlayersQueueTurn.add(pToAdd);
                 }
             }
-            System.out.println(Arrays.toString(generatedPlayersQueueTurn.toArray()));
+            MMSystem.out.println(Arrays.toString(generatedPlayersQueueTurn.toArray()));
             return generatedPlayersQueueTurn;
         }
 
@@ -811,7 +812,7 @@ public class Game extends AppCompatActivity {
                     generatedPlayersQueueTurn.add(pToAdd);
                 }
             }
-            System.out.println(Arrays.toString(generatedPlayersQueueTurn.toArray()));
+            MMSystem.out.println(Arrays.toString(generatedPlayersQueueTurn.toArray()));
             return generatedPlayersQueueTurn;
         }
     }

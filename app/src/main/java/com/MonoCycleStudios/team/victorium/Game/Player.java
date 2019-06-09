@@ -31,7 +31,6 @@ public class Player implements Serializable, Comparable{
         this.playerClient = playerClient;
         this.playerCharacter = playerCharacter;
         this.playerGame = playerGame;
-//        playerState = PlayerState.NONE;
         playerState = PlayerState.IDLE;
     }
 
